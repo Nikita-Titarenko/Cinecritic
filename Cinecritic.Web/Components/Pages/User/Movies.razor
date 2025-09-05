@@ -1,0 +1,48 @@
+﻿@page "/user/movies"
+
+<PageTitle>Movies</PageTitle>
+
+<h3>Movies</h3>
+<div class="table-bordered">
+	@if (_movies != null)
+	{
+		for (int i = 0; i < _movies.Count; i += 4)
+		{
+			<div class="row">
+				@for (int j = 0; j < ColumnCount && i + j < _movies.Count; j++)
+				{
+					<div class="col-3 mx-auto d-flex flex-column align-items-center">
+						@if (!string.IsNullOrEmpty(_movies[i + j].ImagePath))
+						{
+							<img src=@_movies[i + j].ImagePath width="200" height="400" />
+						}
+
+						<h4 class="text-center">@($"{_movies[i + j].Title}")</h4>
+						@if (_movies[i + j].ReleaseDate != null)
+						{
+							<h4 class="text-center">@($"({_movies[i + j].ReleaseDate})")</h4>
+						}
+					</div>
+				}
+			</div>
+		}
+	}
+	<nav class="d-flex justify-content-between">
+		<ul class="pagination d-flex justify-content-between w-100">
+			@if (CurrentPage > 1)
+			{
+				<li class="page-item">
+					<NavLink class="page-link" href=@($"/user/movies?page={CurrentPage - 1}")>Previous</NavLink>
+				</li>
+
+			}
+			else
+			{
+				<li class="page-item"></li>
+			}
+			<li class="page-item">
+				<NavLink class="page-link" href=@($"/user/movies?page={CurrentPage + 1}")>Next</NavLink>
+			</li>
+		</ul>
+	</nav>
+</div>

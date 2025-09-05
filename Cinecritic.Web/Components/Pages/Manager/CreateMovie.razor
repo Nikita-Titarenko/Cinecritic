@@ -1,0 +1,51 @@
+﻿@page "/manager/createmovie"
+@using Cinecritic.Web.Components.Inputs
+@using Cinecritic.Web.ViewModels
+<h3>CreateMovie</h3>
+<HeadContent>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+	<link rel="stylesheet" href="/custom-input-file.css" />
+</HeadContent>
+<PageTitle>Create movie</PageTitle>
+<div class="row">
+	<div class="col-md-4">
+		<EditForm Model="@CreateMovieViewModel" OnValidSubmit="HandleSubmit" FormName="CreateMovie">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+			@rendermode InteractiveServer
+
+			<div class="form-floating mb-3">
+				<InputText id="title" class="form-control" @bind-Value="CreateMovieViewModel.Title" placeholder="Title" />
+				<label for="title" class="form-label">Title</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<InputText id="description" class="form-control" @bind-Value="CreateMovieViewModel.Description" placeholder="Description" />
+				<label for="description" class="form-label">Description</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<InputDateNullable id="releaseDate" class="form-control" @bind-Value="CreateMovieViewModel.ReleaseDate" placeholder="Release date" />
+				<label for="releaseDate" class="form-label">Release date</label>
+			</div>
+
+			<label class="upload-container d-flex flex-column align-items-center p-4 mb-3">
+				@if (!string.IsNullOrEmpty(_previewUrl))
+				{
+					<img src="@_previewUrl" width="200" height="400"/>
+				} else
+				{
+					<i class="fa fa-upload custom-input-file"></i>
+					<span>Load image</span>
+				}
+				<InputFile OnChange="HandleSelected" accept="@AcceptedImageType" class="d-none" />
+			</label>
+
+			<button type="submit" class="btn btn-primary">Create</button>
+			@if (!string.IsNullOrEmpty(StatusMessage))
+			{
+				<h6>@StatusMessage</h6>
+			}
+		</EditForm>
+	</div>
+</div>

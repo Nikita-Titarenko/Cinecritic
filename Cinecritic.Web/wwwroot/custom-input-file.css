@@ -1,0 +1,8 @@
+﻿.custom-input-file{
+    font-size: 2rem;
+}
+
+.upload-container{
+    border: 2px dashed black;
+    cursor: pointer;
+}
