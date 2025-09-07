@@ -1,4 +1,5 @@
 ﻿using Cinecritic.Infrastructure.Data;
+using Cinecritic.Web.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +26,8 @@ namespace Cinecritic.Infrastructure
                 options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             })
                 .AddIdentityCookies();
+
+            services.Configure<EmailConfigurationOption>(configuration.GetSection("EMAILSETTINGS"));
 
             return services;
         }
