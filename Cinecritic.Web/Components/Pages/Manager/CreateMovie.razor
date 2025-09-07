@@ -1,18 +1,19 @@
 ﻿@page "/manager/createmovie"
+@rendermode InteractiveServer
 @using Cinecritic.Web.Components.Inputs
 @using Cinecritic.Web.ViewModels
-<h3>CreateMovie</h3>
 <HeadContent>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 	<link rel="stylesheet" href="/custom-input-file.css" />
 </HeadContent>
 <PageTitle>Create movie</PageTitle>
-<div class="row">
-	<div class="col-md-4">
+
+<div class="row w-100">
+	<div class="col-md-4 mx-auto">
+		<h3 class="me-auto">CreateMovie</h3>
 		<EditForm Model="@CreateMovieViewModel" OnValidSubmit="HandleSubmit" FormName="CreateMovie">
 			<DataAnnotationsValidator />
 			<ValidationSummary />
-			@rendermode InteractiveServer
 
 			<div class="form-floating mb-3">
 				<InputText id="title" class="form-control" @bind-Value="CreateMovieViewModel.Title" placeholder="Title" />
@@ -27,6 +28,17 @@
 			<div class="form-floating mb-3">
 				<InputDateNullable id="releaseDate" class="form-control" @bind-Value="CreateMovieViewModel.ReleaseDate" placeholder="Release date" />
 				<label for="releaseDate" class="form-label">Release date</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<InputSelect id="movieTypes" class="form-control" @bind-Value="CreateMovieViewModel.SelectedMovieTypeId" placeholder="Movie type">
+					<option value="" hidden>Choose film type</option>
+					@foreach(var movieType in MovieTypes)
+					{
+						<option value="@movieType.Id">@movieType.MovieTypeName</option>
+					}
+				</InputSelect>
+				<label for="movieTypes" class="form-label">Movie type</label>
 			</div>
 
 			<label class="upload-container d-flex flex-column align-items-center p-4 mb-3">

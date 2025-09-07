@@ -2,7 +2,7 @@
     font-size: 2rem;
 }
 
-.upload-container{
-    border: 2px dashed black;
+.upload-container {
+    border: 2px dashed #619cbb;
     cursor: pointer;
 }

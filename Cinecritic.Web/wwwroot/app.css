@@ -1,9 +1,24 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: linear-gradient(to top, #14181c, #21272e);
 }
 
 a, .btn-link {
     color: #006bb7;
+}
+
+h1, h2, h3, h4, h5, h6{
+    color: white;
+    font-weight: bold;
+}
+
+p, a, span, i {
+    color: #619cbb !important;
+}
+
+.page-link {
+    background: #283038;
+    border-color: transparent !important;
 }
 
 .btn-primary {

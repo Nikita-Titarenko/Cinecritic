@@ -9,7 +9,7 @@ namespace Cinecritic.Web.Components.Pages.User
 {
     public partial class Movies
     {
-        private const int PageSize = 20;
+        private const int PageSize = 12;
         private string? statusMessage;
         private const int ColumnCount = 4;
         [Parameter]

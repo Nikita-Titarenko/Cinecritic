@@ -2,7 +2,7 @@
 
 <PageTitle>Movies</PageTitle>
 
-<h3>Movies</h3>
+<h3 class="my-5">Movies</h3>
 <div class="table-bordered">
 	@if (_movies != null)
 	{
@@ -11,10 +11,10 @@
 			<div class="row">
 				@for (int j = 0; j < ColumnCount && i + j < _movies.Count; j++)
 				{
-					<div class="col-3 mx-auto d-flex flex-column align-items-center">
+					<a class="col-3 mx-auto d-flex flex-column align-items-center" href="@($"/user/movie/{Uri.EscapeDataString(_movies[i + j].Title)}")">
 						@if (!string.IsNullOrEmpty(_movies[i + j].ImagePath))
 						{
-							<img src=@_movies[i + j].ImagePath width="200" height="400" />
+							<img class="rounded-3" src="@_movies[i + j].ImagePath" width="200" height="400" />
 						}
 
 						<h4 class="text-center">@($"{_movies[i + j].Title}")</h4>
@@ -22,7 +22,7 @@
 						{
 							<h4 class="text-center">@($"({_movies[i + j].ReleaseDate})")</h4>
 						}
-					</div>
+					</a>
 				}
 			</div>
 		}

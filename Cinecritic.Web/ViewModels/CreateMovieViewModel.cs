@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Cinecritic.Web.ViewModels
 {
@@ -10,5 +11,8 @@ namespace Cinecritic.Web.ViewModels
         public string? Description { get; set; }
 
         public DateOnly? ReleaseDate { get; set; }
+
+        [Required]
+        public int? SelectedMovieTypeId { get; set; } = null;
     }
 }

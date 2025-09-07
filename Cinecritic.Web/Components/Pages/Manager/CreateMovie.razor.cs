@@ -1,8 +1,11 @@
+using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 using AutoMapper;
-using Cinecritic.Application.DTOs;
+using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.Services.Files;
 using Cinecritic.Application.Services.Movies;
+using Cinecritic.Application.Services.MovieType;
 using Cinecritic.Web.ViewModels;
 using FluentResults;
 using Microsoft.AspNetCore.Components;
@@ -14,10 +17,12 @@ namespace Cinecritic.Web.Components.Pages.Manager
     {
         private const int MaxFileSize = 2 * 1024 * 1024;
 
-        private const string AcceptedImageType = "image/jpeg";
+        private const string AcceptedImageType = "image/jpg";
 
         [SupplyParameterFromForm]
         private CreateMovieViewModel CreateMovieViewModel { get; set; } = new CreateMovieViewModel();
+
+        private List<MovieTypeViewModel> MovieTypes { get; set; } = new();
 
         private string? _previewUrl;
 
@@ -27,13 +32,22 @@ namespace Cinecritic.Web.Components.Pages.Manager
 
         [Inject]
         private IMovieService MovieService { get; set; } = default!;
+        [Inject]
+        private IMovieTypeService MovieTypeService { get; set; } = default!;
 
         [Inject]
         private IMapper Mapper { get; set; } = default!;
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             base.OnInitialized();
+            var getMovieTypesResult = await MovieTypeService.GetMovieTypes();
+            if (!getMovieTypesResult.IsSuccess)
+            {
+                StatusMessage = "Error when loading data";
+                return;
+            }
+            MovieTypes = Mapper.Map<List<MovieTypeViewModel>>(getMovieTypesResult.Value);
         }
 
         private async Task HandleSubmit()

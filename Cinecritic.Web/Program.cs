@@ -1,4 +1,5 @@
 using Cinecritic.Infrastructure;
+using Cinecritic.Infrastructure.Data;
 using Cinecritic.Web;
 using Cinecritic.Web.Components;
 using Cinecritic.Web.Components.Account;
@@ -10,6 +11,12 @@ builder.Services
     .AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await DbInitializer.CreateInitialMoviesAsync(applicationDbContext);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
