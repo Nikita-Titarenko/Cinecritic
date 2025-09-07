@@ -23,7 +23,7 @@ namespace Cinecritic.Web.Components.Account
                 return TypedResults.LocalRedirect($"~/{returnUrl}");
             });
 
-            var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
+            //var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
 
             return accountGroup;
         }
