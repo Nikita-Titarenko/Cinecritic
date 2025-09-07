@@ -28,6 +28,11 @@
 			<hr />
 			<ValidationSummary class="text-danger" role="alert" />
 			<div class="form-floating mb-3">
+				<InputText @bind-Value="Input.DisplayName" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+				<label for="DisplayName">Username</label>
+				<ValidationMessage For="() => Input.DisplayName" class="text-danger" />
+			</div>
+			<div class="form-floating mb-3">
 				<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
 				<label for="email">Email</label>
 				<ValidationMessage For="() => Input.Email" class="text-danger" />

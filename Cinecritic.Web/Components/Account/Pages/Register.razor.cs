@@ -46,6 +46,10 @@ namespace Cinecritic.Web.Components.Account.Pages
         public sealed class InputModel
         {
             [Required]
+            [Display(Name = "Username")]
+            public string DisplayName { get; set; } = "";
+
+            [Required]
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; } = "";
