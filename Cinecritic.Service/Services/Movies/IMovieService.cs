@@ -1,4 +1,4 @@
-﻿using Cinecritic.Application.DTOs;
+﻿using Cinecritic.Application.DTOs.Movies;
 using FluentResults;
 
 namespace Cinecritic.Application.Services.Movies

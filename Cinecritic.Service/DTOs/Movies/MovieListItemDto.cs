@@ -5,14 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cinecritic.Application.DTOs
+namespace Cinecritic.Application.DTOs.Movies
 {
-    public class CreateMovieDto
+    public class MovieListItemDto
     {
+        public int Id { get; set; }
+
         public string Title { get; set; } = string.Empty;
 
-        public string Description { get; set; } = string.Empty;
-
         public DateOnly? ReleaseDate { get; set; }
+
+        public string? ImagePath {  get; set; }
     }
 }

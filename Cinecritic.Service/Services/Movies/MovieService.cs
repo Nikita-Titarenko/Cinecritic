@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Cinecritic.Application.DTOs;
+using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.Repositories;
 using Cinecritic.Application.Services.Files;
 using Cinecritic.Domain.Models;
@@ -23,12 +23,7 @@ namespace Cinecritic.Application.Services.Movies
 
         public async Task<Result<int>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
         {
-            var movieId = await _movieRepository.CreateMovieAsync(new Movie
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                ReleaseDate = dto.ReleaseDate,
-            });
+            var movieId = await _movieRepository.CreateMovieAsync(_mapper.Map<Movie>(dto));
             if (stream != null)
             {
                 var path = Path.Combine(MoviePath, $"{movieId}{fileExtension}");
@@ -46,7 +41,7 @@ namespace Cinecritic.Application.Services.Movies
 
             foreach (var movie in movieList)
             {
-                var getFilePathResult = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movie.Id}.jpeg"));
+                var getFilePathResult = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movie.Id}.jpg"));
                 if (getFilePathResult.IsSuccess)
                 {
                     movie.ImagePath = getFilePathResult.Value;
