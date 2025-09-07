@@ -1,8 +1,10 @@
 ﻿using Cinecritic.Application.Repositories;
 using Cinecritic.Application.Services.Movies;
+using Cinecritic.Infrastructure.Data;
 using Cinecritic.Infrastructure.Repositories;
 using Cinecritic.Web.Components.Account;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cinecritic.Web
 {
@@ -16,6 +18,9 @@ namespace Cinecritic.Web
             services.AddScoped<IdentityUserAccessor>();
             services.AddCascadingAuthenticationState();
             services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+            services.AddScoped
+                <IUserClaimsPrincipalFactory<ApplicationUser>, 
+                ApplicationUserClaimsPrincipalFactory>();
             return services;
         }
     }

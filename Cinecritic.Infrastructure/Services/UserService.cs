@@ -41,7 +41,7 @@ namespace Vulyk.Infrastructure.Services.User
         /// </returns>
         public async Task<Result<AuthResultDto>> RegisterAsync(RegisterDto dto)
         {
-            var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email, DisplayName = dto.DisplayName };
+            var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email, DisplayName = dto.FullName };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
 
