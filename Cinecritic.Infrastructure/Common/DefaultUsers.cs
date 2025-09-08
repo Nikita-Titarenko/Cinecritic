@@ -13,9 +13,9 @@ namespace Cinecritic.Infrastructure.Common
         {
             DisplayName = "Mykyta",
             Email = "nikitatitarenko81@gmail.com",
-            NormalizedEmail = "NIKITATITARENKO81@.GMAIL.COM",
+            NormalizedEmail = "NIKITATITARENKO81@GMAIL.COM",
             UserName = "nikitatitarenko81@gmail.com",
-            NormalizedUserName = "NIKITATITARENKO81@.GMAIL.COM",
+            NormalizedUserName = "NIKITATITARENKO81@GMAIL.COM",
             EmailConfirmed = true,
         };
     }

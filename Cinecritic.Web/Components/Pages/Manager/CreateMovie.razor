@@ -1,5 +1,8 @@
 ﻿@page "/manager/createmovie"
+@attribute [Authorize(Roles = DefaultRoles.ManagerRole)]
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using Cinecritic.Web.Common
 @using Cinecritic.Web.Components.Inputs
 @using Cinecritic.Web.ViewModels
 
@@ -22,7 +25,7 @@
 			</div>
 
 			<div class="form-floating mb-3">
-				<InputText id="description" class="form-control" @bind-Value="CreateMovieViewModel.Description" placeholder="Description" />
+				<InputTextArea id="description" class="form-control" @bind-Value="CreateMovieViewModel.Description" placeholder="Description" />
 				<label for="description" class="form-label">Description</label>
 			</div>
 

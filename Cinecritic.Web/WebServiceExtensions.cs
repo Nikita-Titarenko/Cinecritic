@@ -18,9 +18,6 @@ namespace Cinecritic.Web
             services.AddScoped<IdentityUserAccessor>();
             services.AddCascadingAuthenticationState();
             services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-            services.AddScoped
-                <IUserClaimsPrincipalFactory<ApplicationUser>, 
-                ApplicationUserClaimsPrincipalFactory>();
             return services;
         }
     }

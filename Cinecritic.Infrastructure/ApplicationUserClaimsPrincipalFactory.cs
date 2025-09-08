@@ -3,7 +3,7 @@ using Cinecritic.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace Cinecritic.Web
+namespace Cinecritic.Infrastructure
 {
     public class ApplicationUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>
     {

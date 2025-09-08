@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace Cinecritic.Infrastructure
 {
     public static class InfrastructureServiceExtensions
@@ -16,16 +15,15 @@ namespace Cinecritic.Infrastructure
                 options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
-            services.AddAuthentication(options =>
+            .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>();
+
+            services.ConfigureApplicationCookie(opt =>
             {
-                options.DefaultScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-                .AddIdentityCookies();
+                opt.LoginPath = "/Account/Login";
+            });
 
             services.Configure<EmailConfigurationOption>(configuration.GetSection("EMAILSETTINGS"));
 

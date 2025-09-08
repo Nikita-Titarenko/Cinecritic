@@ -17,13 +17,13 @@ namespace Cinecritic.Web.Components.Account
             accountGroup.MapPost("/Logout", async (
                 ClaimsPrincipal user,
                 SignInManager<ApplicationUser> signInManager,
-                [FromForm] string returnUrl) =>
+                [FromQuery] string? returnUrl) =>
             {
                 await signInManager.SignOutAsync();
                 return TypedResults.LocalRedirect($"~/{returnUrl}");
             });
 
-            //var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
+            var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
 
             return accountGroup;
         }
