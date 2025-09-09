@@ -53,5 +53,10 @@ namespace Cinecritic.Application.Services.Movies
 
             return Result.Ok(movieList);
         }
+
+        public async Task<Result<MovieDto>> GetMovie(int movieId, string userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

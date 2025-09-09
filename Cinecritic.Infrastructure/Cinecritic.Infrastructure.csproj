@@ -22,4 +22,9 @@
 	  <ProjectReference Include="..\Cinecritic.Service\Cinecritic.Application.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Data\Migrations\" />
+	  <Folder Include="Migrations\" />
+	</ItemGroup>
+
 </Project>

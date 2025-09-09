@@ -13,7 +13,18 @@ else
 
 @code {
     [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
+    private HttpContext HttpContext { get; set; } = default!;
+    [Inject]
+    private IdentityRedirectManager IdentityRedirectManager { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
+        {
+            IdentityRedirectManager.RedirectTo("/");
+        }
+    }
 
     protected override void OnParametersSet()
     {

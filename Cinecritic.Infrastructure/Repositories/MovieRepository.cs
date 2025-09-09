@@ -33,5 +33,10 @@ namespace Cinecritic.Infrastructure.Repositories
                 }
                ).ToListAsync();
         }
+
+        public async Task<Movie> GetMovieAsync(int movieId, string userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

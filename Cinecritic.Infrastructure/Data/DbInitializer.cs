@@ -13,7 +13,7 @@ namespace Cinecritic.Infrastructure.Data
             {
                 return;
             }
-
+            await context.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Movies', RESEED, 0)");
             context.Movies.AddRange(new[]
             {
                     new Movie
