@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Cinecritic.Application.DTOs.Account;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Cinecritic.Web.Components.Profile
 {
@@ -9,23 +10,19 @@ namespace Cinecritic.Web.Components.Profile
     {
         private string displayName = string.Empty;
 
-        private string userId = string.Empty;
-
         [CascadingParameter]
         private HttpContext HttpContext { get; set; } = default!;
-
+        
         [SupplyParameterFromForm]
         private InputModel Input { get; set; } = new();
 
-        protected override async Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
-            var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            displayName = auth.User.FindFirst("DisplayName")!.Value;
+            displayName = HttpContext.User.FindFirst("DisplayName")!.Value;
             if (string.IsNullOrEmpty(Input.DisplayName))
             {
                 Input.DisplayName = displayName;
             }
-            userId = auth.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         }
 
         private async Task OnValidSubmitAsync()
@@ -35,7 +32,7 @@ namespace Cinecritic.Web.Components.Profile
                 var changeDisplayNameResult = await UserService.ChangeDisplayNameAsync(new ChangeDisplayNameDto
                 {
                     DisplayName = Input.DisplayName,
-                    UserId = userId
+                    UserId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value
                 });
                 if (!changeDisplayNameResult.IsSuccess)
                 {
