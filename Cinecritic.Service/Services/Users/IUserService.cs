@@ -8,8 +8,6 @@ namespace Cinecritic.Application.Services.Users
         Task<Result<AuthResultDto>> RegisterAsync(RegisterDto registrationDto);
         Task<Result<AuthResultDto>> LoginAsync(LoginDto dto);
         Task<Result> ConfirmEmailAsync(ConfirmTokenDto dto);
-        Task<Result<ConfirmTokenDto>> GenerateCurrentEmailConfirmationTokenByIdAsync(string userId);
-        Task<Result<ConfirmTokenDto>> GenerateCurrentEmailConfirmationTokenByEmailAsync(string email);
-        Task<Result> ConfirmCurrentEmailAsync(ConfirmTokenDto dto);
+        Task<Result> ChangeDisplayNameAsync(ChangeDisplayNameDto dto);
     }
 }

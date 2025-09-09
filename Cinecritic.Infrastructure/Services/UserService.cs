@@ -136,72 +136,13 @@ namespace Vulyk.Infrastructure.Services.User
             return Result.Ok();
         }
 
-        ///  <summary>
-        ///  Generate current email confirmation token for register confirmation
-        ///  or email changing
-        ///  </summary>
-        ///  <param name="email">Current user email</param>
-        ///  <returns>
-        ///  <see cref="ConfirmTokenDto"/> containing:
-        ///  <list type="bullet">
-        ///  <item>UserId and reset password token if operation successful</item>
-        ///  <item>Error information if user not found</item>
-        /// </list>
-        /// </returns>
-        public async Task<Result<ConfirmTokenDto>> GenerateCurrentEmailConfirmationTokenByEmailAsync(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                _logger.LogWarning("Failed to generate current email confirmation token by email: User not found");
-                return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
-            }
-
-            return await GenerateCurrentEmailConfirmationToken(user);
-        }
-
-        ///  <summary>
-        ///  Generate current email confirmation token for email changing
-        ///  </summary>
-        ///  <param name="userId">The identifier of the user</param>
-        ///  <returns>
-        ///  <see cref="ConfirmTokenDto"/> containing:
-        ///  <list type="bullet">
-        ///  <item>UserId and reset password token if operation successful</item>
-        ///  <item>Error information if user not found</item>
-        /// </list>
-        /// </returns>
-        public async Task<Result<ConfirmTokenDto>> GenerateCurrentEmailConfirmationTokenByIdAsync(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                _logger.LogWarning("Failed to generate current email confirmation token by id: User with UserId={userId} not found", userId);
-                return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
-            }
-
-            return await GenerateCurrentEmailConfirmationToken(user);
-        }
-
         private async Task<Result<ConfirmTokenDto>> GenerateCurrentEmailConfirmationToken(ApplicationUser user)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             return Result.Ok(new ConfirmTokenDto { Code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code)), UserId = user.Id });
         }
 
-        ///  <summary>
-        ///  Confirm current email or 
-        ///  add pendingNewEmail for email changing if is not null
-        ///  </summary>
-        ///  <param name="dto">The data containing UserId and email confirmation token</param>
-        ///  <returns>
-        ///  <see cref="ConfirmTokenDto"/> containing:
-        ///  <list type="bullet">
-        ///  <item>Ok if operation successful</item>
-        ///  <item>Error information if user not found or token incorrect</item>
-        /// </list>
-        /// </returns>
-        public async Task<Result> ConfirmCurrentEmailAsync(ConfirmTokenDto dto)
+        public async Task<Result> ChangeDisplayNameAsync(ChangeDisplayNameDto dto)
         {
             var user = await _userManager.FindByIdAsync(dto.UserId);
             if (user == null)
@@ -209,14 +150,9 @@ namespace Vulyk.Infrastructure.Services.User
                 _logger.LogWarning("Failed to confirm current email: User with UserId={userId} not found", dto.UserId);
                 return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
             }
-            dto.Code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.Code));
-            var result = await _userManager.ConfirmEmailAsync(user, dto.Code);
-            if (!result.Succeeded)
-            {
-                _logger.LogWarning("Failed to confirm current email: Confirm token incorrect for User with UserId={userId}", dto.UserId);
-                return Result.Fail(new Error("Token incorrect").WithMetadata("Code", "TokenIncorrect"));
-            }
-
+            user.DisplayName = dto.DisplayName;
+            await _userManager.UpdateAsync(user);
+            await _signInManager.RefreshSignInAsync(user);
             return Result.Ok();
         }
     }

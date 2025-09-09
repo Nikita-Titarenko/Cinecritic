@@ -15,10 +15,11 @@ namespace Cinecritic.Infrastructure
                 options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options =>
+            options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>();
+                .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>();
 
             services.ConfigureApplicationCookie(opt =>
             {

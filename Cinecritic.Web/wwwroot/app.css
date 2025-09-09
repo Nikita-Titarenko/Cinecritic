@@ -16,6 +16,10 @@ p, a, span, i {
     color: #619cbb !important;
 }
 
+textarea {
+    height: 150px !important;
+}
+
 .page-link {
     background: #283038;
     border-color: transparent !important;
