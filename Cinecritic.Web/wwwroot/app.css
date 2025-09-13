@@ -12,8 +12,55 @@ h1, h2, h3, h4, h5, h6{
     font-weight: bold;
 }
 
+.bg-container {
+    background: #445566;
+}
+
+.bg-textarea-review {
+    background: #14181c;
+}
+
 p, a, span, i {
-    color: #619cbb !important;
+    color: #619cbb;
+    margin-bottom: 0 !important;
+    border: none !important;
+}
+
+.kek{
+    width: 400px;
+}
+
+.mg-content {
+    margin: 100px 200px 100px 200px;
+}
+
+.watched-color {
+    color: #e66b2d;
+}
+
+.liked-color {
+    color: #fb6f92;
+}
+
+.in-watch-list-color {
+    color: #588157;
+}
+
+.mirrored {
+    transform: scaleX(-1);
+    margin-left: -40px;
+}
+
+.unmirrored mirrored{
+    width: 20px !important;
+}
+
+input[type="radio"] {
+    appearance: none;
+}
+
+.color-gold{
+    color: gold !important;
 }
 
 textarea {

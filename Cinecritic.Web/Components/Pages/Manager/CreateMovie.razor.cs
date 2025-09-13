@@ -1,11 +1,7 @@
-using System.Collections;
-using System.IO;
-using System.Threading.Tasks;
 using AutoMapper;
 using Cinecritic.Application.DTOs.Movies;
-using Cinecritic.Application.Services.Files;
 using Cinecritic.Application.Services.Movies;
-using Cinecritic.Application.Services.MovieType;
+using Cinecritic.Application.Services.MovieTypes;
 using Cinecritic.Web.ViewModels;
 using FluentResults;
 using Microsoft.AspNetCore.Components;
@@ -57,7 +53,8 @@ namespace Cinecritic.Web.Components.Pages.Manager
             if (_browserFile == null)
             {
                 createMovieResult = await MovieService.CreateMovieAsync(dto, null, null);
-            } else
+            }
+            else
             {
                 using var stream = _browserFile.OpenReadStream(MaxFileSize);
                 createMovieResult = await MovieService.CreateMovieAsync(dto, stream, Path.GetExtension(_browserFile.Name));

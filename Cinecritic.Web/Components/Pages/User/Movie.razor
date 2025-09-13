@@ -1,5 +1,78 @@
-﻿@page "/user/movie/{Title}"
+﻿@page "/user/movie/{MovieId}-{MovieTitle}"
+@rendermode InteractiveServer
 
-<h3>@Title</h3>
+<PageTitle>@MovieTitle</PageTitle>
 
-<PageTitle>@Title</PageTitle>
+<div class="row">
+	<div class="col-4">
+		<div class="d-flex mx-auto">
+			<img class="rounded-3 w-75" src="@MovieViewModel.ImagePath" />
+		</div>
+	</div>
+	<div class="col-4">
+		<div class="d-flex flex-wrap align-items-end w-100">
+			<h2 class="me-3">@MovieTitle</h2>
+			<h4>@MovieViewModel.ReleaseDate</h4>
+		</div>
+		<p>@MovieViewModel.Description</p>
+	</div>
+	<div class="bg-container rounded-3 mb-auto col-3">
+		<div class="row pt-2">
+			<div class="col d-flex flex-column align-items-center">
+				<i @onclick="ToggleWatchAsync"
+				   class="fa fa-eye fs-2 @IsWatchedClass">
+				</i>
+				<p class="@IsWatchedClass">Watch</p>
+			</div>
+			<div class="col d-flex flex-column align-items-center">
+				<i @onclick="ToggleLikeAsync"
+				   class="fa fa-heart fs-2 @IsLikedClass"></i>
+				<p class="@IsLikedClass">Like</p>
+			</div>
+			<div class="col d-flex flex-column align-items-center">
+				<i @onclick="ToggleInWatchListAsync"
+				   class="fa fa-clock fs-2 @IsInWatchedListClass"></i>
+				<p class="@IsInWatchedListClass">WatchList</p>
+			</div>
+		</div>
+		<hr />
+		<div class="d-flex justify-content-center gap-2">
+			<p>Rate</p>
+			<div>
+				@for (int i = 1; i <= 5; i++)
+				{
+					int index = i;
+
+					<i @onmouseenter="e => EnterOnStars(index, e.OffsetX)"
+					   @onmouseleave="LeaveFromStars"
+					   @onmousemove="e => MoveInStars(index, e.OffsetX)"
+					   @onclick="e => ClickOnStarAsync(index, e.OffsetX)"
+					   style="width: @(starSize)px"
+					   class="fa fs-2 @GetStarButtonClass(index - 1)">
+					</i>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-4 mx-auto">
+		<div class="card bg-container">
+			<div class="card-body">
+				<div class="d-flex mb-3">
+					<i class="fa fa-circle-user card-img fs-2"></i>
+					<h5 class="card-title">
+						Mykyta
+					</h5>
+				</div>
+
+				<EditForm Model="CreateMovieReview">
+					<InputTextArea @bind-Value="CreateMovieReview.ReviewText" class="w-100 bg-textarea-review text-white p-3" placeholder="Write a message...">
+
+					</InputTextArea>
+				</EditForm>
+				<button class="btn btn-primary" type="submit">Create</button>
+			</div>
+		</div>
+	</div>
+</div>
