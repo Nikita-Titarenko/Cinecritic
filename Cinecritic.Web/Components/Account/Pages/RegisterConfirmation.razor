@@ -15,15 +15,5 @@
     <p>Please check your email to confirm your account.</p>
 
 @code {
-    private string? emailConfirmationLink;
     private string? statusMessage;
-
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
-
-    [SupplyParameterFromQuery]
-    private string? Email { get; set; }
-
-    [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
 }

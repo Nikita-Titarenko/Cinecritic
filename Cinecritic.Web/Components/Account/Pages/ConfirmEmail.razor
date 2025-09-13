@@ -1,12 +1,13 @@
 ﻿@page "/Account/ConfirmEmail"
 
 @using System.Text
+@using Application.DTOs.Account
+@using Cinecritic.Application.Services
 @using Cinecritic.Application.Services.Users
-@using Cinecritic.Web.Components.Account
 @using Cinecritic.Infrastructure.Data
+@using Cinecritic.Web.Components.Account
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using Application.DTOs.Account
 
 @inject IUserService UserService
 @inject IdentityRedirectManager RedirectManager
