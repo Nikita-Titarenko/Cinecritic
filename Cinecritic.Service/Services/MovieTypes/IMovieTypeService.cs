@@ -1,7 +1,7 @@
 ﻿using Cinecritic.Application.DTOs.Movies;
 using FluentResults;
 
-namespace Cinecritic.Application.Services.MovieType
+namespace Cinecritic.Application.Services.MovieTypes
 {
     public interface IMovieTypeService
     {

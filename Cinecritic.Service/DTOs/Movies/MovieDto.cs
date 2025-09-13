@@ -18,12 +18,6 @@ namespace Cinecritic.Application.DTOs.Movies
 
         public string? Description { get; set; }
 
-        public bool IsWatched { get; set; }
-
-        public bool IsLiked { get; set; }
-
-        public bool IsInWatchList { get; set; }
-
-        public int Rate { get; set; }
+        public MovieUserStatusDto MovieUserStatus { get; set; } = new MovieUserStatusDto();
     }
 }

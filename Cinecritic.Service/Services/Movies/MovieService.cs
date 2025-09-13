@@ -9,24 +9,29 @@ namespace Cinecritic.Application.Services.Movies
 {
     public class MovieService : IMovieService
     {
-        private readonly IMovieRepository _movieRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
         private const string MoviePath = "movie-posters";
 
-        public MovieService(IMovieRepository movieRepository, IMapper mapper, IFileService fileService)
+        public MovieService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
         {
-            _movieRepository = movieRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fileService = fileService;
         }
 
         public async Task<Result<int>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
         {
-            var movieId = await _movieRepository.CreateMovieAsync(_mapper.Map<Movie>(dto));
+            var movie = _mapper.Map<Movie>(dto);
+            _unitOfWork.Repository<Movie>().Add(movie);
+            await _unitOfWork.CommitAsync();
+
+            var movieId = movie.Id;
+
             if (stream != null)
             {
-                var path = Path.Combine(MoviePath, $"{movieId}{fileExtension}");
+                var path = Path.Combine("movie-posters", $"{movieId}{fileExtension}");
                 await _fileService.SaveFile(path, stream);
             }
 
@@ -35,28 +40,30 @@ namespace Cinecritic.Application.Services.Movies
 
         public async Task<Result<IEnumerable<MovieListItemDto>>> GetMoviesAsync(int pageSize, int pageCount)
         {
-            var result = await _movieRepository.GetMoviesAsync(pageSize, pageCount);
-            
-            var movieList = _mapper.Map<IEnumerable<MovieListItemDto>>(result);
-
-            foreach (var movie in movieList)
+            var movies = await _unitOfWork.Movies.GetMoviesAsync(pageSize, pageCount);
+            foreach (var movie in movies)
             {
-                var getFilePathResult = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movie.Id}.jpg"));
-                if (getFilePathResult.IsSuccess)
-                {
-                    movie.ImagePath = getFilePathResult.Value;
-                } else
-                {
-                    movie.ImagePath = "/images/no-image.webp";
-                }
+                movie.ImagePath = GetFilePath(movie.Id);
             }
-
-            return Result.Ok(movieList);
+            return Result.Ok(movies);
         }
 
-        public async Task<Result<MovieDto>> GetMovie(int movieId, string userId)
+        public async Task<Result<MovieDto>> GetMovieAsync(int movieId, string userId)
         {
-            throw new NotImplementedException();
+            var movie = await _unitOfWork.Movies.GetMovieAsync(movieId, userId);
+            if (movie == null)
+            {
+                return Result.Fail(new Error("Movie not exist").WithMetadata("Code", "MovieNotExist"));
+            }
+
+            movie.ImagePath = GetFilePath(movie.Id);
+            return Result.Ok(movie);
+        }
+
+        private string GetFilePath(int movieId)
+        {
+            var result = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movieId}.jpg"));
+            return result.IsSuccess ? result.Value : "/images/no-image.webp";
         }
     }
 }

@@ -1,10 +1,13 @@
-﻿using Cinecritic.Domain.Models;
+﻿using Cinecritic.Application.DTOs.Movies;
+using Cinecritic.Domain.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Cinecritic.Application.Repositories
 {
-    public interface IMovieRepository
+    public interface IMovieRepository : IRepository<Movie>
     {
-        Task<int> CreateMovieAsync(Movie movie);
-        Task<IEnumerable<Movie>> GetMoviesAsync(int pageSize, int pageCount);
+        Task<IEnumerable<MovieListItemDto>> GetMoviesAsync(int pageSize, int pageCount);
+        Task<MovieDto?> GetMovieAsync(int movieId, string userId);
     }
 }
