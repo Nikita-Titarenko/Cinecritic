@@ -13,6 +13,6 @@ namespace Cinecritic.Domain.Models
         public MovieType MovieType { get; set; } = default!;
         public int MovieTypeId {  get; set; }
         public IEnumerable<MovieUser> MovieUsers { get; set; } = new List<MovieUser>();
-        public IEnumerable<WatchList> WatchLists { get; set; } = new List<WatchList>();
+        public IEnumerable<WatchList> WatchList { get; set; } = new List<WatchList>();
     }
 }
