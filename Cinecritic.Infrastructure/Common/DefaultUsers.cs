@@ -11,6 +11,7 @@ namespace Cinecritic.Infrastructure.Common
     {
         public static readonly ApplicationUser Manager = new ApplicationUser
         {
+            Id = "363636b4-141c-4de1-a9be-84b40d93b0b0",
             DisplayName = "Mykyta",
             Email = "nikitatitarenko81@gmail.com",
             NormalizedEmail = "NIKITATITARENKO81@GMAIL.COM",

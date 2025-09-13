@@ -1,42 +1,75 @@
-﻿using Cinecritic.Application.Repositories;
+﻿using Cinecritic.Application.DTOs.Movies;
+using Cinecritic.Application.Repositories;
 using Cinecritic.Domain.Models;
 using Cinecritic.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinecritic.Infrastructure.Repositories
 {
-    public class MovieRepository : IMovieRepository
+    public class MovieRepository : Repository<Movie>, IMovieRepository
     {
-        private readonly ApplicationDbContext _context;
-        public MovieRepository(ApplicationDbContext context)
+        public MovieRepository(ApplicationDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public async Task<int> CreateMovieAsync(Movie movie)
+        public async Task<IEnumerable<MovieListItemDto>> GetMoviesAsync(int pageSize, int pageCount)
         {
-            _context.Movies.Add(movie);
-            await _context.SaveChangesAsync();
-            return movie.Id;
-        }
-
-        public async Task<IEnumerable<Movie>> GetMoviesAsync(int pageSize, int pageCount)
-        {
-            return await _context.Movies
+            IEnumerable<MovieListItemDto> dto = await _dbSet
                 .AsNoTracking()
                 .Skip((pageCount - 1) * pageSize)
                 .Take(pageSize)
-                .Select(m => new Movie {
+                .Select(m => new MovieListItemDto
+                {
                     Id = m.Id,
                     Title = m.Title,
-                    ReleaseDate = m.ReleaseDate
+                    ReleaseDate = m.ReleaseDate,
                 }
                ).ToListAsync();
+
+            return dto;
         }
 
-        public async Task<Movie> GetMovieAsync(int movieId, string userId)
+        public async Task<MovieDto?> GetMovieAsync(int movieId, string userId)
         {
-            throw new NotImplementedException();
+            var dto = await _dbSet
+                .AsNoTracking()
+                .Where(m => m.Id == movieId)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.Title,
+                    m.Description,
+                    m.ReleaseDate,
+                    MovieUser = m.MovieUsers
+                    .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
+                    .FirstOrDefault(),
+                    WatchList = m.WatchList
+                    .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
+                    .FirstOrDefault()
+                })
+                .Select(m => new MovieDto
+                {
+                    Id = m.Id,
+                    Title = m.Title,
+                    Description = m.Description,
+                    ReleaseDate = m.ReleaseDate,
+                    MovieUserStatus = new MovieUserStatusDto
+                    {
+                        UserId = userId,
+                        IsWatched = m.MovieUser != null,
+                        IsLiked = m.MovieUser != null && m.MovieUser.IsLiked,
+                        Rate = m.MovieUser != null ? m.MovieUser.Rate : null,
+                        IsInWatchList = m.WatchList != null
+                    }
+                })
+                .FirstOrDefaultAsync();
+
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return dto;
         }
     }
 }

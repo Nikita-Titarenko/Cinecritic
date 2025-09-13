@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
-namespace Vulyk.Infrastructure.Services.User
+namespace Cinecritic.Infrastructure.Services
 {
     public class UserService : IUserService
     {

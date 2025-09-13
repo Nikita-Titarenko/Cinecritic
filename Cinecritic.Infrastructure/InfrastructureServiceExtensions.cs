@@ -1,5 +1,5 @@
 ﻿using Cinecritic.Infrastructure.Data;
-using Cinecritic.Web.Options;
+using Cinecritic.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

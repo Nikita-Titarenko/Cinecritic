@@ -1,4 +1,4 @@
-﻿namespace Cinecritic.Web.Options
+﻿namespace Cinecritic.Infrastructure.Options
 {
     public class EmailConfigurationOption
     {

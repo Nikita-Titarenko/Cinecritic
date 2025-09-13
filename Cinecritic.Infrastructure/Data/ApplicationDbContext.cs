@@ -11,6 +11,10 @@ namespace Cinecritic.Infrastructure.Data
 
         public DbSet<MovieType> MovieTypes { get; set; }
 
+        public DbSet<MovieUser> MovieUsers { get; set; }
+
+        public DbSet<WatchList> WatchList { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -38,34 +42,13 @@ namespace Cinecritic.Infrastructure.Data
 
             builder.Entity<WatchList>()
                 .HasOne(wl => wl.Movie)
-                .WithMany(m => m.WatchLists)
+                .WithMany(m => m.WatchList)
                 .HasForeignKey(wl => wl.MovieId);
 
             builder.Entity<WatchList>()
                 .HasOne<ApplicationUser>()
                 .WithMany(u => u.WatchLists)
                 .HasForeignKey(wl => wl.UserId);
-
-            //builder.Entity<MovieUser>()
-            //    .HasOne(mt => mt.Movie)
-            //    .WithMany(m => m.MovieUsers)
-            //    .HasForeignKey(m => m.MovieId);
-            //builder.Entity<MovieUser>()
-            //    .HasOne<ApplicationUser>()
-            //    .WithMany()
-            //.HasPrincipalKey(u => u.Id);
-            //builder.Entity<MovieUser>().HasKey(mu => new { mu.MovieId, mu.UserId });
-
-            //builder.Entity<WatchList>()
-            //    .HasOne(mt => mt.Movie)
-            //    .WithMany(m => m.WatchLists)
-            //    .HasForeignKey(m => m.MovieId);
-            //builder.Entity<WatchList>()
-            //    .HasOne<ApplicationUser>()
-            //    .WithMany()
-            //    .HasForeignKey(m => m.UserId)
-            //.HasPrincipalKey(u => u.Id);
-            //builder.Entity<WatchList>().HasKey(wl => new { wl.MovieId, wl.UserId });
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }

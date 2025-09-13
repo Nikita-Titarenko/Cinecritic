@@ -4,6 +4,7 @@ using Cinecritic.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinecritic.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250910081443_AddDbSetForMovieUserAndWatchList")]
+    partial class AddDbSetForMovieUserAndWatchList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,7 +100,7 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<bool>("IsLiked")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("Rate")
+                    b.Property<int>("Rate")
                         .HasColumnType("int");
 
                     b.HasKey("MovieId", "UserId");
@@ -196,16 +199,16 @@ namespace Cinecritic.Infrastructure.Migrations
                         {
                             Id = "363636b4-141c-4de1-a9be-84b40d93b0b0",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9680d3fb-0fdf-400e-9f3a-af99b8f74e9a",
+                            ConcurrencyStamp = "51ed16cd-3c72-4f0d-a084-71d276ff68fb",
                             DisplayName = "Mykyta",
                             Email = "nikitatitarenko81@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "NIKITATITARENKO81@GMAIL.COM",
                             NormalizedUserName = "NIKITATITARENKO81@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEOlGkyKNzycOwFxCtkIMwAYBjcTHvy4koP2Y2bQl7ElNvphw6/y2sf+WwLgPHGW/Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPfQ3ski4R69vNWTA6aGW/GuUg+jS4Pi0qobcI5eHRqriWwzJkbPf6gSyKu9/udmMA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2bb9f22c-696f-41b4-a585-7d4d91273e27",
+                            SecurityStamp = "eac2da9a-07a6-4ef2-8831-714d58be864c",
                             TwoFactorEnabled = false,
                             UserName = "nikitatitarenko81@gmail.com"
                         });
