@@ -1,4 +1,4 @@
-﻿using Cinecritic.Application.DTOs.Movies;
+﻿using Cinecritic.Application.DTOs.MovieTypes;
 using FluentResults;
 
 namespace Cinecritic.Application.Services.MovieTypes

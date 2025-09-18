@@ -1,4 +1,4 @@
-﻿namespace Cinecritic.Application.DTOs.Movies
+﻿namespace Cinecritic.Application.DTOs.MovieUsers
 {
     public class MovieUserStatusDto
     {

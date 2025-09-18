@@ -1,4 +1,4 @@
-﻿namespace Cinecritic.Application.DTOs.MovieUsers
+﻿namespace Cinecritic.Application.DTOs.Reviews
 {
     public class UpsertMovieReviewDto
     {

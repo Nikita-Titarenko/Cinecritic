@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.DTOs.MovieUsers;
+using Cinecritic.Application.DTOs.Reviews;
 using Cinecritic.Application.Repositories;
 using Cinecritic.Application.Services.MovieUsers;
 using Cinecritic.Domain.Models;

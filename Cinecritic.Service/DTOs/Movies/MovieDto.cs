@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cinecritic.Application.DTOs.MovieUsers;
+using Cinecritic.Application.DTOs.Reviews;
 
 namespace Cinecritic.Application.DTOs.Movies
 {

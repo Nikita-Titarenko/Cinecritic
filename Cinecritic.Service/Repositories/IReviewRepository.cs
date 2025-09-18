@@ -1,4 +1,4 @@
-﻿using Cinecritic.Application.DTOs.MovieUsers;
+﻿using Cinecritic.Application.DTOs.Reviews;
 
 namespace Cinecritic.Application.Repositories
 {

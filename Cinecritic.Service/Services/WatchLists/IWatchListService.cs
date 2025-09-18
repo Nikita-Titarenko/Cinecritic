@@ -1,4 +1,4 @@
-﻿using Cinecritic.Application.DTOs.Movies;
+﻿using Cinecritic.Application.DTOs.MovieUsers;
 using FluentResults;
 
 namespace Cinecritic.Application.Services.WatchLists

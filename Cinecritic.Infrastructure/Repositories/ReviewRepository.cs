@@ -1,4 +1,4 @@
-﻿using Cinecritic.Application.DTOs.MovieUsers;
+﻿using Cinecritic.Application.DTOs.Reviews;
 using Cinecritic.Application.Repositories;
 using Cinecritic.Domain.Models;
 using Cinecritic.Infrastructure.Data;

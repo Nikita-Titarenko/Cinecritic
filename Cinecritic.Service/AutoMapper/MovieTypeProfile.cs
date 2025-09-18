@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Cinecritic.Application.DTOs.Movies;
+using Cinecritic.Application.DTOs.MovieTypes;
 using Cinecritic.Domain.Models;
 
 namespace Cinecritic.Application.AutoMapper
