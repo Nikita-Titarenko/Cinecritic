@@ -195,25 +195,25 @@ namespace Cinecritic.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MovieUser",
+                name: "MovieUsers",
                 columns: table => new
                 {
                     MovieId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IsLiked = table.Column<bool>(type: "bit", nullable: false),
-                    Rate = table.Column<int>(type: "int", nullable: false)
+                    Rate = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MovieUser", x => new { x.MovieId, x.UserId });
+                    table.PrimaryKey("PK_MovieUsers", x => new { x.MovieId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_MovieUser_AspNetUsers_UserId",
+                        name: "FK_MovieUsers_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MovieUser_Movies_MovieId",
+                        name: "FK_MovieUsers_Movies_MovieId",
                         column: x => x.MovieId,
                         principalTable: "Movies",
                         principalColumn: "Id",
@@ -221,7 +221,7 @@ namespace Cinecritic.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "WatchList",
+                name: "WatchLists",
                 columns: table => new
                 {
                     MovieId = table.Column<int>(type: "int", nullable: false),
@@ -229,18 +229,38 @@ namespace Cinecritic.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WatchList", x => new { x.MovieId, x.UserId });
+                    table.PrimaryKey("PK_WatchLists", x => new { x.MovieId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_WatchList_AspNetUsers_UserId",
+                        name: "FK_WatchLists_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_WatchList_Movies_MovieId",
+                        name: "FK_WatchLists_Movies_MovieId",
                         column: x => x.MovieId,
                         principalTable: "Movies",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reviews",
+                columns: table => new
+                {
+                    MovieId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReviewText = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ReviewDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reviews", x => new { x.MovieId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_Reviews_MovieUsers_MovieId_UserId",
+                        columns: x => new { x.MovieId, x.UserId },
+                        principalTable: "MovieUsers",
+                        principalColumns: new[] { "MovieId", "UserId" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -256,7 +276,7 @@ namespace Cinecritic.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DisplayName", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "3fc4ef1a-feae-4e6a-8ee0-ca61cfa47845", 0, "1f60db1c-a5fb-4a28-922b-8739faf5c124", "Mykyta", "nikitatitarenko81@gmail.com", true, false, null, "NIKITATITARENKO81@GMAIL.COM", "NIKITATITARENKO81@GMAIL.COM", "AQAAAAIAAYagAAAAED8COI6CyPFfzOEuk1TCyID9qgVCYzkqM+REk1KMowsFSB0X64rw8sU0wTGhVN+7fA==", null, false, "1b1acc1b-c77a-4f49-855d-c40b8fee2c67", false, "nikitatitarenko81@gmail.com" });
+                values: new object[] { "363636b4-141c-4de1-a9be-84b40d93b0b0", 0, "3906ae6c-f560-495d-9a04-442d4e781053", "Mykyta", "nikitatitarenko81@gmail.com", true, false, null, "NIKITATITARENKO81@GMAIL.COM", "NIKITATITARENKO81@GMAIL.COM", "AQAAAAIAAYagAAAAEJ2IYugEn7F9NvRonTu7/RYQX5P0IGTXqN681ww3v2xbZArvE400HC9P6cK11yrrgA==", null, false, "f5b48743-a597-42e7-8d83-62af1a26ab5f", false, "nikitatitarenko81@gmail.com" });
 
             migrationBuilder.InsertData(
                 table: "MovieTypes",
@@ -271,7 +291,7 @@ namespace Cinecritic.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "a51c8989-2651-49ff-8c93-35edd02e546f", "3fc4ef1a-feae-4e6a-8ee0-ca61cfa47845" });
+                values: new object[] { "a51c8989-2651-49ff-8c93-35edd02e546f", "363636b4-141c-4de1-a9be-84b40d93b0b0" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -318,13 +338,13 @@ namespace Cinecritic.Infrastructure.Migrations
                 column: "MovieTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MovieUser_UserId",
-                table: "MovieUser",
+                name: "IX_MovieUsers_UserId",
+                table: "MovieUsers",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WatchList_UserId",
-                table: "WatchList",
+                name: "IX_WatchLists_UserId",
+                table: "WatchLists",
                 column: "UserId");
         }
 
@@ -347,13 +367,16 @@ namespace Cinecritic.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "MovieUser");
+                name: "Reviews");
 
             migrationBuilder.DropTable(
-                name: "WatchList");
+                name: "WatchLists");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "MovieUsers");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

@@ -9,12 +9,12 @@ namespace Cinecritic.Infrastructure.Data
         {
             context.Database.Migrate();
 
-            if (await context.Movies.AnyAsync())
+            if (await context.Reviews.CountAsync() >= 50)
             {
                 return;
             }
             await context.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Movies', RESEED, 0)");
-            context.Movies.AddRange(new[]
+            var movies = new[]
             {
                     new Movie
     {
@@ -107,7 +107,36 @@ namespace Cinecritic.Infrastructure.Data
         ReleaseDate = new DateOnly(2012, 5, 4),
         Description = "Earth's mightiest heroes must come together to stop Loki and his alien army."
     },
-            });
+            };
+            context.Movies.AddRange(movies);
+            List<ApplicationUser> users = new List<ApplicationUser>();
+
+            for (int i = 0; i < 50; i++)
+            {
+                users.Add(new ApplicationUser
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    UserName = $"test{i}@gmail.com",
+                    Email = $"test{i}@gmail.com",
+                    DisplayName = $"test{i}"
+                });
+            }
+            context.Users.AddRange(users);
+
+            List<MovieUser> movieUsers = new List<MovieUser>();
+            for (int i = 0; i < 50; i++)
+            {
+                movieUsers.Add(new MovieUser
+                {
+                    UserId = users[i].Id,
+                    MovieId = 1,
+                    Review = new Review
+                    {
+                        ReviewText = $"TestrReview{i}"
+                    }
+                });
+            }
+            context.MovieUsers.AddRange(movieUsers);
 
             await context.SaveChangesAsync();
         }

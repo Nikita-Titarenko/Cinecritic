@@ -107,6 +107,27 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.ToTable("MovieUsers");
                 });
 
+            modelBuilder.Entity("Cinecritic.Domain.Models.Review", b =>
+                {
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ReviewDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReviewText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("MovieId", "UserId");
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("Cinecritic.Domain.Models.WatchList", b =>
                 {
                     b.Property<int>("MovieId")
@@ -119,7 +140,7 @@ namespace Cinecritic.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WatchList");
+                    b.ToTable("WatchLists");
                 });
 
             modelBuilder.Entity("Cinecritic.Infrastructure.Data.ApplicationUser", b =>
@@ -196,16 +217,16 @@ namespace Cinecritic.Infrastructure.Migrations
                         {
                             Id = "363636b4-141c-4de1-a9be-84b40d93b0b0",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9680d3fb-0fdf-400e-9f3a-af99b8f74e9a",
+                            ConcurrencyStamp = "3906ae6c-f560-495d-9a04-442d4e781053",
                             DisplayName = "Mykyta",
                             Email = "nikitatitarenko81@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "NIKITATITARENKO81@GMAIL.COM",
                             NormalizedUserName = "NIKITATITARENKO81@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEOlGkyKNzycOwFxCtkIMwAYBjcTHvy4koP2Y2bQl7ElNvphw6/y2sf+WwLgPHGW/Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJ2IYugEn7F9NvRonTu7/RYQX5P0IGTXqN681ww3v2xbZArvE400HC9P6cK11yrrgA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2bb9f22c-696f-41b4-a585-7d4d91273e27",
+                            SecurityStamp = "f5b48743-a597-42e7-8d83-62af1a26ab5f",
                             TwoFactorEnabled = false,
                             UserName = "nikitatitarenko81@gmail.com"
                         });
@@ -397,6 +418,17 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("Cinecritic.Domain.Models.Review", b =>
+                {
+                    b.HasOne("Cinecritic.Domain.Models.MovieUser", "MovieUser")
+                        .WithOne("Review")
+                        .HasForeignKey("Cinecritic.Domain.Models.Review", "MovieId", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MovieUser");
+                });
+
             modelBuilder.Entity("Cinecritic.Domain.Models.WatchList", b =>
                 {
                     b.HasOne("Cinecritic.Domain.Models.Movie", "Movie")
@@ -475,6 +507,11 @@ namespace Cinecritic.Infrastructure.Migrations
             modelBuilder.Entity("Cinecritic.Domain.Models.MovieType", b =>
                 {
                     b.Navigation("Movies");
+                });
+
+            modelBuilder.Entity("Cinecritic.Domain.Models.MovieUser", b =>
+                {
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Cinecritic.Infrastructure.Data.ApplicationUser", b =>

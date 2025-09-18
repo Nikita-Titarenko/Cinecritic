@@ -13,7 +13,9 @@ namespace Cinecritic.Infrastructure.Data
 
         public DbSet<MovieUser> MovieUsers { get; set; }
 
-        public DbSet<WatchList> WatchList { get; set; }
+        public DbSet<WatchList> WatchLists { get; set; }
+
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -49,6 +51,15 @@ namespace Cinecritic.Infrastructure.Data
                 .HasOne<ApplicationUser>()
                 .WithMany(u => u.WatchLists)
                 .HasForeignKey(wl => wl.UserId);
+
+            builder.Entity<Review>()
+                .HasKey(r => new {r.MovieId, r.UserId});
+
+
+            builder.Entity<MovieUser>().
+                HasOne(r => r.Review)
+                .WithOne(mu => mu.MovieUser)
+                .HasForeignKey<Review>(r => new { r.MovieId, r.UserId });
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }

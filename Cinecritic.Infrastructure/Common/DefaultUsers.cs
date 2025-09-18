@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cinecritic.Infrastructure.Data;
+﻿using Cinecritic.Infrastructure.Data;
 
 namespace Cinecritic.Infrastructure.Common
 {
@@ -18,6 +13,9 @@ namespace Cinecritic.Infrastructure.Common
             UserName = "nikitatitarenko81@gmail.com",
             NormalizedUserName = "NIKITATITARENKO81@GMAIL.COM",
             EmailConfirmed = true,
+            SecurityStamp = "f5b48743-a597-42e7-8d83-62af1a26ab5f",
+            ConcurrencyStamp = "3906ae6c-f560-495d-9a04-442d4e781053",
+            PasswordHash = "AQAAAAIAAYagAAAAEJ2IYugEn7F9NvRonTu7/RYQX5P0IGTXqN681ww3v2xbZArvE400HC9P6cK11yrrgA=="
         };
     }
 }
