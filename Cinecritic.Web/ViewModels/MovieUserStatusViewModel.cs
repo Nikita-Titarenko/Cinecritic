@@ -1,4 +1,6 @@
-﻿namespace Cinecritic.Web.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Cinecritic.Web.ViewModels
 {
     public class MovieUserStatusViewModel
     {
@@ -11,5 +13,11 @@
         public bool IsInWatchList { get; set; }
 
         public int? Rate { get; set; }
+
+        public bool IsReviewCreated { get; set; }
+        [Required(ErrorMessage = "Text is requiered")]
+        public string ReviewText { get; set; } = string.Empty;
+
+        public DateOnly? ReviewDate { get; set; }
     }
 }

@@ -1,12 +1,45 @@
 ﻿@page "/user/movie/{MovieId}-{MovieTitle}"
 @rendermode InteractiveServer
+@implements IDisposable
 
 <PageTitle>@MovieTitle</PageTitle>
-
+<HeadContent>
+	<script src="/js/scrollHandler.js"></script>
+</HeadContent>
 <div class="row">
 	<div class="col-4">
 		<div class="d-flex mx-auto">
-			<img class="rounded-3 w-75" src="@MovieViewModel.ImagePath" />
+			<img class="rounded-3 w-100" src="@MovieViewModel.ImagePath" />
+		</div>
+		<div class="row pt-4">
+			<div class="col d-flex justify-content-center gap-2">
+				<i class="fa fa-eye fs-3 watched-color">
+				</i>
+				<p class=" watched-color">@MovieViewModel.WatchedCount</p>
+			</div>
+			<div class="col d-flex justify-content-center gap-2">
+				<i class="fa fa-heart fs-3 liked-color"></i>
+				<p class="liked-color">@MovieViewModel.LikedCount</p>
+			</div>
+			<div class="col d-flex justify-content-center gap-2">
+				<i class="fa fa-clock fs-3 in-watch-list-color"></i>
+				<p class="in-watch-list-color">@MovieViewModel.WatchListCount</p>
+			</div>
+		</div>
+		<div class="d-flex justify-content-around align-items-center pt-4">
+			<p class="fw-bold fs-3">Ratings</p>
+			<div class="d-flex flex-column align-items-center gap-2 bg-container rounded-3 p-2">
+				<p class="fw-bold fs-3 color-gold">@Math.Round(MovieViewModel.Rate, 1)</p>
+				<div class="d-flex">
+					@for (int i = 1; i <= 5; i++)
+					{
+						var index = i;
+						<i style="width: @(starSize)px"
+						   class="fa fs-2 @GetAverageRateButtonClass(index - 1)">
+						</i>
+					}
+				</div>
+			</div>
 		</div>
 	</div>
 	<div class="col-4">
@@ -16,63 +49,133 @@
 		</div>
 		<p>@MovieViewModel.Description</p>
 	</div>
-	<div class="bg-container rounded-3 mb-auto col-3">
-		<div class="row pt-2">
-			<div class="col d-flex flex-column align-items-center">
-				<i @onclick="ToggleWatchAsync"
-				   class="fa fa-eye fs-2 @IsWatchedClass">
-				</i>
-				<p class="@IsWatchedClass">Watch</p>
-			</div>
-			<div class="col d-flex flex-column align-items-center">
-				<i @onclick="ToggleLikeAsync"
-				   class="fa fa-heart fs-2 @IsLikedClass"></i>
-				<p class="@IsLikedClass">Like</p>
-			</div>
-			<div class="col d-flex flex-column align-items-center">
-				<i @onclick="ToggleInWatchListAsync"
-				   class="fa fa-clock fs-2 @IsInWatchedListClass"></i>
-				<p class="@IsInWatchedListClass">WatchList</p>
-			</div>
-		</div>
-		<hr />
-		<div class="d-flex justify-content-center gap-2">
-			<p>Rate</p>
-			<div>
-				@for (int i = 1; i <= 5; i++)
-				{
-					int index = i;
-
-					<i @onmouseenter="e => EnterOnStars(index, e.OffsetX)"
-					   @onmouseleave="LeaveFromStars"
-					   @onmousemove="e => MoveInStars(index, e.OffsetX)"
-					   @onclick="e => ClickOnStarAsync(index, e.OffsetX)"
-					   style="width: @(starSize)px"
-					   class="fa fs-2 @GetStarButtonClass(index - 1)">
-					</i>
-				}
-			</div>
-		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-4 mx-auto">
-		<div class="card bg-container">
-			<div class="card-body">
-				<div class="d-flex mb-3">
-					<i class="fa fa-circle-user card-img fs-2"></i>
-					<h5 class="card-title">
-						Mykyta
-					</h5>
+	<AuthorizeView>
+		<Authorized>
+			<div class="bg-container rounded-3 mb-auto col-3">
+				<div class="row pt-2">
+					<div class="col d-flex flex-column align-items-center">
+						<i @onclick="ToggleWatchAsync"
+						   class="fa fa-eye fs-2 @IsWatchedClass">
+						</i>
+						<p class="@IsWatchedClass">Watch</p>
+					</div>
+					<div class="col d-flex flex-column align-items-center">
+						<i @onclick="ToggleLikeAsync"
+						   class="fa fa-heart fs-2 @IsLikedClass"></i>
+						<p class="@IsLikedClass">Like</p>
+					</div>
+					<div class="col d-flex flex-column align-items-center">
+						<i @onclick="ToggleInWatchListAsync"
+						   class="fa fa-clock fs-2 @IsInWatchedListClass"></i>
+						<p class="@IsInWatchedListClass">WatchList</p>
+					</div>
 				</div>
+				<hr />
+				<div class="d-flex justify-content-center gap-2">
+					<p>Rate</p>
+					<div>
+						@for (int i = 1; i <= 5; i++)
+						{
+							int index = i;
 
-				<EditForm Model="CreateMovieReview">
-					<InputTextArea @bind-Value="CreateMovieReview.ReviewText" class="w-100 bg-textarea-review text-white p-3" placeholder="Write a message...">
-
-					</InputTextArea>
-				</EditForm>
-				<button class="btn btn-primary" type="submit">Create</button>
+							<i @onmouseenter="e => EnterOnStars(index, e.OffsetX)"
+							   @onmouseleave="LeaveFromStars"
+							   @onmousemove="e => MoveInStars(index, e.OffsetX)"
+							   @onclick="e => ClickOnStarAsync(index, e.OffsetX)"
+							   style="@($"width:{starSize}px")"
+							   class="fa fs-2 @GetYourRateButtonClass(index - 1)">
+							</i>
+						}
+					</div>
+				</div>
 			</div>
-		</div>
+		</Authorized>
+		<NotAuthorized>
+			<div class="bg-container rounded-3 mb-auto col-3 px-3 py-4 d-flex justify-content-center">
+				<NavLink href="/Account/Login" class="btn btn-success">Sign in to rate</NavLink>
+			</div>
+		</NotAuthorized>
+	</AuthorizeView>
+</div>
+<div class="row mt-5">
+	<div @ref="reviewContainer" class="col-6 mx-auto">
+		<AuthorizeView>
+			<Authorized>
+				<div class="card bg-container">
+					<div class="card-body">
+						<div class="d-flex justify-content-between">
+							<div class="d-flex mb-3 gap-2 align-items-center">
+								<i class="fa fa-circle-user card-img fs-2"></i>
+								<h5 class="card-title">
+									@displayName
+								</h5>
+								<div class="d-flex">
+									@for (int i = 1; i <= 5; i++)
+									{
+										var index = i;
+										<i class="fa fs-5 @GetYourRateButtonClass(index - 1)">
+										</i>
+									}
+								</div>
+								@if (MovieUserStatusViewModel.IsLiked)
+								{
+									<i class="fa fa-heart fs-5 liked-color fs-5">
+									</i>
+								}
+							</div>
+							<p>@MovieUserStatusViewModel.ReviewDate</p>
+						</div>
+						<EditForm Model="MovieUserStatusViewModel" OnValidSubmit="MovieUserStatusViewModel.IsReviewCreated? UpdateMovieReviewAsync : CreateMovieReviewAsync" Context="editContext">
+							<DataAnnotationsValidator />
+							<ValidationSummary />
+							<InputTextArea @bind-Value="MovieUserStatusViewModel.ReviewText" class="w-100 bg-textarea-review color-text p-3" placeholder="Write a review...">
+
+							</InputTextArea>
+							<button class="btn btn-primary" type="submit">@(MovieUserStatusViewModel.IsReviewCreated ? "Edit" : "Create")</button>
+						</EditForm>
+					</div>
+				</div>
+			</Authorized>
+			<NotAuthorized>
+				<div class="bg-container rounded-3 mb-auto col-6 p-4 d-flex justify-content-center mx-auto">
+					<NavLink href="/Account/Login" class="btn btn-success">Sign in to review</NavLink>
+				</div>
+			</NotAuthorized>
+		</AuthorizeView>
+		@foreach (var review in MovieViewModel.Reviews)
+		{
+			<div class="card bg-container my-3">
+				<div class="card-body">
+					<div class="d-flex justify-content-between">
+						<div class="d-flex mb-3 gap-2 align-items-center">
+							<i class="fa fa-circle-user card-img fs-2"></i>
+							<h5 class="card-title">
+								@review.DisplayName
+							</h5>
+							@if (review.Rate != null)
+							{
+								<div class="d-flex">
+									@for (int i = 1; i <= 5; i++)
+									{
+										var index = i;
+										<i class="fa fs-5 @GetUserRateButtonClass(index - 1, review.Rate.Value)">
+										</i>
+									}
+								</div>
+							}
+							@if (review.IsLiked)
+							{
+								<i class="fa fa-heart fs-5 liked-color fs-5">
+								</i>
+							}
+						</div>
+						<p>@review.ReviewDate</p>
+					</div>
+					<div class="w-100 bg-textarea-review text-white p-3">
+						<p>@review.ReviewText</p>
+					</div>
+				</div>
+			</div>
+		}
 	</div>
 </div>

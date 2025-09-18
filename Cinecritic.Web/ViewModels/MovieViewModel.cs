@@ -1,4 +1,6 @@
-﻿namespace Cinecritic.Web.ViewModels
+﻿using Cinecritic.Application.DTOs.MovieUsers;
+
+namespace Cinecritic.Web.ViewModels
 {
     public class MovieViewModel
     {
@@ -13,5 +15,15 @@
         public string? Description { get; set; }
 
         public MovieUserStatusViewModel MovieUserStatus { get; set; } = new MovieUserStatusViewModel();
+
+        public int WatchedCount { get; set; }
+
+        public int LikedCount { get; set; }
+
+        public int WatchListCount { get; set; }
+
+        public double Rate { get; set; }
+
+        public List<MovieReviewDto> Reviews { get; set; } = new List<MovieReviewDto>();
     }
 }

@@ -26,6 +26,15 @@ p, a, span, i {
     border: none !important;
 }
 
+ul.validation-errors{
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.color-text {
+    color: #619cbb;
+}
+
 .kek{
     width: 400px;
 }
