@@ -3,9 +3,6 @@
 @implements IDisposable
 
 <PageTitle>@MovieTitle</PageTitle>
-<HeadContent>
-	<script src="/js/scrollHandler.js"></script>
-</HeadContent>
 <div class="row">
 	<div class="col-4">
 		<div class="d-flex mx-auto">
@@ -98,7 +95,7 @@
 	</AuthorizeView>
 </div>
 <div class="row mt-5">
-	<div @ref="reviewContainer" class="col-6 mx-auto">
+	<div class="col-6 mx-auto">
 		<AuthorizeView>
 			<Authorized>
 				<div class="card bg-container">
