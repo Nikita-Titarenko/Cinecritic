@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cinecritic.Application.DTOs.MovieUsers;
 
 namespace Cinecritic.Application.DTOs.Movies
 {
@@ -19,5 +20,15 @@ namespace Cinecritic.Application.DTOs.Movies
         public string? Description { get; set; }
 
         public MovieUserStatusDto MovieUserStatus { get; set; } = new MovieUserStatusDto();
+
+        public int WatchedCount { get; set; }
+
+        public int LikedCount { get; set; }
+
+        public int WatchListCount { get; set; }
+
+        public double Rate { get; set; }
+
+        public IEnumerable<MovieReviewDto> Reviews { get; set; } = new List<MovieReviewDto>();
     }
 }
