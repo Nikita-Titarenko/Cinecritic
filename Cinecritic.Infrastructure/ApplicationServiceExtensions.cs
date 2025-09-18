@@ -4,6 +4,7 @@ using Cinecritic.Application.Services.Files;
 using Cinecritic.Application.Services.Movies;
 using Cinecritic.Application.Services.MovieTypes;
 using Cinecritic.Application.Services.MovieUsers;
+using Cinecritic.Application.Services.Reviews;
 using Cinecritic.Application.Services.Users;
 using Cinecritic.Application.Services.WatchLists;
 using Cinecritic.Infrastructure.Data;
@@ -24,6 +25,7 @@ namespace Cinecritic.Infrastructure
             services.AddScoped<IMovieUserService, MovieUserService>();
             services.AddScoped<IWatchListService, WatchListService>();
             services.AddScoped<IMovieTypeService, MovieTypeService>();
+            services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEmailService, EmailService>();
