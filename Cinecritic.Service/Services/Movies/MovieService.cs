@@ -2,6 +2,7 @@
 using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.Repositories;
 using Cinecritic.Application.Services.Files;
+using Cinecritic.Application.Services.Reviews;
 using Cinecritic.Domain.Models;
 using FluentResults;
 
@@ -12,13 +13,15 @@ namespace Cinecritic.Application.Services.Movies
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
+        private readonly IReviewService _reviewService;
         private const string MoviePath = "movie-posters";
 
-        public MovieService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
+        public MovieService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IReviewService reviewService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fileService = fileService;
+            _reviewService = reviewService;
         }
 
         public async Task<Result<int>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
@@ -48,14 +51,19 @@ namespace Cinecritic.Application.Services.Movies
             return Result.Ok(movies);
         }
 
-        public async Task<Result<MovieDto>> GetMovieAsync(int movieId, string userId)
+        public async Task<Result<MovieDto>> GetMovieAsync(int movieId, string userId, int reviewCount = 10)
         {
             var movie = await _unitOfWork.Movies.GetMovieAsync(movieId, userId);
             if (movie == null)
             {
                 return Result.Fail(new Error("Movie not exist").WithMetadata("Code", "MovieNotExist"));
             }
-
+            var result = await _reviewService.GetMovieReviews(movieId, 1, reviewCount);
+            if (!result.IsSuccess)
+            {
+                return Result.Fail(new Error("Reviews not exist").WithMetadata("Code", "ReviewsNotExist"));
+            }
+            movie.Reviews = result.Value;
             movie.ImagePath = GetFilePath(movie.Id);
             return Result.Ok(movie);
         }
