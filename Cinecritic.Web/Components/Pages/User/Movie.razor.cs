@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Security.Claims;
 using AutoMapper;
 using Cinecritic.Application.DTOs.MovieUsers;
@@ -5,6 +6,7 @@ using Cinecritic.Application.Services.Movies;
 using Cinecritic.Application.Services.MovieUsers;
 using Cinecritic.Application.Services.Reviews;
 using Cinecritic.Application.Services.WatchLists;
+using Cinecritic.Domain.Models;
 using Cinecritic.Web.Components.Layout;
 using Cinecritic.Web.ViewModels;
 using Microsoft.AspNetCore.Components;
@@ -17,17 +19,23 @@ namespace Cinecritic.Web.Components.Pages.User
     {
         private const int starSize = 40;
 
+        private const int reviewPageSize = 6;
+
+        private const string AddScrollHandlerFunctionName = "addScrollHandler";
+
         private bool isHoover = false;
 
         private int? tempRate;
 
         private bool isReviewLoading = false;
 
+        private bool allReviewLoaded = false;
+
         private int reviewPageCount = 1;
 
-        private const int reviewPageSize = 6;
+        private string displayName = string.Empty;
 
-        private const string AddScrollHandlerFunctionName = "addScrollHandler";
+        private DotNetObjectReference<Movie>? objRef;
 
         private string IsWatchedClass
         {
@@ -68,51 +76,10 @@ namespace Cinecritic.Web.Components.Pages.User
             }
         }
 
-        private static string GetButtonClass(int starRate, int rate)
-        {
-            if ((starRate + 1) * 2 <= rate)
-            {
-                return "fa-star color-gold";
-            }
-            else if ((starRate + 1) * 2 == rate + 1)
-            {
-                return "fa-star-half-stroke color-gold";
-            }
-
-            return "fa-star";
-        }
-
-        private string GetAverageRateButtonClass(int rate)
-        {
-            return GetButtonClass(rate, (int)Math.Round(MovieViewModel.Rate));
-        }
-
-        private string GetYourRateButtonClass(int starRate)
-        {
-            int currentRate = 0;
-            if (tempRate != null)
-            {
-                currentRate = tempRate.Value;
-            }
-            else if (MovieUserStatusViewModel.Rate != null)
-            {
-                currentRate = MovieUserStatusViewModel.Rate.Value;
-            }
-
-            return GetButtonClass(starRate, currentRate);
-        }
-
-        private string GetUserRateButtonClass(int starRate, int userRate)
-        {
-            return GetButtonClass(starRate, userRate);
-        }
-
         [Parameter]
         public string MovieId { get; set; } = string.Empty;
         [Parameter]
         public string MovieTitle { get; set; } = string.Empty;
-
-        private string displayName = string.Empty;
 
         [Inject]
         private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
@@ -126,8 +93,6 @@ namespace Cinecritic.Web.Components.Pages.User
         private IReviewService ReviewService { get; set; } = default!;
         [Inject]
         private IJSRuntime JSRuntime { get; set; } = default!;
-        private ElementReference reviewContainer;
-        private DotNetObjectReference<Movie>? objRef;
         [Inject]
         private IMapper Mapper { get; set; } = default!;
 
@@ -156,7 +121,25 @@ namespace Cinecritic.Web.Components.Pages.User
             MovieViewModel = Mapper.Map<MovieViewModel>(movieDto.Value);
             displayName = auth.User.FindFirstValue("DisplayName")!;
 
+            if (AllReviewLoaded(MovieViewModel.Reviews))
+            {
+                allReviewLoaded = true;
+            }
             await base.OnInitializedAsync();
+        }
+
+        private static string GetButtonClass(int starRate, int rate)
+        {
+            if ((starRate + 1) * 2 <= rate)
+            {
+                return "fa-star color-gold";
+            }
+            else if ((starRate + 1) * 2 == rate + 1)
+            {
+                return "fa-star-half-stroke color-gold";
+            }
+
+            return "fa-star";
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -169,10 +152,35 @@ namespace Cinecritic.Web.Components.Pages.User
             await base.OnAfterRenderAsync(firstRender);
         }
 
+        private string GetAverageRateButtonClass(int rate)
+        {
+            return GetButtonClass(rate, (int)Math.Round(MovieViewModel.Rate));
+        }
+
+        private string GetYourRateButtonClass(int starRate)
+        {
+            int currentRate = 0;
+            if (tempRate != null)
+            {
+                currentRate = tempRate.Value;
+            }
+            else if (MovieUserStatusViewModel.Rate != null)
+            {
+                currentRate = MovieUserStatusViewModel.Rate.Value;
+            }
+
+            return GetButtonClass(starRate, currentRate);
+        }
+
+        private string GetUserRateButtonClass(int starRate, int userRate)
+        {
+            return GetButtonClass(starRate, userRate);
+        }
+
         [JSInvokable]
         public async Task OnScroll(ScrollInfo scrollInfo)
         {
-            if (isReviewLoading)
+            if (isReviewLoading || allReviewLoaded)
             {
                 return;
             }
@@ -290,18 +298,28 @@ namespace Cinecritic.Web.Components.Pages.User
         private async Task LoadReviews()
         {
             reviewPageCount++;
-            var result = await ReviewService.GetMovieReviews(MovieViewModel.Id, reviewPageCount, reviewPageSize);
-            if (!result.IsSuccess)
+            var getMovieReviewsResult = await ReviewService.GetMovieReviews(MovieViewModel.Id, reviewPageCount, reviewPageSize);
+            if (!getMovieReviewsResult.IsSuccess)
             {
                 return;
             }
-            MovieViewModel.Reviews.AddRange(result.Value);
+            List<MovieReviewViewModel> reviews = Mapper.Map<List<MovieReviewViewModel>>(getMovieReviewsResult.Value);
+            if (AllReviewLoaded(reviews))
+            {
+                allReviewLoaded = true;
+            }
+            MovieViewModel.Reviews.AddRange(reviews);
             StateHasChanged();
         }
 
         public void Dispose()
         {
             objRef?.Dispose();
+        }
+
+        private static bool AllReviewLoaded(List<MovieReviewViewModel> reviews)
+        {
+            return reviews.Count < reviewPageSize;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace Cinecritic.Application.DTOs.MovieUsers
+﻿namespace Cinecritic.Web.ViewModels
 {
-    public class MovieReviewDto
+    public class MovieReviewViewModel
     {
         public string UserId { get; set; } = string.Empty;
 

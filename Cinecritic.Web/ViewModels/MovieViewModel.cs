@@ -24,6 +24,6 @@ namespace Cinecritic.Web.ViewModels
 
         public double Rate { get; set; }
 
-        public List<MovieReviewDto> Reviews { get; set; } = new List<MovieReviewDto>();
+        public List<MovieReviewViewModel> Reviews { get; set; } = new List<MovieReviewViewModel>();
     }
 }
