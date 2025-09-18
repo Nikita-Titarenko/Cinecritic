@@ -42,10 +42,29 @@ namespace Cinecritic.Infrastructure.Repositories
                     m.ReleaseDate,
                     MovieUser = m.MovieUsers
                     .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
+                    .Select(mu => new
+                    {
+                        mu.IsLiked,
+                        mu.Rate,
+                        ReviewText = mu.Review != null ? mu.Review.ReviewText : null,
+                        ReviewDate = mu.Review != null ? DateOnly.FromDateTime(mu.Review.ReviewDateTime.Date) : (DateOnly?)null
+                    })
                     .FirstOrDefault(),
                     WatchList = m.WatchList
                     .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+                    WatchedCount = m.MovieUsers
+                        .Where(mu => mu.MovieId == movieId)
+                        .Count(),
+                    LikedCount = m.MovieUsers
+                        .Where(mu => mu.MovieId == movieId && mu.IsLiked)
+                        .Count(),
+                    WatchListCount = m.WatchList
+                        .Where(mu => mu.MovieId == movieId)
+                        .Count(),
+                    Rate = m.MovieUsers
+                        .Where(mu => mu.MovieId == movieId)
+                        .Average(mu => mu.Rate),
                 })
                 .Select(m => new MovieDto
                 {
@@ -59,8 +78,14 @@ namespace Cinecritic.Infrastructure.Repositories
                         IsWatched = m.MovieUser != null,
                         IsLiked = m.MovieUser != null && m.MovieUser.IsLiked,
                         Rate = m.MovieUser != null ? m.MovieUser.Rate : null,
-                        IsInWatchList = m.WatchList != null
-                    }
+                        IsInWatchList = m.WatchList != null,
+                        ReviewText = m.MovieUser != null ? m.MovieUser.ReviewText : null,
+                        ReviewDate = m.MovieUser != null ? m.MovieUser.ReviewDate : null
+                    },
+                    WatchedCount = m.WatchedCount,
+                    LikedCount = m.LikedCount,
+                    WatchListCount = m.WatchListCount,
+                    Rate = m.Rate ?? 0
                 })
                 .FirstOrDefaultAsync();
 

@@ -4,6 +4,8 @@
     {
         IRepository<T> Repository<T>() where T : class;
         IMovieRepository Movies { get; }
+        IMovieUserRepository MovieUsers { get; }
+        IReviewRepository Reviews { get; }
         Task<int> CommitAsync();
     }
 }

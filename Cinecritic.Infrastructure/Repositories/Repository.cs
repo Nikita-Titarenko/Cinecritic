@@ -10,8 +10,11 @@ namespace Cinecritic.Infrastructure.Repositories
     {
         protected readonly DbSet<T> _dbSet;
 
+        protected readonly ApplicationDbContext _context;
+
         public Repository(ApplicationDbContext context)
         {
+            _context = context;
             _dbSet = context.Set<T>();
         }
 

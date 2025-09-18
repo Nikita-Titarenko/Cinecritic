@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cinecritic.Application.DTOs.MovieUsers;
 
 namespace Cinecritic.Application.Repositories
 {

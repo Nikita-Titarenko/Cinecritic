@@ -25,6 +25,10 @@ namespace Cinecritic.Infrastructure.Repositories
 
         public IMovieRepository Movies => new MovieRepository(_context);
 
+        public IMovieUserRepository MovieUsers => new MovieUserRepository(_context);
+
+        public IReviewRepository Reviews => new ReviewRepository(_context);
+
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
 
         public void Dispose() => _context.Dispose();
