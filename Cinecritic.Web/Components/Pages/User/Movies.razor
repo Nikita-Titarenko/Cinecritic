@@ -2,7 +2,7 @@
 
 <PageTitle>Movies</PageTitle>
 
-<h3 class="my-5">Movies</h3>
+<h3>Movies</h3>
 <div class="table-bordered">
 	@if (_movies != null)
 	{
@@ -11,18 +11,19 @@
 			<div class="row">
 				@for (int j = 0; j < ColumnCount && i + j < _movies.Count; j++)
 				{
-					<a class="col-3 mx-auto d-flex flex-column align-items-center" href="@($"/user/movie/{Uri.EscapeDataString(_movies[i + j].Id.ToString())}-{Uri.EscapeDataString(_movies[i + j].Title)}")">
-						@if (!string.IsNullOrEmpty(_movies[i + j].ImagePath))
+					var index = i + j;
+					<NavLink class="col-3 mx-auto d-flex flex-column align-items-center" href="@($"/user/movie/{Uri.EscapeDataString(_movies[index].Id.ToString())}-{Uri.EscapeDataString(_movies[index].Title)}")">
+						@if (!string.IsNullOrEmpty(_movies[index].ImagePath))
 						{
-							<img class="rounded-3" src="@_movies[i + j].ImagePath" width="200" height="400" />
+							<img class="rounded-3" src="@_movies[index].ImagePath" width="200" height="400" />
 						}
 
-						<h4 class="text-center">@($"{_movies[i + j].Title}")</h4>
-						@if (_movies[i + j].ReleaseDate != null)
+						<h4>@($"{_movies[index].Title}")</h4>
+						@if (_movies[index].ReleaseDate != null)
 						{
-							<h4 class="text-center">@($"({_movies[i + j].ReleaseDate})")</h4>
+							<h4>@($"({_movies[index].ReleaseDate})")</h4>
 						}
-					</a>
+					</NavLink>
 				}
 			</div>
 		}

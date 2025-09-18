@@ -1,6 +1,7 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: linear-gradient(to top, #14181c, #21272e);
+    min-height: 100%;
 }
 
 a, .btn-link {
@@ -10,6 +11,10 @@ a, .btn-link {
 h1, h2, h3, h4, h5, h6{
     color: white;
     font-weight: bold;
+}
+
+a{
+    text-decoration: none;
 }
 
 .bg-container {

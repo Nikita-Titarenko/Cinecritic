@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Cinecritic.Application.DTOs.Movies;
+using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Web.ViewModels;
 
 namespace Cinecritic.Web.AutoMapper

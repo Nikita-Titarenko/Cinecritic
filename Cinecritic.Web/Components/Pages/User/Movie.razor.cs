@@ -1,13 +1,11 @@
-using System.Collections.Generic;
 using System.Security.Claims;
 using AutoMapper;
 using Cinecritic.Application.DTOs.MovieUsers;
+using Cinecritic.Application.DTOs.Reviews;
 using Cinecritic.Application.Services.Movies;
 using Cinecritic.Application.Services.MovieUsers;
 using Cinecritic.Application.Services.Reviews;
 using Cinecritic.Application.Services.WatchLists;
-using Cinecritic.Domain.Models;
-using Cinecritic.Web.Components.Layout;
 using Cinecritic.Web.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
