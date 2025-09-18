@@ -6,6 +6,7 @@ namespace Cinecritic.Application.Services.MovieUsers
 {
     public interface IMovieUserService
     {
+        Task DeleteFromWatchListAsync(int movieId, string userId);
         Task<Result<MovieUserStatusDto>> RateMovieAsync(RateMovieDto rateMovieDto);
         Task<Result<MovieUserStatusDto>> ToggleLikeMovieAsync(int movieId, string userId);
         Task<Result<MovieUserStatusDto>> ToggleWatchMovieAsync(int movieId, string userId);

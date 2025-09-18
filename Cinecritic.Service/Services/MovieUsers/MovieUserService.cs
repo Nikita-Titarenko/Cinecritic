@@ -20,16 +20,17 @@ namespace Cinecritic.Application.Services.MovieUsers
 
         public async Task<Result<MovieUserStatusDto>> RateMovieAsync(RateMovieDto dto)
         {
-            var movieUserRepository = _unitOfWork.Repository<MovieUser>();
-            var movieUser = await movieUserRepository.GetAsync(dto.MovieId, dto.UserId);
+            var repo = _unitOfWork.MovieUsers;
+            var movieUser = await repo.GetMovieUserWithReview(dto.MovieId, dto.UserId);
 
             if (movieUser == null)
             {
                 await DeleteFromWatchListAsync(dto.MovieId, dto.UserId);
                 movieUser = _mapper.Map<MovieUser>(dto);
-                movieUserRepository.Add(movieUser);
+                repo.Add(movieUser);
 
-            } else
+            }
+            else
             {
                 movieUser.Rate = dto.Rate;
             }
@@ -42,8 +43,8 @@ namespace Cinecritic.Application.Services.MovieUsers
 
         public async Task<Result<MovieUserStatusDto>> ToggleWatchMovieAsync(int movieId, string userId)
         {
-            var repo = _unitOfWork.Repository<MovieUser>();
-            var movieUser = await repo.GetAsync(movieId, userId);
+            var repo = _unitOfWork.MovieUsers;
+            var movieUser = await repo.GetMovieUserWithReview(movieId, userId);
             bool isWatched = false;
 
             if (movieUser == null)
@@ -68,8 +69,8 @@ namespace Cinecritic.Application.Services.MovieUsers
 
         public async Task<Result<MovieUserStatusDto>> ToggleLikeMovieAsync(int movieId, string userId)
         {
-            var repo = _unitOfWork.Repository<MovieUser>();
-            var movieUser = await repo.GetAsync(movieId, userId);
+            var repo = _unitOfWork.MovieUsers;
+            var movieUser = await repo.GetMovieUserWithReview(movieId, userId);
             bool isLiked = false;
 
             if (movieUser == null)
@@ -91,11 +92,13 @@ namespace Cinecritic.Application.Services.MovieUsers
                 UserId = userId,
                 IsWatched = true,
                 IsLiked = isLiked,
-                Rate = movieUser?.Rate
+                Rate = movieUser?.Rate,
+                ReviewText = movieUser?.Review?.ReviewText,
+                ReviewDate = movieUser?.Review?.ReviewDateTime.Date != null ? DateOnly.FromDateTime(movieUser.Review.ReviewDateTime.Date) : null
             });
         }
 
-        private async Task DeleteFromWatchListAsync(int movieId, string userId)
+        public async Task DeleteFromWatchListAsync(int movieId, string userId)
         {
             var watchListRepository = _unitOfWork.Repository<WatchList>();
             var watchList = await watchListRepository.GetAsync(movieId, userId);
