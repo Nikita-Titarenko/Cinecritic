@@ -14,7 +14,7 @@ namespace Cinecritic.Infrastructure.Data
                 return;
             }
             await context.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Movies', RESEED, 0)");
-            var movies = new[]
+            List<Movie> movies = new List<Movie>()
             {
                     new Movie
     {
@@ -108,6 +108,15 @@ namespace Cinecritic.Infrastructure.Data
         Description = "Earth's mightiest heroes must come together to stop Loki and his alien army."
     },
             };
+            for (int i = 0; i < 100; i++)
+            {
+                movies.Add(new Movie
+                {
+                    Title = $"TestMovie{i}",
+                    MovieTypeId = 1,
+                    ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                });
+            }
             context.Movies.AddRange(movies);
             List<ApplicationUser> users = new List<ApplicationUser>();
 
