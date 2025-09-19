@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
 using Cinecritic.Application.DTOs.Reviews;
-using Cinecritic.Web.ViewModels;
+using Cinecritic.Web.ViewModels.Reviews;
 
 namespace Cinecritic.Web.AutoMapper
 {

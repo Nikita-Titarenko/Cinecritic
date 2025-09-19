@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Cinecritic.Web.ViewModels
+namespace Cinecritic.Web.ViewModels.MovieUsers
 {
     public class MovieUserStatusViewModel
     {

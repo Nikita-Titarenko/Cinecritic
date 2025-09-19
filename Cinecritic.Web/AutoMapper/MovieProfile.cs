@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.DTOs.MovieUsers;
-using Cinecritic.Web.ViewModels;
+using Cinecritic.Web.ViewModels.Movies;
+using Cinecritic.Web.ViewModels.MovieUsers;
 
 namespace Cinecritic.Web.AutoMapper
 {
@@ -14,6 +15,7 @@ namespace Cinecritic.Web.AutoMapper
             CreateMap<MovieDto, MovieViewModel>();
             CreateMap<MovieUserStatusDto, MovieUserStatusViewModel>()
                 .ForMember(dest => dest.IsReviewCreated, opt => opt.MapFrom(src => src.ReviewText != null));
+            CreateMap<GetMoviesResultDto, MovieListViewModel>();
         }
     }
 }

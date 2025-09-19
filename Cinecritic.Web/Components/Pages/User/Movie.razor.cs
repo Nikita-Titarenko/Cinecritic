@@ -7,6 +7,9 @@ using Cinecritic.Application.Services.MovieUsers;
 using Cinecritic.Application.Services.Reviews;
 using Cinecritic.Application.Services.WatchLists;
 using Cinecritic.Web.ViewModels;
+using Cinecritic.Web.ViewModels.Movies;
+using Cinecritic.Web.ViewModels.MovieUsers;
+using Cinecritic.Web.ViewModels.Reviews;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
@@ -176,7 +179,7 @@ namespace Cinecritic.Web.Components.Pages.User
         }
 
         [JSInvokable]
-        public async Task OnScroll(ScrollInfo scrollInfo)
+        public async Task OnScrollAsync(ScrollInfo scrollInfo)
         {
             if (isReviewLoading || allReviewLoaded)
             {
@@ -189,7 +192,7 @@ namespace Cinecritic.Web.Components.Pages.User
                 return;
             }
 
-            await LoadReviews();
+            await LoadReviewsAsync();
             isReviewLoading = false;
         }
 
@@ -293,7 +296,7 @@ namespace Cinecritic.Web.Components.Pages.User
             MovieUserStatusViewModel = Mapper.Map<MovieUserStatusViewModel>(result.Value);
         }
 
-        private async Task LoadReviews()
+        private async Task LoadReviewsAsync()
         {
             reviewPageCount++;
             var getMovieReviewsResult = await ReviewService.GetMovieReviews(MovieViewModel.Id, reviewPageCount, reviewPageSize);

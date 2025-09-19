@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace Cinecritic.Web.ViewModels
+namespace Cinecritic.Web.ViewModels.Movies
 {
     public class CreateMovieViewModel
     {

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Application.DTOs.Reviews;
-using Cinecritic.Web.ViewModels;
+using Cinecritic.Web.ViewModels.Movies;
 
 namespace Cinecritic.Web.AutoMapper
 {

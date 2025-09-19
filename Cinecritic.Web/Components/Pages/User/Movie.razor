@@ -50,20 +50,17 @@
 		<Authorized>
 			<div class="bg-container rounded-3 mb-auto col-3">
 				<div class="row pt-2">
-					<div class="col d-flex flex-column align-items-center">
-						<i @onclick="ToggleWatchAsync"
-						   class="fa fa-eye fs-2 @IsWatchedClass">
+					<div class="col d-flex flex-column align-items-center pointer" @onclick="ToggleWatchAsync">
+						<i class="fa fa-eye fs-2 @IsWatchedClass">
 						</i>
 						<p class="@IsWatchedClass">Watch</p>
 					</div>
-					<div class="col d-flex flex-column align-items-center">
-						<i @onclick="ToggleLikeAsync"
-						   class="fa fa-heart fs-2 @IsLikedClass"></i>
+					<div class="col d-flex flex-column align-items-center pointer" @onclick="ToggleLikeAsync">
+						<i class="fa fa-heart fs-2 @IsLikedClass"></i>
 						<p class="@IsLikedClass">Like</p>
 					</div>
-					<div class="col d-flex flex-column align-items-center">
-						<i @onclick="ToggleInWatchListAsync"
-						   class="fa fa-clock fs-2 @IsInWatchedListClass"></i>
+					<div class="col d-flex flex-column align-items-center pointer" @onclick="ToggleInWatchListAsync">
+						<i class="fa fa-clock fs-2 @IsInWatchedListClass"></i>
 						<p class="@IsInWatchedListClass">WatchList</p>
 					</div>
 				</div>
@@ -80,7 +77,7 @@
 							   @onmousemove="e => MoveInStars(index, e.OffsetX)"
 							   @onclick="e => ClickOnStarAsync(index, e.OffsetX)"
 							   style="@($"width:{starSize}px")"
-							   class="fa fs-2 @GetYourRateButtonClass(index - 1)">
+							   class="fa fs-2 pointer @GetYourRateButtonClass(index - 1)">
 							</i>
 						}
 					</div>
@@ -98,7 +95,7 @@
 	<div class="col-6 mx-auto">
 		<AuthorizeView>
 			<Authorized>
-				<div class="card bg-container">
+				<div class="card bg-container text-end">
 					<div class="card-body">
 						<div class="d-flex justify-content-between">
 							<div class="d-flex mb-3 gap-2 align-items-center">

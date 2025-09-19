@@ -1,4 +1,4 @@
-﻿namespace Cinecritic.Web.ViewModels
+﻿namespace Cinecritic.Web.ViewModels.MovieTypes
 {
     public class MovieTypeViewModel
     {

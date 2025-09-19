@@ -1,6 +1,8 @@
 ﻿using Cinecritic.Application.DTOs.MovieUsers;
+using Cinecritic.Web.ViewModels.MovieUsers;
+using Cinecritic.Web.ViewModels.Reviews;
 
-namespace Cinecritic.Web.ViewModels
+namespace Cinecritic.Web.ViewModels.Movies
 {
     public class MovieViewModel
     {
