@@ -41,14 +41,18 @@ namespace Cinecritic.Application.Services.Movies
             return Result.Ok(movieId);
         }
 
-        public async Task<Result<IEnumerable<MovieListItemDto>>> GetMoviesAsync(int pageSize, int pageCount)
+        public async Task<Result<GetMoviesResultDto>> GetMoviesAsync(int pageSize, int pageCount)
         {
             var movies = await _unitOfWork.Movies.GetMoviesAsync(pageSize, pageCount);
             foreach (var movie in movies)
             {
                 movie.ImagePath = GetFilePath(movie.Id);
             }
-            return Result.Ok(movies);
+            return Result.Ok(new GetMoviesResultDto
+            {
+                Movies = movies,
+                TotalMovieNumber = await _unitOfWork.Movies.CountAsync()
+            });
         }
 
         public async Task<Result<MovieDto>> GetMovieAsync(int movieId, string userId, int reviewCount = 10)
