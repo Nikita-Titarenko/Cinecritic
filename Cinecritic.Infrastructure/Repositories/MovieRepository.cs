@@ -17,6 +17,7 @@ namespace Cinecritic.Infrastructure.Repositories
         {
             IEnumerable<MovieListItemDto> dto = await _dbSet
                 .AsNoTracking()
+                .OrderByDescending(m => m.ReleaseDate)
                 .Skip((pageCount - 1) * pageSize)
                 .Take(pageSize)
                 .Select(m => new MovieListItemDto

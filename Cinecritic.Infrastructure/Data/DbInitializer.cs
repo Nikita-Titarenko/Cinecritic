@@ -114,7 +114,7 @@ namespace Cinecritic.Infrastructure.Data
                 {
                     Title = $"TestMovie{i}",
                     MovieTypeId = 1,
-                    ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                    ReleaseDate = new DateOnly(1951, 3, 13)
                 });
             }
             context.Movies.AddRange(movies);
