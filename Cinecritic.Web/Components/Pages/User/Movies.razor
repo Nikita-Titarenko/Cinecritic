@@ -1,7 +1,7 @@
 ﻿@page "/user/movies"
-
+@using Cinecritic.Web.Components.Account.Shared
 <PageTitle>Movies</PageTitle>
-
+<StatusMessage Message="@statusMessage"></StatusMessage>
 <h3>Movies</h3>
 <div class="table-bordered">
 	@for (int i = 0; i < _movies.Movies.Count; i += 4)
@@ -24,7 +24,7 @@
 		</div>
 	}
 
-	<nav>
+	<nav class="py-3">
 		<ul class="pagination justify-content-center">
 			@if (CurrentPage > 1)
 			{

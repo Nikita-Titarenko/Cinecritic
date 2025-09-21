@@ -5,6 +5,7 @@
 @using Cinecritic.Web.Common
 @using Cinecritic.Web.Components.Inputs
 @using Cinecritic.Web.ViewModels
+@using Cinecritic.Web.Components.Account.Shared
 
 <HeadContent>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
@@ -12,26 +13,28 @@
 </HeadContent>
 <PageTitle>Create movie</PageTitle>
 
-<div class="row w-100 h-100 mx-auto my-auto">
-	<div class="col-md-4 mx-auto">
+<div class="row w-100 h-100">
+	<div class="col-md-4 mx-auto my-auto">
 		<h3 class="me-auto">CreateMovie</h3>
 		<EditForm Model="@CreateMovieViewModel" OnValidSubmit="HandleSubmit" FormName="CreateMovie">
 			<DataAnnotationsValidator />
-			<ValidationSummary />
 
 			<div class="form-floating mb-3">
 				<InputText id="title" class="form-control" @bind-Value="CreateMovieViewModel.Title" placeholder="Title" />
 				<label for="title" class="form-label">Title</label>
+				<ValidationMessage For="() => CreateMovieViewModel.Title"/>
 			</div>
 
 			<div class="form-floating mb-3">
 				<InputTextArea id="description" class="form-control" @bind-Value="CreateMovieViewModel.Description" placeholder="Description" />
 				<label for="description" class="form-label">Description</label>
+				<ValidationMessage For="() => CreateMovieViewModel.Description" />
 			</div>
 
 			<div class="form-floating mb-3">
 				<InputDateNullable id="releaseDate" class="form-control" @bind-Value="CreateMovieViewModel.ReleaseDate" placeholder="Release date" />
 				<label for="releaseDate" class="form-label">Release date</label>
+				<ValidationMessage For="() => CreateMovieViewModel.ReleaseDate" />
 			</div>
 
 			<div class="form-floating mb-3">
@@ -43,6 +46,7 @@
 					}
 				</InputSelect>
 				<label for="movieTypes" class="form-label">Movie type</label>
+				<ValidationMessage For="() => CreateMovieViewModel.SelectedMovieTypeId" />
 			</div>
 
 			<label class="upload-container d-flex flex-column align-items-center p-4 mb-3">
@@ -56,12 +60,11 @@
 				}
 				<InputFile OnChange="HandleSelected" accept="@AcceptedImageType" class="d-none" />
 			</label>
-
-			<button type="submit" class="btn btn-primary d-flex ms-auto">Create</button>
-			@if (!string.IsNullOrEmpty(StatusMessage))
+			@if (!string.IsNullOrEmpty(statusMessage))
 			{
-				<h6>@StatusMessage</h6>
+				<StatusMessage Message="@statusMessage"></StatusMessage>
 			}
+			<button type="submit" class="btn btn-primary d-flex ms-auto">Create</button>
 		</EditForm>
 	</div>
 </div>

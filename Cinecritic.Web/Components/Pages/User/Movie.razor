@@ -1,4 +1,5 @@
 ﻿@page "/user/movie/{MovieId}-{MovieTitle}"
+@using Cinecritic.Web.Components.Account.Shared
 @rendermode InteractiveServer
 @implements IDisposable
 
@@ -131,7 +132,7 @@
 				</div>
 			</Authorized>
 			<NotAuthorized>
-				<div class="bg-container rounded-3 mb-auto col-6 p-4 d-flex justify-content-center mx-auto">
+				<div class="bg-container rounded-3 mb-3 col-6 p-4 d-flex justify-content-center mx-auto">
 					<NavLink href="/Account/Login" class="btn btn-success">Sign in to review</NavLink>
 				</div>
 			</NotAuthorized>

@@ -18,36 +18,38 @@
 
 <PageTitle>Register</PageTitle>
 
-
-
-<div class="row w-100">
-	<h1>Register</h1>
-	<h2>Create a new account.</h2>
-	<div class="col-md-4 mx-auto">
-		<EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-			<DataAnnotationsValidator />
+<div class="row w-100 h-100">
+	<div class="col-md-4 mx-auto my-auto">
+		<h1>Register</h1>
+		<h2>Create a new account.</h2>
+		<EditForm EditContext="EditContext" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
 			<hr />
-			<ValidationSummary class="text-danger" role="alert" />
+			<DataAnnotationsValidator/>
+
 			<div class="form-floating mb-3">
 				<InputText @bind-Value="Input.DisplayName" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
 				<label for="DisplayName">Username</label>
-				<ValidationMessage For="() => Input.DisplayName" class="text-danger" />
+				<ValidationMessage For="() => Input.DisplayName" class="text-danger text-start" />
 			</div>
 			<div class="form-floating mb-3">
 				<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
 				<label for="email">Email</label>
-				<ValidationMessage For="() => Input.Email" class="text-danger" />
+				<ValidationMessage For="() => Input.Email" class="text-danger text-start" />
 			</div>
 			<div class="form-floating mb-3">
 				<InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
 				<label for="password">Password</label>
-				<ValidationMessage For="() => Input.Password" class="text-danger" />
+				<ValidationMessage For="() => Input.Password" class="text-danger text-start" />
 			</div>
 			<div class="form-floating mb-3">
 				<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
 				<label for="confirm-password">Confirm Password</label>
-				<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+				<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger text-start" />
 			</div>
+			@if (!string.IsNullOrEmpty(statusMessage))
+			{
+				<StatusMessage Message="@statusMessage"></StatusMessage>
+			}
 			<button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
 		</EditForm>
 	</div>

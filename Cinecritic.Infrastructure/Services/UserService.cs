@@ -20,15 +20,12 @@ namespace Cinecritic.Infrastructure.Services
 
         private readonly ILogger<UserService> _logger;
 
-        private readonly IMapper _mapper;
-
         public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            ILogger<UserService> logger, IMapper mapper)
+            ILogger<UserService> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _mapper = mapper;
         }
 
         ///  <summary>
@@ -60,7 +57,7 @@ namespace Cinecritic.Infrastructure.Services
                 if (user!.EmailConfirmed)
                 {
                     _logger.LogWarning("Failed to register: User with email already exist");
-                    return Result.Fail(result.Errors.Select(e => new Error(e.Description).WithMetadata("Code", e.Code)));
+                    return Result.Fail(new Error("Email already exist").WithMetadata("Code", "EmailAlreadyExist"));
                 }
 
                 if (!await _userManager.CheckPasswordAsync(user, dto.Password))

@@ -6,6 +6,7 @@ using Cinecritic.Application.Services.Movies;
 using Cinecritic.Application.Services.MovieUsers;
 using Cinecritic.Application.Services.Reviews;
 using Cinecritic.Application.Services.WatchLists;
+using Cinecritic.Web.JSInterop;
 using Cinecritic.Web.ViewModels;
 using Cinecritic.Web.ViewModels.Movies;
 using Cinecritic.Web.ViewModels.MovieUsers;
@@ -21,8 +22,6 @@ namespace Cinecritic.Web.Components.Pages.User
         private const int starSize = 40;
 
         private const int reviewPageSize = 6;
-
-        private const string AddScrollHandlerFunctionName = "addScrollHandler";
 
         private bool isHoover = false;
 
@@ -93,7 +92,7 @@ namespace Cinecritic.Web.Components.Pages.User
         [Inject]
         private IReviewService ReviewService { get; set; } = default!;
         [Inject]
-        private IJSRuntime JSRuntime { get; set; } = default!;
+        private IJSInteropService JSInteropService { get; set; } = default!;
         [Inject]
         private IMapper Mapper { get; set; } = default!;
 
@@ -117,6 +116,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var movieDto = await MovieService.GetMovieAsync(int.Parse(MovieId), auth.User.FindFirstValue(ClaimTypes.NameIdentifier)!, reviewPageSize);
             if (!movieDto.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
             MovieViewModel = Mapper.Map<MovieViewModel>(movieDto.Value);
@@ -148,7 +148,7 @@ namespace Cinecritic.Web.Components.Pages.User
             if (firstRender)
             {
                 objRef = DotNetObjectReference.Create(this);
-                await JSRuntime.InvokeVoidAsync(AddScrollHandlerFunctionName, objRef);
+                await JSInteropService.AddScrollHandler(objRef);
             }
             await base.OnAfterRenderAsync(firstRender);
         }
@@ -235,6 +235,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var result = await MovieUserService.RateMovieAsync(dto);
             if (!result.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
 
@@ -246,6 +247,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var result = await MovieUserService.ToggleWatchMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.UserId);
             if (!result.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
 
@@ -257,6 +259,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var result = await MovieUserService.ToggleLikeMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.UserId);
             if (!result.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
 
@@ -268,6 +271,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var result = await WatchListService.ToggleWatchListMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.UserId);
             if (!result.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
 
@@ -279,6 +283,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var result = await ReviewService.CreateMovieReviewAsync(Mapper.Map<UpsertMovieReviewDto>(MovieViewModel));
             if (!result.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
 
@@ -290,6 +295,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var result = await ReviewService.UpdateMovieReviewAsync(Mapper.Map<UpsertMovieReviewDto>(MovieViewModel));
             if (!result.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
 
@@ -302,6 +308,7 @@ namespace Cinecritic.Web.Components.Pages.User
             var getMovieReviewsResult = await ReviewService.GetMovieReviews(MovieViewModel.Id, reviewPageCount, reviewPageSize);
             if (!getMovieReviewsResult.IsSuccess)
             {
+                await JSInteropService.ShowAlertAsync();
                 return;
             }
             List<MovieReviewViewModel> reviews = Mapper.Map<List<MovieReviewViewModel>>(getMovieReviewsResult.Value);

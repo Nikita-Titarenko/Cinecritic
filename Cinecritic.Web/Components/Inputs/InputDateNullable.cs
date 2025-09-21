@@ -17,13 +17,14 @@ namespace Cinecritic.Web.Components.Inputs
                 return true;
             }
 
-            var success = BindConverter.TryConvertTo<DateOnly?>(value, CultureInfo.CurrentCulture, out result);
-            if (!success)
+            DateOnly parse;
+            if (!DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parse))
             {
-                validationErrorMessage = "DateTime is not valid";
+                result = null;
+                validationErrorMessage = "Date is not valid";
                 return false;
             }
-
+            result = parse;
             validationErrorMessage = string.Empty;
             return true;
         }
@@ -33,7 +34,9 @@ namespace Cinecritic.Web.Components.Inputs
             builder.OpenElement(0, "input");
             builder.AddAttribute(1, "type", "date");
             builder.AddAttribute(2, "class", CssClass);
-            builder.AddAttribute(3, "value", BindConverter.FormatValue(CurrentValueAsString));
+            builder.AddAttribute(3, "value", CurrentValue.HasValue
+                ? CurrentValue.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                : string.Empty);
             builder.AddAttribute(4, "onchange", EventCallback.Factory.CreateBinder<string?>(
                 this, __value => CurrentValueAsString = __value, CurrentValueAsString));
             builder.CloseElement();

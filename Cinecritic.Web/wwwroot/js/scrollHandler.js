@@ -1,11 +1,11 @@
 ﻿function addScrollHandler(dotNetHelper) {
-    let html = document.querySelector('html');
+    let main = document.querySelector('main');
 
-    window.addEventListener('scroll', () => {
+    main.addEventListener('scroll', () => {
         dotNetHelper.invokeMethodAsync('OnScrollAsync', {
-            scrollTop: html.scrollTop,
-            scrollHeight: html.scrollHeight,
-            clientHeight: html.clientHeight,
+            scrollTop: main.scrollTop,
+            scrollHeight: main.scrollHeight,
+            clientHeight: main.clientHeight,
         });
     })
 }

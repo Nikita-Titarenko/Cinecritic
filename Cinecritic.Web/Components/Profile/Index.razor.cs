@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Cinecritic.Application.DTOs.Account;
+using Cinecritic.Web.Components.Account.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -8,6 +9,7 @@ namespace Cinecritic.Web.Components.Profile
 {
     public partial class Index
     {
+        private string? statusMessage;
         private string displayName = string.Empty;
 
         [CascadingParameter]
@@ -36,11 +38,11 @@ namespace Cinecritic.Web.Components.Profile
                 });
                 if (!changeDisplayNameResult.IsSuccess)
                 {
-                    RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+                    statusMessage = "Error in service";
+                    return;
                 }
+                statusMessage = "Your profile has been updated";
             }
-
-            RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
         }
 
         private sealed class InputModel

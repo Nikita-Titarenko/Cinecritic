@@ -1,4 +1,5 @@
 ﻿using Cinecritic.Web.Components.Account;
+using Cinecritic.Web.JSInterop;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Cinecritic.Web
@@ -13,6 +14,7 @@ namespace Cinecritic.Web
             services.AddScoped<IdentityUserAccessor>();
             services.AddCascadingAuthenticationState();
             services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+            services.AddScoped<IJSInteropService, JSInteropService>();
             return services;
         }
     }

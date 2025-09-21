@@ -15,9 +15,9 @@
 
 <PageTitle>Profile</PageTitle>
 
-<div class="row w-100">
-    <h3>Profile</h3>
-    <div class="col-md-4 mx-auto">
+<div class="row w-100 h-100">
+    <div class="col-md-4 mx-auto my-auto">
+        <h3>Profile</h3>
         <EditForm method="post" Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync">
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />
@@ -25,6 +25,10 @@
                 <InputText id="displayName" type="text" @bind-Value="Input.DisplayName" class="form-control" placeholder="Please choose your username." />
                 <label for="displayName" class="form-label">Username</label>
             </div>
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <StatusMessage Message="@statusMessage"></StatusMessage>
+            }
             <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </EditForm>
     </div>

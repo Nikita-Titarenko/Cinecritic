@@ -25,7 +25,7 @@ namespace Cinecritic.Web.Components.Pages.Manager
 
         private IBrowserFile? _browserFile;
 
-        private string StatusMessage { get; set; } = string.Empty;
+        private string? statusMessage;
 
         [Inject]
         private IMovieService MovieService { get; set; } = default!;
@@ -41,7 +41,7 @@ namespace Cinecritic.Web.Components.Pages.Manager
             var getMovieTypesResult = await MovieTypeService.GetMovieTypes();
             if (!getMovieTypesResult.IsSuccess)
             {
-                StatusMessage = "Error when loading data";
+                statusMessage = "Error when loading data";
                 return;
             }
             MovieTypes = Mapper.Map<List<MovieTypeViewModel>>(getMovieTypesResult.Value);
@@ -63,18 +63,18 @@ namespace Cinecritic.Web.Components.Pages.Manager
 
             if (!createMovieResult.IsSuccess)
             {
-                StatusMessage = "Error while sending";
+                statusMessage = "Error while sending";
                 return;
             }
 
-            StatusMessage = "The movie was successfully created!";
+            statusMessage = "The movie was successfully created!";
         }
 
         private async Task HandleSelected(InputFileChangeEventArgs e)
         {
             if (e.File.Size > MaxFileSize)
             {
-                StatusMessage = "Max size image - 2MB";
+                statusMessage = "Max size image - 2MB";
                 return;
             }
             _browserFile = e.File;

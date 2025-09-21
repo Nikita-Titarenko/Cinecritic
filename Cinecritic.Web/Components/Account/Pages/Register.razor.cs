@@ -10,7 +10,7 @@ namespace Cinecritic.Web.Components.Account.Pages
 {
     public partial class Register
     {
-        private IEnumerable<string> errors = new List<string>();
+        private string? statusMessage;
 
         [Inject]
         private IUserService UserService { get; set; } = default!;
@@ -18,19 +18,38 @@ namespace Cinecritic.Web.Components.Account.Pages
         [Inject]
         private IMapper Mapper { get; set; } = default!;
 
+
+        private EditContext EditContext = default!;
+        private ValidationMessageStore validationMessageStore = default!;
         [SupplyParameterFromForm]
-        private InputModel Input { get; set; } = new();
+        private InputModel Input { get; set; } = new InputModel();
 
         [SupplyParameterFromQuery]
         private string? ReturnUrl { get; set; }
 
-        public async Task RegisterUser(EditContext editContext)
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            EditContext = new EditContext(Input);
+            validationMessageStore = new ValidationMessageStore(EditContext);
+        }
+
+        public async Task RegisterUser()
         {
             var registerResult = await UserService.RegisterAsync(Mapper.Map<RegisterDto>(Input));
 
             if (!registerResult.IsSuccess)
             {
-                errors = registerResult.Errors.Select(e => e.Message);
+                object? code;
+                if (registerResult.Errors.Any(e => e.Metadata.TryGetValue("Code", out code) && code.ToString() == "EmailAlreadyExist"))
+                {
+                    validationMessageStore.Add(EditContext.Field(nameof(Input.Email)), "Email already exist");
+                }
+                else
+                {
+                    statusMessage = "Error in service";
+                }
+
                 return;
             }
 

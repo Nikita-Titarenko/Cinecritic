@@ -15,9 +15,10 @@ namespace Cinecritic.Infrastructure.Repositories
         public async Task<IEnumerable<MovieReviewDto>> GetMovieReviews(int movieId, int pageNumber, int pageSize)
         {
             return await _context.MovieUsers
+                .Where(mu => mu.MovieId == movieId && mu.Review != null)
+                .OrderByDescending(mu => mu.Review!.ReviewDateTime)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(mu => mu.MovieId == movieId && mu.Review != null)
                 .Select(mu => new
                 {
                     mu.MovieId,
@@ -26,7 +27,6 @@ namespace Cinecritic.Infrastructure.Repositories
                     mu.Rate,
                     mu.Review
                 })
-                .OrderByDescending(mu => mu.Review!.ReviewDateTime)
                 .Select(mu => new MovieReviewDto
                 {
                     MovieId = movieId,
