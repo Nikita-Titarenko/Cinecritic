@@ -117,7 +117,7 @@ namespace Cinecritic.Infrastructure.Repositories
             IEnumerable<MovieListItemDto> dto = await _dbSet
                 .AsNoTracking()
                 .Where(mu => mu.UserId == userId && mu.IsLiked)
-                .OrderByDescending(mu => mu.WatchedDateTime)
+                .OrderByDescending(mu => mu.LikedDateTime)
                 .Skip((pageCount - 1) * pageSize)
                 .Take(pageSize)
                 .Select(m => new MovieListItemDto

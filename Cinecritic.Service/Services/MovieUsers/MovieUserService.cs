@@ -87,6 +87,10 @@ namespace Cinecritic.Application.Services.MovieUsers
             {
                 movieUser.IsLiked = !movieUser.IsLiked;
                 isLiked = movieUser.IsLiked;
+                if (isLiked)
+                {
+                    movieUser.LikedDateTime = DateTime.UtcNow;
+                }
             }
 
             await _unitOfWork.CommitAsync();
