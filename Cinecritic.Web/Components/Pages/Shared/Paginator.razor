@@ -1,0 +1,91 @@
+﻿<nav class="py-3">
+	<ul class="pagination justify-content-center">
+		@if (CurrentPage > 1)
+		{
+			<li class="page-item">
+				<button class="page-link" @onclick="() => OnClick.InvokeAsync(CurrentPage - 1)">Previous</button>
+			</li>
+		}
+		@if (TotalPageNumber <= PagePaginatorCount + PaginatorAdditionalCount)
+		{
+			@for (int i = 1; i <= TotalPageNumber; i++)
+			{
+				int index = i;
+				<li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+					<button class="page-link" @onclick="() => OnClick.InvokeAsync(index)">@index</button>
+				</li>
+			}
+		}
+		else if (CurrentPage <= PagePaginatorCount)
+		{
+			@for (int i = 1; i <= PagePaginatorCount + PaginatorAdditionalCount - PaginatorAdditionalCount / 2; i++)
+			{
+				int index = i;
+				<li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+					<button class="page-link" @onclick="() => OnClick.InvokeAsync(index)">@index</button>
+				</li>
+			}
+			<li class="page-item">
+				<span class="page-link">...</span>
+			</li>
+			<li class="page-item @(TotalPageNumber == CurrentPage ? "active" : string.Empty)">
+				<button class="page-link" @onclick="() => OnClick.InvokeAsync(TotalPageNumber)">@(TotalPageNumber)</button>
+			</li>
+		}
+		else if (CurrentPage + 3 > TotalPageNumber)
+		{
+			<li class="page-item @(1 == CurrentPage ? "active" : string.Empty)">
+				<button class="page-link" @onclick="() => OnClick.InvokeAsync(1)">1</button>
+			</li>
+			<li class="page-item">
+				<span class="page-link">...</span>
+			</li>
+			@for (int i = TotalPageNumber - PagePaginatorCount - 1; i <= TotalPageNumber; i++)
+			{
+				int index = i;
+				<li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+					<button class="page-link" @onclick="() => OnClick.InvokeAsync(index)">@index</button>
+				</li>
+			}
+		}
+		else
+		{
+			<li class="page-item @(1 == CurrentPage ? "active" : string.Empty)">
+				<button class="page-link" @onclick="() => OnClick.InvokeAsync(1)">1</button>
+			</li>
+			<li class="page-item">
+				<span class="page-link">...</span>
+			</li>
+			@for (int i = CurrentPage - PagePaginatorCount + PaginatorAdditionalCount - PaginatorAdditionalCount / 2; i <= CurrentPage + PagePaginatorCount / 2; i++)
+			{
+				int index = i;
+				<li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+					<button class="page-link" @onclick="() => OnClick.InvokeAsync(index)">@index</button>
+				</li>
+			}
+			<li class="page-item">
+				<span class="page-link">...</span>
+			</li>
+			<li class="page-item @(TotalPageNumber == CurrentPage ? "active" : string.Empty)">
+				<button class="page-link" @onclick="() => OnClick.InvokeAsync(TotalPageNumber)">@(TotalPageNumber)</button>
+			</li>
+		}
+		@if (TotalPageNumber != CurrentPage && TotalPageNumber != 0)
+		{
+			<li class="page-item">
+				<button class="page-link" @onclick="() => OnClick.InvokeAsync(CurrentPage + 1)">Next</button>
+			</li>
+		}
+	</ul>
+</nav>
+@code {
+	public const int PageSize = 12;
+	public const int PagePaginatorCount = 3;
+	public const int PaginatorAdditionalCount = 4;
+	[Parameter]
+	public int TotalPageNumber { get; set; }
+	[Parameter]
+	public int CurrentPage { get; set; }
+	[Parameter]
+	public EventCallback<int> OnClick { get; set; }
+}

@@ -27,6 +27,8 @@ namespace Cinecritic.Infrastructure.Repositories
 
         public IMovieUserRepository MovieUsers => new MovieUserRepository(_context);
 
+        public IWatchListRepository WatchLists => new WatchListRepository(_context);
+
         public IReviewRepository Reviews => new ReviewRepository(_context);
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

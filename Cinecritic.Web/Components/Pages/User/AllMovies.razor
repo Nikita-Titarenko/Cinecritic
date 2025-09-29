@@ -1,0 +1,11 @@
+﻿@page "/user/movies"
+@using Cinecritic.Web.Components.Account.Shared
+@using Cinecritic.Web.Components.Pages.Shared
+@rendermode InteractiveServer
+<PageTitle>Movies</PageTitle>
+<StatusMessage Message="@statusMessage"></StatusMessage>
+<h3>Movies</h3>
+<div class="table-bordered">
+	<Movies MovieList="_movies"></Movies>
+	<Paginator CurrentPage="CurrentPage" TotalPageNumber="_movies.TotalPageNumber" OnClick="OnClick"></Paginator>
+</div>

@@ -1,0 +1,5 @@
+﻿::deep .active {
+    background: white !important;
+    opacity: 50%;
+    border-radius: 15px;
+}

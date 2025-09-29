@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cinecritic.Domain.Models
+﻿namespace Cinecritic.Domain.Models
 {
     public class WatchList
     {
@@ -13,5 +7,7 @@ namespace Cinecritic.Domain.Models
         public Movie Movie { get; set; } = default!;
 
         public string UserId { get; set; } = string.Empty;
+
+        public DateTime InWatchListDateTime { get; set; } = DateTime.UtcNow;
     }
 }

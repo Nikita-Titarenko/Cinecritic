@@ -19,5 +19,10 @@ namespace Cinecritic.Web.JSInterop
         {
             await _jSRuntime.InvokeVoidAsync("addScrollHandler", dotNetObjectReference);
         }
+
+        public async Task BlurActiveElement()
+        {
+            await _jSRuntime.InvokeVoidAsync("blurActiveElement");
+        }
     }
 }

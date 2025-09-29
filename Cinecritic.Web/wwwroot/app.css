@@ -103,16 +103,6 @@ textarea {
     border-color: transparent !important;
 }
 
-    .page-link:focus {
-        background-color: #283038;
-        box-shadow: none;
-        color: #0d6efd;
-    }
-
-.page-link.active{
-    background: white;
-}
-
 .btn-primary {
     color: #fff;
     background: #1b6ec2;

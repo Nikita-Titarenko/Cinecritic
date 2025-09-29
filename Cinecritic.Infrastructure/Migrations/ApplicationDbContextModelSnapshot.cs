@@ -97,8 +97,14 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<bool>("IsLiked")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LikedDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("Rate")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("WatchedDateTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("MovieId", "UserId");
 
@@ -135,6 +141,9 @@ namespace Cinecritic.Infrastructure.Migrations
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("InWatchListDateTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("MovieId", "UserId");
 

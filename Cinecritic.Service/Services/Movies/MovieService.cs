@@ -14,7 +14,7 @@ namespace Cinecritic.Application.Services.Movies
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
         private readonly IReviewService _reviewService;
-        private const string MoviePath = "movie-posters";
+        public const string MoviePath = "movie-posters";
 
         public MovieService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IReviewService reviewService)
         {
@@ -57,7 +57,7 @@ namespace Cinecritic.Application.Services.Movies
 
         public async Task<Result<MovieDto>> GetMovieAsync(int movieId, string userId, int reviewCount = 10)
         {
-            var movie = await _unitOfWork.Movies.GetMovieAsync(movieId, userId);
+            var movie = await _unitOfWork.MovieUsers.GetMovieAsync(movieId, userId);
             if (movie == null)
             {
                 return Result.Fail(new Error("Movie not exist").WithMetadata("Code", "MovieNotExist"));

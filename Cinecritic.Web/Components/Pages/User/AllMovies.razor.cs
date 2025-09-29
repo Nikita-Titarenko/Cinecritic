@@ -1,17 +1,16 @@
 using AutoMapper;
 using Cinecritic.Application.Services.Movies;
+using Cinecritic.Web.Components.Pages.Shared;
+using Cinecritic.Web.JSInterop;
 using Cinecritic.Web.ViewModels.Movies;
 using Microsoft.AspNetCore.Components;
 
 namespace Cinecritic.Web.Components.Pages.User
 {
-    public partial class Movies
+    public partial class AllMovies
     {
-        private const int PageSize = 12;
-        private const int PagePaginatorCount = 3;
-        private const int PaginatorAdditionalCount = 4;
         private string? statusMessage;
-        private const int ColumnCount = 4;
+
         [Parameter]
         [SupplyParameterFromQuery(Name = "page")]
         public int CurrentPage { get; set; }
@@ -20,18 +19,28 @@ namespace Cinecritic.Web.Components.Pages.User
         private IMovieService MovieService { get; set; } = default!;
         [Inject]
         private IMapper Mapper { get; set; } = default!;
+        [Inject]
+        private IJSInteropService JSInteropService { get; set; } = default!;
+        [Inject]
+        private NavigationManager NavigationManager { get; set; } = default!;
 
         private async Task LoadMovies()
         {
             CurrentPage = CurrentPage == 0 ? 1 : CurrentPage;
-            var getMoviesResult = await MovieService.GetMoviesAsync(PageSize, CurrentPage);
+            var getMoviesResult = await MovieService.GetMoviesAsync(Paginator.PageSize, CurrentPage);
             if (!getMoviesResult.IsSuccess)
             {
                 statusMessage = "Error when loading data";
                 return;
             }
             _movies = Mapper.Map<MovieListViewModel>(getMoviesResult.Value);
-            _movies.TotalPageNumber = (int)Math.Ceiling((double)getMoviesResult.Value.TotalMovieNumber / PageSize);
+            _movies.TotalPageNumber = (int)Math.Ceiling((double)getMoviesResult.Value.TotalMovieNumber / Paginator.PageSize);
+        }
+
+        public async Task OnClick(int page)
+        {
+            await JSInteropService.BlurActiveElement();
+            NavigationManager.NavigateTo($"/user/movies?page={page}");
         }
 
         protected override async Task OnParametersSetAsync()

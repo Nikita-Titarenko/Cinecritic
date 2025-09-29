@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Application.Repositories;
+using Cinecritic.Application.Services.Files;
+using Cinecritic.Application.Services.Movies;
 using Cinecritic.Domain.Models;
 using FluentResults;
 
@@ -10,11 +13,13 @@ namespace Cinecritic.Application.Services.MovieUsers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IFileService _fileService;
 
-        public MovieUserService(IUnitOfWork unitOfWork, IMapper mapper)
+        public MovieUserService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _fileService = fileService;
         }
 
         public async Task<Result<MovieUserStatusDto>> RateMovieAsync(RateMovieDto dto)
@@ -75,7 +80,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             if (movieUser == null)
             {
                 await DeleteFromWatchListAsync(movieId, userId);
-                repo.Add(new MovieUser { MovieId = movieId, UserId = userId, IsLiked = true });
+                repo.Add(new MovieUser { MovieId = movieId, UserId = userId, IsLiked = true, LikedDateTime = DateTime.UtcNow });
                 isLiked = true;
             }
             else
@@ -105,6 +110,41 @@ namespace Cinecritic.Application.Services.MovieUsers
             {
                 watchListRepository.Delete(watchList);
             }
+        }
+
+        public async Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(string userId, int pageSize, int pageCount)
+        {
+            var movies = await _unitOfWork.MovieUsers.GetWatchedMoviesAsync(userId, pageSize, pageCount);
+            foreach (var movie in movies)
+            {
+                movie.ImagePath = GetFilePath(movie.Id);
+            }
+            var dto = new GetMoviesResultDto{
+                Movies = movies,
+                TotalMovieNumber = await _unitOfWork.MovieUsers.CountWatched(userId)
+            };
+            return Result.Ok(dto);
+        }
+
+        public async Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(string userId, int pageSize, int pageCount)
+        {
+            var movies = await _unitOfWork.MovieUsers.GetLikedMoviesAsync(userId, pageSize, pageCount);
+            foreach (var movie in movies)
+            {
+                movie.ImagePath = GetFilePath(movie.Id);
+            }
+            var dto = new GetMoviesResultDto
+            {
+                Movies = movies,
+                TotalMovieNumber = await _unitOfWork.MovieUsers.CountLiked(userId)
+            };
+            return Result.Ok(dto);
+        }
+
+        private string GetFilePath(int movieId)
+        {
+            var result = _fileService.GetFilePath(Path.Combine(MovieService.MoviePath, $"{movieId}.jpg"));
+            return result.IsSuccess ? result.Value : "/images/no-image.webp";
         }
     }
 }
