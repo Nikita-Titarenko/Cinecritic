@@ -23,7 +23,8 @@ namespace Cinecritic.Infrastructure.Services
             {
                 Directory.CreateDirectory(directoryName);
             }
-            using var fileStream = new FileStream(path, FileMode.Create);
+
+            await using var fileStream = new FileStream(path, FileMode.Create);
             await stream.CopyToAsync(fileStream);
             return Result.Ok();
         }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cinecritic.Domain.Models;
 
 namespace Cinecritic.Application.DTOs.Movies
 {
@@ -15,6 +10,10 @@ namespace Cinecritic.Application.DTOs.Movies
 
         public DateOnly? ReleaseDate { get; set; }
 
-        public int MovieTypeId { get; set; }
+        public Guid MovieTypeId { get; set; }
+        
+        public string MovieTypeName { get; set; }  = string.Empty;
+        
+        public List<FilmingLocation> FilmingLocations { get; set; } = [];
     }
 }

@@ -1,0 +1,27 @@
+﻿@page "/profile"
+@using Cinecritic.Application.Services.Users
+
+@inject IUserService UserService
+
+@rendermode InteractiveServer
+
+<PageTitle>Profile</PageTitle>
+
+<div class="row w-100 h-100">
+    <div class="col-md-4 mx-auto my-auto">
+        <h3>Profile</h3>
+        <EditForm method="post" Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <InputText id="displayName" type="text" @bind-Value="Input.DisplayName" class="form-control" placeholder="Please choose your username." />
+                <label for="displayName" class="form-label">Username</label>
+            </div>
+            @if (!string.IsNullOrEmpty(_statusMessage))
+            {
+                <StatusMessage Message="@_statusMessage"></StatusMessage>
+            }
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </EditForm>
+    </div>
+</div>

@@ -1,141 +1,136 @@
 ﻿using Cinecritic.Application.DTOs.Movies;
-using Cinecritic.Application.DTOs.MovieUsers;
-using Cinecritic.Application.Repositories;
+using MongoDB.Driver;
 using Cinecritic.Domain.Models;
-using Cinecritic.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Cinecritic.Application.Repositories;
+using MongoDB.Bson;
 
 namespace Cinecritic.Infrastructure.Repositories
 {
     public class MovieUserRepository : Repository<MovieUser>, IMovieUserRepository
     {
-        public MovieUserRepository(ApplicationDbContext context) : base(context)
+        public MovieUserRepository(IMongoDatabase database) : base(database)
         {
+
         }
 
-        public async Task<MovieUser?> GetMovieUserWithReview(int movieId, string userId)
+        public async Task<MovieUser?> GetMovieUserAsync(Guid movieId, Guid userId)
         {
-            return await _dbSet.Include(mu => mu.Review).FirstOrDefaultAsync(mu => mu.MovieId == movieId && mu.UserId == userId);
-        }
-
-        public async Task<MovieDto?> GetMovieAsync(int movieId, string userId)
-        {
-            var dto = await _context.Movies
-                .AsNoTracking()
-                .Where(m => m.Id == movieId)
-                .Select(m => new
-                {
-                    m.Id,
-                    m.Title,
-                    m.Description,
-                    m.ReleaseDate,
-                    MovieUser = m.MovieUsers
-                    .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
-                    .Select(mu => new
-                    {
-                        mu.IsLiked,
-                        mu.Rate,
-                        ReviewText = mu.Review != null ? mu.Review.ReviewText : null,
-                        ReviewDate = mu.Review != null ? DateOnly.FromDateTime(mu.Review.ReviewDateTime.Date) : (DateOnly?)null
-                    })
-                    .FirstOrDefault(),
-                    WatchList = m.WatchList
-                    .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
-                    .FirstOrDefault(),
-                    WatchedCount = m.MovieUsers
-                        .Where(mu => mu.MovieId == movieId)
-                        .Count(),
-                    LikedCount = m.MovieUsers
-                        .Where(mu => mu.MovieId == movieId && mu.IsLiked)
-                        .Count(),
-                    WatchListCount = m.WatchList
-                        .Where(mu => mu.MovieId == movieId)
-                        .Count(),
-                    Rate = m.MovieUsers
-                        .Where(mu => mu.MovieId == movieId)
-                        .Average(mu => mu.Rate),
-                })
-                .Select(m => new MovieDto
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    Description = m.Description,
-                    ReleaseDate = m.ReleaseDate,
-                    MovieUserStatus = new MovieUserStatusDto
-                    {
-                        UserId = userId,
-                        IsWatched = m.MovieUser != null,
-                        IsLiked = m.MovieUser != null && m.MovieUser.IsLiked,
-                        Rate = m.MovieUser != null ? m.MovieUser.Rate : null,
-                        IsInWatchList = m.WatchList != null,
-                        ReviewText = m.MovieUser != null ? m.MovieUser.ReviewText : null,
-                        ReviewDate = m.MovieUser != null ? m.MovieUser.ReviewDate : null
-                    },
-                    WatchedCount = m.WatchedCount,
-                    LikedCount = m.LikedCount,
-                    WatchListCount = m.WatchListCount,
-                    Rate = m.Rate ?? 0
-                })
+            return await _collection.Find(mu => mu.MovieId == movieId && mu.UserId == userId)
                 .FirstOrDefaultAsync();
+        }
+        
+        public async Task<MovieStatisticsDto> GetMovieStatisticsAsync(Guid movieId)
+        {
+            var pipeline = new EmptyPipelineDefinition<MovieUser>()
+                .Match(mu => mu.MovieId == movieId)
+                .Group(mu => mu.MovieId, g => new
+                {
+                    AverageRating = g.Where(mu => mu.Rate != null).Average(mu => mu.Rate),
+                    TotalWatches = g.Count(mu => mu.IsWatched),
+                    LikedCount = g.Count(mu => mu.IsLiked),
+                    WatchListCount = g.Count(mu => mu.IsInWatchList)
+                });
 
-            if (dto == null)
+            var result = await _collection.Aggregate(pipeline).FirstOrDefaultAsync();
+
+            return result != null 
+                ? new MovieStatisticsDto(
+                    result.AverageRating ?? 0, 
+                    result.TotalWatches, 
+                    result.LikedCount, 
+                    result.WatchListCount)
+                : new MovieStatisticsDto(0, 0, 0, 0);
+        }
+
+        public async Task<IEnumerable<Movie>> GetWatchedMoviesAsync(Guid userId, int pageSize, int pageCount)
+        {
+            var pipeline = new BsonDocument[]
             {
-                return null;
-            }
+                new BsonDocument("$match", new BsonDocument {
+                    { "UserId", new BsonBinaryData(userId, GuidRepresentation.Standard) },
+                    { "IsWatched", true }
+                }),
 
-            return dto;
+                new BsonDocument("$skip", (pageCount - 1) * pageSize),
+                new BsonDocument("$limit", pageSize),
+
+                new BsonDocument("$lookup", new BsonDocument {
+                    { "from", "Movies" },
+                    { "localField", "MovieId" },
+                    { "foreignField", "_id" },
+                    { "as", "MovieDetails" }
+                }),
+
+                new BsonDocument("$unwind", "$MovieDetails"),
+
+                new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$MovieDetails"))
+            };
+
+            return await _collection.Aggregate<Movie>(pipeline).ToListAsync();
         }
 
-        public async Task<IEnumerable<MovieListItemDto>> GetWatchedMoviesAsync(string userId, int pageSize, int pageCount)
+        public async Task<int> CountWatched(Guid userId)
         {
-            IEnumerable<MovieListItemDto> dto = await _dbSet
-                .AsNoTracking()
-                .Where(mu => mu.UserId == userId)
-                .OrderByDescending(mu => mu.WatchedDateTime)
-                .Skip((pageCount - 1) * pageSize)
-                .Take(pageSize)
-                .Select(m => new MovieListItemDto
-                {
-                    Id = m.MovieId,
-                    Title = m.Movie.Title,
-                    ReleaseDate = m.Movie.ReleaseDate,
-                }
-               ).ToListAsync();
-
-            return dto;
+            return (int)await _collection.CountDocumentsAsync(mu => mu.UserId == userId);
         }
 
-        public async Task<int> CountWatched(string userId)
+        public async Task<IEnumerable<Movie>> GetLikedMoviesAsync(Guid userId, int pageSize, int pageCount)
         {
-            return await _dbSet
-                .Where(mu => mu.UserId == userId)
-                .CountAsync();
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument {
+                    { "UserId", new BsonBinaryData(userId, GuidRepresentation.Standard) },
+                    { "IsLiked", true }
+                }),
+
+                new BsonDocument("$skip", (pageCount - 1) * pageSize),
+                new BsonDocument("$limit", pageSize),
+
+                new BsonDocument("$lookup", new BsonDocument {
+                    { "from", "Movies" },
+                    { "localField", "MovieId" },
+                    { "foreignField", "_id" },
+                    { "as", "MovieDetails" }
+                }),
+
+                new BsonDocument("$unwind", "$MovieDetails"),
+
+                new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$MovieDetails"))
+            };
+
+            return await _collection.Aggregate<Movie>(pipeline).ToListAsync();
+        }
+        
+        public async Task<IEnumerable<Movie>> GetInWatchListMoviesAsync(Guid userId, int pageSize, int pageCount)
+        {
+            var pipeline = new BsonDocument[]
+            {
+                new BsonDocument("$match", new BsonDocument {
+                    { "UserId", new BsonBinaryData(userId, GuidRepresentation.Standard) },
+                    { "IsInWatchList", true }
+                }),
+
+                new BsonDocument("$skip", (pageCount - 1) * pageSize),
+                new BsonDocument("$limit", pageSize),
+
+                new BsonDocument("$lookup", new BsonDocument {
+                    { "from", "Movies" },
+                    { "localField", "MovieId" },
+                    { "foreignField", "_id" },
+                    { "as", "MovieDetails" }
+                }),
+
+                new BsonDocument("$unwind", "$MovieDetails"),
+
+                new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$MovieDetails"))
+            };
+
+            return await _collection.Aggregate<Movie>(pipeline).ToListAsync();
         }
 
-        public async Task<IEnumerable<MovieListItemDto>> GetLikedMoviesAsync(string userId, int pageSize, int pageCount)
+        public async Task<int> CountLiked(Guid userId)
         {
-            IEnumerable<MovieListItemDto> dto = await _dbSet
-                .AsNoTracking()
-                .Where(mu => mu.UserId == userId && mu.IsLiked)
-                .OrderByDescending(mu => mu.LikedDateTime)
-                .Skip((pageCount - 1) * pageSize)
-                .Take(pageSize)
-                .Select(m => new MovieListItemDto
-                {
-                    Id = m.MovieId,
-                    Title = m.Movie.Title,
-                    ReleaseDate = m.Movie.ReleaseDate,
-                }
-               ).ToListAsync();
-
-            return dto;
-        }
-
-        public async Task<int> CountLiked(string userId)
-        {
-            return await _dbSet
-                .Where(mu => mu.UserId == userId && mu.IsLiked)
-                .CountAsync();
+            return (int)await _collection.CountDocumentsAsync(mu => mu.UserId == userId && mu.IsLiked);
         }
     }
 }

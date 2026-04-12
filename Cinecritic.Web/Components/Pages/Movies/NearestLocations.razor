@@ -1,0 +1,78 @@
+﻿@page "/locations/nearest"
+@rendermode InteractiveServer
+@using Cinecritic.Application.Services.Movies
+@using Cinecritic.Domain.Models
+@inject IMovieService MovieService
+@inject IJSRuntime JS
+
+<PageTitle>Find Nearest Filming Locations</PageTitle>
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-start">Find Nearest Filming Locations</h2>
+
+    <div class="bg-container p-4 rounded-3 shadow-sm mb-5">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Latitude</label>
+                <input type="number" step="any" class="form-control bg-textarea-review text-white border-0" @bind="lat" placeholder="e.g. 50.4501" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Longitude</label>
+                <input type="number" step="any" class="form-control bg-textarea-review text-white border-0" @bind="lon" placeholder="e.g. 30.5234" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button class="btn btn-outline-info w-100" @onclick="GetUserLocationAsync">
+                    <i class="fa fa-location-crosshairs"></i> Detect
+                </button>
+                <button class="btn btn-primary w-100" @onclick="SearchNearestAsync" disabled="@isSearching">
+                    @if (isSearching)
+                    {
+                        <span class="spinner-border spinner-border-sm"></span>
+                    }
+                    else
+                    {
+                        <span><i class="fa fa-search"></i> Search</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (locations != null)
+    {
+        @if (!locations.Any())
+        {
+            <p class="text-center mt-4">No locations found in this area.</p>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var loc in locations)
+                {
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-container border-0 h-100 p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="color-gold fw-bold mb-0">@loc.PlaceName</h5>
+                                <span class="badge bg-primary">@loc.MovieName</span>
+                            </div>
+                            <span class="text-info fw-bold small">
+                                <i class="fa fa-route"></i> 
+                                @FormatDistance(loc.Distance)
+                            </span>
+                            <p class="small text-white-50 flex-grow-1">@loc.Description</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary">
+                                <span class="text-muted x-small">
+                                    <i class="fa fa-map-pin"></i> @loc.Location.Coordinates[1].ToString("F4"), @loc.Location.Coordinates[0].ToString("F4")
+                                </span>
+                                <a href="@($"https://www.google.com/maps/search/?api=1&query={loc.Location.Coordinates[1].ToString(System.Globalization.CultureInfo.InvariantCulture)},{loc.Location.Coordinates[0].ToString(System.Globalization.CultureInfo.InvariantCulture)}")" 
+                                   target="_blank" class="btn btn-sm btn-outline-gold">
+                                    <i class="fa fa-external-link"></i> Google Maps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>

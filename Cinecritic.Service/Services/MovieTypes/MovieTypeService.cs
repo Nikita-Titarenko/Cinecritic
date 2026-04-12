@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Cinecritic.Application.DTOs.MovieTypes;
 using Cinecritic.Application.Repositories;
 using Cinecritic.Domain.Models;
 using FluentResults;
@@ -8,20 +7,19 @@ namespace Cinecritic.Application.Services.MovieTypes
 {
     public class MovieTypeService : IMovieTypeService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepository<MovieType> _movieTypeRep;
         private readonly IMapper _mapper;
 
-        public MovieTypeService(IUnitOfWork unitOfWork, IMapper mapper)
+        public MovieTypeService(IRepository<MovieType> movieTypeRep, IMapper mapper)
         {
-            _unitOfWork = unitOfWork;
+            _movieTypeRep = movieTypeRep;
             _mapper = mapper;
         }
 
-        public async Task<Result<IEnumerable<MovieTypeDto>>> GetMovieTypes()
+        public async Task<Result<IEnumerable<MovieType>>> GetMovieTypes()
         {
-            var watchListEntities = await _unitOfWork.Repository<MovieType>().GetAllAsync();
-            var dto = _mapper.Map<IEnumerable<MovieTypeDto>>(watchListEntities);
-            return Result.Ok(dto);
+            var movieTypes = await _movieTypeRep.GetAllAsync();
+            return Result.Ok(movieTypes);
         }
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace Cinecritic.Web.ViewModels.Movies
+﻿using Cinecritic.Domain.Models;
+
+namespace Cinecritic.Web.ViewModels.Movies
 {
     public class MovieListViewModel
     {
-        public List<MovieListItemViewModel> Movies { get; set; } = new List<MovieListItemViewModel>();
+        public List<Movie> Movies { get; set; } = new List<Movie>();
 
         public int TotalPageNumber { get; set; }
     }

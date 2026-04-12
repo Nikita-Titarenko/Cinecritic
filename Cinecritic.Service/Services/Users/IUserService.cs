@@ -7,7 +7,7 @@ namespace Cinecritic.Application.Services.Users
     {
         Task<Result<AuthResultDto>> RegisterAsync(RegisterDto registrationDto);
         Task<Result<AuthResultDto>> LoginAsync(LoginDto dto);
-        Task<Result> ConfirmEmailAsync(ConfirmTokenDto dto);
         Task<Result> ChangeDisplayNameAsync(ChangeDisplayNameDto dto);
+        Task<Result<string>> GetNameAsync(Guid userId);
     }
 }

@@ -6,7 +6,8 @@ namespace Cinecritic.Web.JSInterop
     {
         private readonly IJSRuntime _jSRuntime;
 
-        public JSInteropService(IJSRuntime jSRuntime) {
+        public JSInteropService(IJSRuntime jSRuntime)
+        {
             _jSRuntime = jSRuntime;
         }
 

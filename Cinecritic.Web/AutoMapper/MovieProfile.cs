@@ -2,20 +2,17 @@
 using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Web.ViewModels.Movies;
-using Cinecritic.Web.ViewModels.MovieUsers;
 
 namespace Cinecritic.Web.AutoMapper
 {
     public class MovieProfile : Profile
     {
-        public MovieProfile() {
+        public MovieProfile()
+        {
             CreateMap<CreateMovieViewModel, CreateMovieDto>()
                 .ForMember(dest => dest.MovieTypeId, opt => opt.MapFrom(src => src.SelectedMovieTypeId));
-            CreateMap<MovieListItemDto, MovieListItemViewModel>();
-            CreateMap<MovieDto, MovieViewModel>();
-            CreateMap<MovieUserStatusDto, MovieUserStatusViewModel>()
-                .ForMember(dest => dest.IsReviewCreated, opt => opt.MapFrom(src => src.ReviewText != null));
             CreateMap<GetMoviesResultDto, MovieListViewModel>();
+            CreateMap<MovieWithReviewsDto, CreateMovieViewModel>();
         }
     }
 }

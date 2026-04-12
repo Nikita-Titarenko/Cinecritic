@@ -1,0 +1,103 @@
+﻿@using Cinecritic.Domain.Models
+
+<h4 class="mt-4 text-white">Filming Locations</h4>
+<hr class="text-white" />
+
+@if (Locations != null)
+{
+    @foreach (var location in Locations)
+    {
+        <div class="card mb-3 p-3 bg-dark text-white border-secondary shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0 text-info">
+                    <i class="fa fa-map-marker-alt"></i> Location 
+                    @if (location.Id != Guid.Empty)
+                    {
+                        <small class="text-muted" style="font-size: 0.6em;">[@location.Id.ToString().Substring(0, 8)]</small>
+                    }
+                </h5>
+                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveLocation(location)">
+                    <i class="fa fa-trash"></i> Remove
+                </button>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-floating text-dark">
+                        <InputText class="form-control" @bind-Value="location.PlaceName" placeholder="Place Name" />
+                        <label>Place Name</label>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="form-floating text-dark">
+                        <InputTextArea class="form-control" @bind-Value="location.Description" placeholder="Description" style="height: 100px" />
+                        <label>Description</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-floating text-dark">
+                        <InputNumber class="form-control" 
+                                     Value="location.Location.Coordinates[0]" 
+                                     ValueChanged="@((double val) => OnCoordinateChanged(location, 0, val))" 
+                                     ValueExpression="() => location.Location.Coordinates[0]"
+                                     step="0.000001" />
+                        <label>Longitude</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-floating text-dark">
+                        <InputNumber class="form-control" 
+                                     Value="location.Location.Coordinates[1]" 
+                                     ValueChanged="@((double val) => OnCoordinateChanged(location, 1, val))" 
+                                     ValueExpression="() => location.Location.Coordinates[1]"
+                                     step="0.000001" />
+                        <label>Latitude</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<button type="button" class="btn btn-outline-info w-100 mb-4" @onclick="AddLocation">
+    <i class="fa fa-plus-circle"></i> Add New Location
+</button>
+
+@code {
+    [Parameter]
+    public List<FilmingLocation> Locations { get; set; } = [];
+
+    [Parameter]
+    public Guid MovieId { get; set; }
+
+    private void AddLocation()
+    {
+        Locations.Add(new FilmingLocation
+        {
+            Id = Guid.NewGuid(),
+            MovieId = MovieId,
+            Location = new GeoData 
+            { 
+                Type = "Point", 
+                Coordinates = new double[2] { 0.0, 0.0 }
+            }
+        });
+    }
+
+    private void RemoveLocation(FilmingLocation location)
+    {
+        Locations.Remove(location);
+    }
+
+    private void OnCoordinateChanged(FilmingLocation location, int index, double value)
+    {
+        if (location.Location.Coordinates == null || location.Location.Coordinates.Length < 2)
+        {
+            location.Location.Coordinates = new double[2];
+        }
+        location.Location.Coordinates[index] = value;
+    }
+}

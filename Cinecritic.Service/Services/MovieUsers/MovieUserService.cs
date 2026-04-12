@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using Cinecritic.Application.DTOs.Movies;
-using Cinecritic.Application.DTOs.MovieUsers;
+﻿using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.Repositories;
-using Cinecritic.Application.Services.Files;
-using Cinecritic.Application.Services.Movies;
 using Cinecritic.Domain.Models;
 using FluentResults;
 
@@ -11,144 +7,216 @@ namespace Cinecritic.Application.Services.MovieUsers
 {
     public class MovieUserService : IMovieUserService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly IFileService _fileService;
+        private readonly IMovieUserRepository _movieUserRepository;
+        private readonly IMovieRepository _movieRepository;
 
-        public MovieUserService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService)
+        public MovieUserService(
+            IMovieUserRepository movieUserRepository,
+            IMovieRepository movieRepository)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _fileService = fileService;
+            _movieUserRepository = movieUserRepository;
+            _movieRepository = movieRepository;
         }
 
-        public async Task<Result<MovieUserStatusDto>> RateMovieAsync(RateMovieDto dto)
+        public async Task<Result<MovieUser>> RateMovieAsync(Guid movieId, Guid userId, int rating)
         {
-            var repo = _unitOfWork.MovieUsers;
-            var movieUser = await repo.GetMovieUserWithReview(dto.MovieId, dto.UserId);
+            var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
             if (movieUser == null)
-            {
-                await DeleteFromWatchListAsync(dto.MovieId, dto.UserId);
-                movieUser = _mapper.Map<MovieUser>(dto);
-                repo.Add(movieUser);
-
+            {                
+                movieUser = new MovieUser
+                {
+                    MovieId = movieId, 
+                    UserId = userId, 
+                    Rate = rating,
+                    IsWatched = true,
+                    WatchedDateTime = DateTime.UtcNow
+                };
+                await _movieUserRepository.AddAsync(movieUser);
             }
             else
             {
-                movieUser.Rate = dto.Rate;
+                movieUser.Rate = rating;
+                await _movieUserRepository.UpdateAsync(movieUser);
             }
 
-            await _unitOfWork.CommitAsync();
-            var resultDto = _mapper.Map<MovieUserStatusDto>(movieUser);
-            resultDto.IsWatched = true;
-            return Result.Ok(resultDto);
+            await SyncMovieStatisticsAsync(movieId);
+            
+            return Result.Ok(movieUser);
         }
 
-        public async Task<Result<MovieUserStatusDto>> ToggleWatchMovieAsync(int movieId, string userId)
+        public async Task<Result<MovieUser>> ToggleWatchMovieAsync(Guid movieId, Guid userId)
         {
-            var repo = _unitOfWork.MovieUsers;
-            var movieUser = await repo.GetMovieUserWithReview(movieId, userId);
-            bool isWatched = false;
+            var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
             if (movieUser == null)
             {
-                await DeleteFromWatchListAsync(movieId, userId);
-                repo.Add(new MovieUser { MovieId = movieId, UserId = userId });
-                isWatched = true;
+                movieUser = new MovieUser { MovieId = movieId, UserId = userId, IsWatched = true, WatchedDateTime = DateTime.UtcNow };
+                await _movieUserRepository.AddAsync(movieUser);
             }
+            else if (!movieUser.IsWatched)
+            {
+                movieUser.IsWatched = true;
+                movieUser.WatchedDateTime = DateTime.UtcNow;
+                movieUser.IsInWatchList = false;
+                await _movieUserRepository.UpdateAsync(movieUser);
+            } 
             else
             {
-                repo.Delete(movieUser);
+                await _movieUserRepository.DeleteAsync(movieUser);
+                movieUser = new MovieUser{ MovieId = movieId, UserId = userId };
             }
 
-            await _unitOfWork.CommitAsync();
+            await SyncMovieStatisticsAsync(movieId);
 
-            return Result.Ok(new MovieUserStatusDto
-            {
-                UserId = userId,
-                IsWatched = isWatched
-            });
+            return Result.Ok(movieUser);
         }
 
-        public async Task<Result<MovieUserStatusDto>> ToggleLikeMovieAsync(int movieId, string userId)
+        public async Task<Result<MovieUser>> ToggleLikeMovieAsync(Guid movieId, Guid userId)
         {
-            var repo = _unitOfWork.MovieUsers;
-            var movieUser = await repo.GetMovieUserWithReview(movieId, userId);
-            bool isLiked = false;
+            var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
             if (movieUser == null)
             {
-                await DeleteFromWatchListAsync(movieId, userId);
-                repo.Add(new MovieUser { MovieId = movieId, UserId = userId, IsLiked = true, LikedDateTime = DateTime.UtcNow });
-                isLiked = true;
+                movieUser = new MovieUser
+                {
+                    MovieId = movieId, 
+                    UserId = userId, 
+                    IsWatched = true, 
+                    WatchedDateTime = DateTime.UtcNow, 
+                    IsLiked = true, 
+                    LikedDateTime = DateTime.UtcNow,
+                    IsInWatchList = false
+                };
+                await _movieUserRepository.AddAsync(movieUser);
             }
             else
             {
                 movieUser.IsLiked = !movieUser.IsLiked;
-                isLiked = movieUser.IsLiked;
-                if (isLiked)
+                movieUser.LikedDateTime = movieUser.IsLiked ? DateTime.UtcNow : null;
+                if (movieUser.IsLiked)
                 {
-                    movieUser.LikedDateTime = DateTime.UtcNow;
+                    movieUser.IsWatched = true;
+                    movieUser.IsInWatchList = false;
                 }
+                await _movieUserRepository.UpdateAsync(movieUser);
             }
 
-            await _unitOfWork.CommitAsync();
+            await SyncMovieStatisticsAsync(movieId);
 
-            return Result.Ok(new MovieUserStatusDto
+            return movieUser;
+        }
+        
+        public async Task<Result<MovieUser>> ToggleIsInWatchListAsync(Guid movieId, Guid userId)
+        {
+            var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
+
+            if (movieUser == null)
             {
-                UserId = userId,
-                IsWatched = true,
-                IsLiked = isLiked,
-                Rate = movieUser?.Rate,
-                ReviewText = movieUser?.Review?.ReviewText,
-                ReviewDate = movieUser?.Review?.ReviewDateTime.Date != null ? DateOnly.FromDateTime(movieUser.Review.ReviewDateTime.Date) : null
-            });
+                movieUser = new MovieUser { MovieId = movieId, UserId = userId, IsInWatchList = true, InWatchListDateTime = DateTime.UtcNow };
+                await _movieUserRepository.AddAsync(movieUser);
+            }
+            else
+            {
+                movieUser.IsInWatchList = !movieUser.IsInWatchList;
+                movieUser.InWatchListDateTime = DateTime.UtcNow;
+                
+                movieUser.IsWatched = false;
+                movieUser.IsLiked = false;
+                movieUser.ReviewText = null;
+                movieUser.Rate = null;
+                
+                await _movieUserRepository.UpdateAsync(movieUser);
+            }
+
+            await SyncMovieStatisticsAsync(movieId);
+
+            return movieUser;
+        }
+        
+        public async Task<Result<MovieUser>> CreateOrUpdateReviewAsync(Guid movieId, Guid userId, string reviewText)
+        {
+            var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
+
+            if (movieUser == null)
+            {
+                movieUser = new MovieUser
+                {
+                    MovieId = movieId, 
+                    UserId = userId, 
+                    IsWatched = true, 
+                    WatchedDateTime = DateTime.UtcNow,
+                    ReviewText = reviewText,
+                    ReviewDateTime = DateTime.UtcNow
+                };
+                await _movieUserRepository.AddAsync(movieUser);
+            }
+            else
+            {
+                movieUser.IsInWatchList = false;
+                if (!movieUser.IsWatched)
+                {
+                    movieUser.IsWatched = true;
+                    movieUser.WatchedDateTime = DateTime.UtcNow;
+                }
+
+                if (movieUser.IsInWatchList)
+                {
+                    movieUser.IsInWatchList = false;
+                }
+                
+                movieUser.ReviewText = reviewText;
+                movieUser.ReviewDateTime = DateTime.UtcNow;
+                
+                await _movieUserRepository.UpdateAsync(movieUser);
+            }
+
+            await SyncMovieStatisticsAsync(movieId);
+
+            return movieUser;
         }
 
-        public async Task DeleteFromWatchListAsync(int movieId, string userId)
+        public async Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(Guid userId, int pageSize, int pageCount)
         {
-            var watchListRepository = _unitOfWork.Repository<WatchList>();
-            var watchList = await watchListRepository.GetAsync(movieId, userId);
-            if (watchList != null)
-            {
-                watchListRepository.Delete(watchList);
-            }
-        }
+            var movies = await _movieUserRepository.GetWatchedMoviesAsync(userId, pageSize, pageCount);
 
-        public async Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(string userId, int pageSize, int pageCount)
-        {
-            var movies = await _unitOfWork.MovieUsers.GetWatchedMoviesAsync(userId, pageSize, pageCount);
-            foreach (var movie in movies)
-            {
-                movie.ImagePath = GetFilePath(movie.Id);
-            }
-            var dto = new GetMoviesResultDto{
-                Movies = movies,
-                TotalMovieNumber = await _unitOfWork.MovieUsers.CountWatched(userId)
-            };
-            return Result.Ok(dto);
-        }
-
-        public async Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(string userId, int pageSize, int pageCount)
-        {
-            var movies = await _unitOfWork.MovieUsers.GetLikedMoviesAsync(userId, pageSize, pageCount);
-            foreach (var movie in movies)
-            {
-                movie.ImagePath = GetFilePath(movie.Id);
-            }
             var dto = new GetMoviesResultDto
             {
                 Movies = movies,
-                TotalMovieNumber = await _unitOfWork.MovieUsers.CountLiked(userId)
+                TotalMovieNumber = await _movieUserRepository.CountWatched(userId)
             };
             return Result.Ok(dto);
         }
 
-        private string GetFilePath(int movieId)
+        public async Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(Guid userId, int pageSize, int pageCount)
         {
-            var result = _fileService.GetFilePath(Path.Combine(MovieService.MoviePath, $"{movieId}.jpg"));
-            return result.IsSuccess ? result.Value : "/images/no-image.webp";
+            var movies = await _movieUserRepository.GetLikedMoviesAsync(userId, pageSize, pageCount);
+
+            var dto = new GetMoviesResultDto
+            {
+                Movies = movies,
+                TotalMovieNumber = await _movieUserRepository.CountLiked(userId)
+            };
+            return Result.Ok(dto);
+        }
+        
+        public async Task<Result<GetMoviesResultDto>> GetInWatchListMoviesAsync(Guid userId, int pageSize, int pageCount)
+        {
+            var movies = await _movieUserRepository.GetInWatchListMoviesAsync(userId, pageSize, pageCount);
+
+            var dto = new GetMoviesResultDto
+            {
+                Movies = movies,
+                TotalMovieNumber = await _movieUserRepository.CountLiked(userId)
+            };
+            return Result.Ok(dto);
+        }
+
+        private async Task SyncMovieStatisticsAsync(Guid movieId)
+        {
+            var stats = await _movieUserRepository.GetMovieStatisticsAsync(movieId);
+
+            await _movieRepository.UpdateMovieStatsAsync(movieId, stats);
         }
     }
 }

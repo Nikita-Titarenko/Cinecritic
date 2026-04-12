@@ -1,8 +1,12 @@
+using System.Security.Claims;
 using Cinecritic.Infrastructure;
 using Cinecritic.Infrastructure.Data;
 using Cinecritic.Web;
 using Cinecritic.Web.Components;
-using Cinecritic.Web.Components.Account;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
@@ -10,11 +14,24 @@ builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddScoped(_ => new HttpClient
+{
+    BaseAddress = new Uri(builder.Configuration["BaseAddress"] ?? "https://localhost:44351/")
+});
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "CinecriticAuth";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.Cookie.HttpOnly = true; // Захист від XSS
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    });
+// builder.Services.AddCascadingAuthenticationState();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var applicationDbContext = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
     await DbInitializer.CreateInitialMoviesAsync(applicationDbContext);
 }
 
@@ -33,12 +50,40 @@ else
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Add additional endpoints required by the Identity /Account Razor components.
-app.MapAdditionalIdentityEndpoints();
+app.MapGet("/api/auth/login-callback", async (HttpContext context, [FromQuery] Guid userId) =>
+{
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+    };
+
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
+    
+    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
+    {
+        IsPersistent = true,
+        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+    });
+    
+    return Results.Redirect("/");
+});
+
+app.MapPost("/Account/Logout", async (HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    
+    return Results.Redirect("/");
+});
 
 app.Run();
+
+public record LoginRequest(Guid UserId);

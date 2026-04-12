@@ -8,7 +8,7 @@ namespace Cinecritic.Application.DTOs.Account
 {
     public class ChangeDisplayNameDto
     {
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; }
         public string DisplayName { get; set; } = string.Empty;
     }
 }

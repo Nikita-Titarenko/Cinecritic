@@ -1,24 +1,36 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cinecritic.Domain.Models
 {
     public class MovieUser
     {
-        public int MovieId { get; set; }
+        [BsonId]
+        public Guid Id { get; set; }
 
-        public Movie Movie { get; set; } = default!;
+        public Guid MovieId { get; set; }
 
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; }
+        
+        public bool IsWatched { get; set; }
 
-        public DateTime WatchedDateTime {  get; set; } = DateTime.UtcNow;
+        public DateTime? WatchedDateTime { get; set; }
 
         public bool IsLiked { get; set; }
 
         public DateTime? LikedDateTime { get; set; }
-
-        [Range(1, 10)]
+        
+        public bool IsInWatchList { get; set; }
+        
+        public DateTime? InWatchListDateTime { get; set; }
+        
         public int? Rate { get; set; }
+        
+        public string? ReviewText { get; set; }
 
-        public Review? Review { get; set; }
+        public DateTime? ReviewDateTime { get; set; }
+        
+        [BsonIgnoreIfDefault]
+        public string Name { get; set; } = string.Empty;
     }
 }

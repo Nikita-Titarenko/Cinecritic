@@ -7,6 +7,9 @@ namespace Cinecritic.Application.Repositories
 {
     public interface IMovieRepository : IRepository<Movie>
     {
-        Task<IEnumerable<MovieListItemDto>> GetMoviesAsync(int pageSize, int pageCount);
+        Task<IEnumerable<Movie>> GetMoviesAsync(int pageSize, int pageCount);
+        Task UpdateMovieStatsAsync(Guid movieId, MovieStatisticsDto stats);
+        Task<MovieWithReviewsDto?> GetMovieWithReviewsAsync(Guid movieId, Guid? userId);
+        Task<IEnumerable<FilmingLocation>> GetNearestFilmingLocationsAsync(GeoData myLocation, int nPoints);
     }
 }

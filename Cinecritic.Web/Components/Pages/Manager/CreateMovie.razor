@@ -1,11 +1,8 @@
 ﻿@page "/manager/createmovie"
-@attribute [Authorize(Roles = DefaultRoles.ManagerRole)]
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.Authorization
-@using Cinecritic.Web.Common
 @using Cinecritic.Web.Components.Inputs
-@using Cinecritic.Web.ViewModels
-@using Cinecritic.Web.Components.Account.Shared
+@using Cinecritic.Web.Components.Pages.Account.Shared
+@using Cinecritic.Web.Components.Pages.Shared
 
 <HeadContent>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
@@ -42,7 +39,7 @@
 					<option value="" hidden>Choose film type</option>
 					@foreach(var movieType in MovieTypes)
 					{
-						<option value="@movieType.Id">@movieType.MovieTypeName</option>
+						<option value="@movieType.Id">@movieType.Name</option>
 					}
 				</InputSelect>
 				<label for="movieTypes" class="form-label">Movie type</label>
@@ -60,9 +57,12 @@
 				}
 				<InputFile OnChange="HandleSelected" accept="@AcceptedImageType" class="d-none" />
 			</label>
-			@if (!string.IsNullOrEmpty(statusMessage))
+			
+			<FilmingLocationEditor Locations="CreateMovieViewModel.FilmingLocations" />
+			
+			@if (!string.IsNullOrEmpty(_statusMessage))
 			{
-				<StatusMessage Message="@statusMessage"></StatusMessage>
+				<StatusMessage Message="@_statusMessage"></StatusMessage>
 			}
 			<button type="submit" class="btn btn-primary d-flex ms-auto">Create</button>
 		</EditForm>

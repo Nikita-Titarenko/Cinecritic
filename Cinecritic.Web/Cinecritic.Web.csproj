@@ -24,4 +24,26 @@
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\Account\Pages\AccessDenied.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Pages\InvalidUser.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Pages\Login.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Pages\Register.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Pages\_Imports.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Shared\AccountLayout.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Shared\RedirectToLogin.razor" />
+    <_ContentIncludedByDefault Remove="Components\Account\Shared\StatusMessage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Components\Pages\Account\Shared\AccountLayout.razor" />
+    <AdditionalFiles Include="Components\Pages\Account\Shared\RedirectToLogin.razor" />
+    <AdditionalFiles Include="Components\Pages\Account\Shared\StatusMessage.razor" />
+    <AdditionalFiles Include="Components\Pages\Profile\Index.razor" />
+    <AdditionalFiles Include="Components\Pages\Profile\LikedMovies.razor" />
+    <AdditionalFiles Include="Components\Pages\Profile\MoviesInWatchList.razor" />
+    <AdditionalFiles Include="Components\Pages\Profile\WatchedMovies.razor" />
+    <AdditionalFiles Include="Components\Pages\Profile\_Imports.razor" />
+  </ItemGroup>
+
 </Project>

@@ -10,15 +10,37 @@
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="Cinecritic.Web.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 </head>
 
 <body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
-    <script src="lib/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/js/site.js"></script>
-    <script src="/js/scroll-handler.js"></script>
+<Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+    
+<script src="_framework/blazor.web.js"></script>
+<script>
+    window.getBrowserLocation = () => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject("Geolocation is not supported by this browser.");
+            } else {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        });
+                    },
+                    (error) => {
+                        reject(error.message);
+                    }
+                );
+            }
+        });
+    };
+</script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="/js/site.js"></script>
+<script src="/js/scroll-handler.js"></script>
 </body>
 
 </html>

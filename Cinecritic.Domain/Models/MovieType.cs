@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cinecritic.Domain.Models
 {
     public class MovieType
     {
-        public int Id { get; set; }
+        [BsonId]
+        public Guid Id { get; set; }
 
-        public string MovieTypeName { get; set; } = string.Empty;
-
-        public IEnumerable<Movie> Movies { get; set; } = new List<Movie>();
+        public string Name { get; set; } = string.Empty;
     }
 }

@@ -1,10 +1,10 @@
-﻿using Cinecritic.Application.DTOs.MovieTypes;
+﻿using Cinecritic.Domain.Models;
 using FluentResults;
 
 namespace Cinecritic.Application.Services.MovieTypes
 {
     public interface IMovieTypeService
     {
-        Task<Result<IEnumerable<MovieTypeDto>>> GetMovieTypes();
+        Task<Result<IEnumerable<MovieType>>> GetMovieTypes();
     }
 }

@@ -2,8 +2,8 @@ using AutoMapper;
 using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.Services.Movies;
 using Cinecritic.Application.Services.MovieTypes;
+using Cinecritic.Domain.Models;
 using Cinecritic.Web.ViewModels.Movies;
-using Cinecritic.Web.ViewModels.MovieTypes;
 using FluentResults;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -19,13 +19,13 @@ namespace Cinecritic.Web.Components.Pages.Manager
         [SupplyParameterFromForm]
         private CreateMovieViewModel CreateMovieViewModel { get; set; } = new CreateMovieViewModel();
 
-        private List<MovieTypeViewModel> MovieTypes { get; set; } = new();
+        private List<MovieType> MovieTypes { get; set; } = new();
 
         private string? _previewUrl;
 
         private IBrowserFile? _browserFile;
 
-        private string? statusMessage;
+        private string? _statusMessage;
 
         [Inject]
         private IMovieService MovieService { get; set; } = default!;
@@ -37,49 +37,51 @@ namespace Cinecritic.Web.Components.Pages.Manager
 
         protected override async Task OnInitializedAsync()
         {
-            base.OnInitialized();
+            await base.OnInitializedAsync();
             var getMovieTypesResult = await MovieTypeService.GetMovieTypes();
             if (!getMovieTypesResult.IsSuccess)
             {
-                statusMessage = "Error when loading data";
+                _statusMessage = "Error when loading data";
                 return;
             }
-            MovieTypes = Mapper.Map<List<MovieTypeViewModel>>(getMovieTypesResult.Value);
+            MovieTypes = getMovieTypesResult.Value.ToList();
         }
 
         private async Task HandleSubmit()
         {
             var dto = Mapper.Map<CreateMovieDto>(CreateMovieViewModel);
-            Result<int> createMovieResult = default!;
+            dto.MovieTypeId = CreateMovieViewModel.SelectedMovieTypeId.Value;
+            dto.MovieTypeName = MovieTypes.First(mt => mt.Id == CreateMovieViewModel.SelectedMovieTypeId).Name;
+            Result<Guid> createMovieResult;
             if (_browserFile == null)
             {
                 createMovieResult = await MovieService.CreateMovieAsync(dto, null, null);
             }
             else
             {
-                using var stream = _browserFile.OpenReadStream(MaxFileSize);
+                await using var stream = _browserFile.OpenReadStream(MaxFileSize);
                 createMovieResult = await MovieService.CreateMovieAsync(dto, stream, Path.GetExtension(_browserFile.Name));
             }
 
             if (!createMovieResult.IsSuccess)
             {
-                statusMessage = "Error while sending";
+                _statusMessage = "Error while sending";
                 return;
             }
 
-            statusMessage = "The movie was successfully created!";
+            _statusMessage = "The movie was successfully created!";
         }
 
         private async Task HandleSelected(InputFileChangeEventArgs e)
         {
             if (e.File.Size > MaxFileSize)
             {
-                statusMessage = "Max size image - 2MB";
+                _statusMessage = "Max size image - 2MB";
                 return;
             }
             _browserFile = e.File;
 
-            using var stream = e.File.OpenReadStream(MaxFileSize);
+            await using var stream = e.File.OpenReadStream(MaxFileSize);
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             _previewUrl = $"data:{AcceptedImageType};base64,{Convert.ToBase64String(ms.ToArray())}";
