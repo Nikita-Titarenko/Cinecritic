@@ -1,8 +1,8 @@
 # Cinecritic
-Web site on ASP.NET Core and Blazor for rating movies, noting watсhed or want to watch and creating reviews. Also, you can see your noted movies and reviews and managers can create movies.
+Web site on ASP.NET Core and Blazor for rating movies, noting watсhed or want to watch and creating reviews. Also, you can see your noted movies and reviews and managers can create, edit and delete movies. Finally, there is a functional to see the nearest filming locations.
 ## Requirements
 - [.NET SDK](https://dotnet.microsoft.com/en-us/download)
-- [Microsoft SQL Server](https://www.microsoft.com/uk-ua/sql-server/sql-server-downloads)
+- [MongoDB](https://www.mongodb.com/try/download/community)
 - Git
 ## Installation
 - Clone repository
@@ -10,10 +10,7 @@ Web site on ASP.NET Core and Blazor for rating movies, noting watсhed or want t
 git clone https://github.com/Nikita-Titarenko/Cinecritic
 ```
 - Change DefaultConnection in appsettings.json
-- Update database
-```bash
-dotnet ef database update
-```
+
 ## Using
 - Run application
 ```bash
