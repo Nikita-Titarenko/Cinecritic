@@ -15,6 +15,7 @@ public partial class EditMovie
     [Parameter] public string MovieId { get; set; } = string.Empty;
     private ObjectId MovieObjectId => ObjectId.Parse(MovieId);
 
+    [SupplyParameterFromForm]
     private CreateMovieViewModel UpdateMovieViewModel { get; set; } = new();
     private string? _previewUrl;
     private IBrowserFile? _browserFile;
@@ -37,7 +38,7 @@ public partial class EditMovie
             _previewUrl = movieResult.Value.ImagePath;
         }
     }
-
+    
     private async Task HandleSubmit()
     {
         var dto = Mapper.Map<CreateMovieDto>(UpdateMovieViewModel);
