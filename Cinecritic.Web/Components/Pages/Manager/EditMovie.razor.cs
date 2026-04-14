@@ -6,13 +6,14 @@ using Cinecritic.Domain.Models;
 using Cinecritic.Web.ViewModels.Movies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using MongoDB.Bson;
 
 namespace Cinecritic.Web.Components.Pages.Manager
 {
     public partial class EditMovie
     {
         [Parameter] public string MovieId { get; set; } = string.Empty;
-        private Guid MovieGuid => Guid.Parse(MovieId);
+        private ObjectId MovieObjectId => ObjectId.Parse(MovieId);
 
         private CreateMovieViewModel UpdateMovieViewModel { get; set; } = new();
         private string? _previewUrl;
@@ -29,7 +30,7 @@ namespace Cinecritic.Web.Components.Pages.Manager
             var typesResult = await MovieTypeService.GetMovieTypes();
             MovieTypes = typesResult.Value.ToList();
 
-            var movieResult = await MovieService.GetMovieAsync(MovieGuid, null, 0);
+            var movieResult = await MovieService.GetMovieAsync(MovieObjectId, null, 0);
             if (movieResult.IsSuccess)
             {
                 UpdateMovieViewModel = Mapper.Map<CreateMovieViewModel>(movieResult.Value);
@@ -40,8 +41,8 @@ namespace Cinecritic.Web.Components.Pages.Manager
         private async Task HandleSubmit()
         {
             var dto = Mapper.Map<CreateMovieDto>(UpdateMovieViewModel);
-            dto.MovieTypeId = UpdateMovieViewModel.SelectedMovieTypeId.Value;
-            dto.MovieTypeName = MovieTypes.First(mt => mt.Id == UpdateMovieViewModel.SelectedMovieTypeId).Name;
+            dto.MovieTypeId = ObjectId.Parse(UpdateMovieViewModel.SelectedMovieTypeId);
+            dto.MovieTypeName = MovieTypes.First(mt => mt.Id == dto.MovieTypeId).Name;
             
             Stream? stream = null;
             string? extension = null;
@@ -52,7 +53,7 @@ namespace Cinecritic.Web.Components.Pages.Manager
                 extension = Path.GetExtension(_browserFile.Name);
             }
             
-            var result = await MovieService.UpdateMovieAsync(MovieGuid, dto, stream, extension);
+            var result = await MovieService.UpdateMovieAsync(MovieObjectId, dto, stream, extension);
 
             if (result.IsSuccess)
                 _statusMessage = "Updated successfully!";

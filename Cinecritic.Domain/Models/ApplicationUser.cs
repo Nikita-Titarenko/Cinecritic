@@ -1,13 +1,10 @@
-using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cinecritic.Domain.Models
 {
-    public class ApplicationUser
+    public class ApplicationUser : BaseEntity
     {
-        [BsonId]
-        public Guid Id { get; set; }
-
         public string Email { get; set; } = string.Empty;
 
         public string PasswordHash { get; set; } = string.Empty;

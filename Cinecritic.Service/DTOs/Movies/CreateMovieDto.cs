@@ -1,4 +1,5 @@
 ﻿using Cinecritic.Domain.Models;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.DTOs.Movies
 {
@@ -10,7 +11,7 @@ namespace Cinecritic.Application.DTOs.Movies
 
         public DateOnly? ReleaseDate { get; set; }
 
-        public Guid MovieTypeId { get; set; }
+        public ObjectId MovieTypeId { get; set; }
         
         public string MovieTypeName { get; set; }  = string.Empty;
         

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Cinecritic.Domain.Models;
 using Microsoft.AspNetCore.Components.Forms;
+using MongoDB.Bson;
 
 namespace Cinecritic.Web.ViewModels.Movies
 {
@@ -14,7 +15,7 @@ namespace Cinecritic.Web.ViewModels.Movies
         public DateOnly? ReleaseDate { get; set; }
 
         [Required]
-        public Guid? SelectedMovieTypeId { get; set; } = null;
+        public string? SelectedMovieTypeId { get; set; } = null;
         
         public List<FilmingLocation> FilmingLocations { get; set; } = [];
     }

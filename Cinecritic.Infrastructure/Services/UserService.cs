@@ -7,6 +7,7 @@ using FluentResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Cinecritic.Infrastructure.Services
 {
@@ -50,7 +51,7 @@ namespace Cinecritic.Infrastructure.Services
                 await _userRepository.AddAsync(existingUser);
             }
 
-            var token = GenerateSimpleToken(existingUser.Id);
+            var token = GenerateSimpleToken(existingUser.Id.ToString());
 
             return Result.Ok(new AuthResultDto { UserId = existingUser.Id, Code = token });
         }
@@ -68,7 +69,7 @@ namespace Cinecritic.Infrastructure.Services
 
             if (result == PasswordVerificationResult.Success)
             {
-                return Result.Ok(new AuthResultDto {  UserId = user.Id, Code = GenerateSimpleToken(user.Id) });
+                return Result.Ok(new AuthResultDto {  UserId = user.Id, Code = GenerateSimpleToken(user.Id.ToString()) });
             }
 
             _logger.LogWarning("Failed to login");
@@ -87,7 +88,7 @@ namespace Cinecritic.Infrastructure.Services
             return Result.Ok();
         }
 
-        public async Task<Result<string>> GetNameAsync(Guid userId)
+        public async Task<Result<string>> GetNameAsync(ObjectId userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
@@ -98,9 +99,9 @@ namespace Cinecritic.Infrastructure.Services
             return Result.Ok(user.Name);
         }
 
-        private string GenerateSimpleToken(Guid userId)
+        private string GenerateSimpleToken(string userId)
         {
-            return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId.ToString()));
+            return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId));
         }
     }
 }

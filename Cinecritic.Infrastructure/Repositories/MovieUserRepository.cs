@@ -10,16 +10,15 @@ namespace Cinecritic.Infrastructure.Repositories
     {
         public MovieUserRepository(IMongoDatabase database) : base(database)
         {
-
         }
 
-        public async Task<MovieUser?> GetMovieUserAsync(Guid movieId, Guid userId)
+        public async Task<MovieUser?> GetMovieUserAsync(ObjectId movieId, ObjectId userId)
         {
             return await _collection.Find(mu => mu.MovieId == movieId && mu.UserId == userId)
                 .FirstOrDefaultAsync();
         }
         
-        public async Task<MovieStatisticsDto> GetMovieStatisticsAsync(Guid movieId)
+        public async Task<MovieStatisticsDto> GetMovieStatisticsAsync(ObjectId movieId)
         {
             var pipeline = new EmptyPipelineDefinition<MovieUser>()
                 .Match(mu => mu.MovieId == movieId)
@@ -42,12 +41,12 @@ namespace Cinecritic.Infrastructure.Repositories
                 : new MovieStatisticsDto(0, 0, 0, 0);
         }
 
-        public async Task<IEnumerable<Movie>> GetWatchedMoviesAsync(Guid userId, int pageSize, int pageCount)
+        public async Task<IEnumerable<Movie>> GetWatchedMoviesAsync(ObjectId userId, int pageSize, int pageCount)
         {
             var pipeline = new BsonDocument[]
             {
                 new BsonDocument("$match", new BsonDocument {
-                    { "UserId", new BsonBinaryData(userId, GuidRepresentation.Standard) },
+                    { "UserId", userId },
                     { "IsWatched", true }
                 }),
 
@@ -69,17 +68,17 @@ namespace Cinecritic.Infrastructure.Repositories
             return await _collection.Aggregate<Movie>(pipeline).ToListAsync();
         }
 
-        public async Task<int> CountWatched(Guid userId)
+        public async Task<int> CountWatched(ObjectId userId)
         {
-            return (int)await _collection.CountDocumentsAsync(mu => mu.UserId == userId);
+            return (int)await _collection.CountDocumentsAsync(mu => mu.UserId == userId && mu.IsWatched);
         }
 
-        public async Task<IEnumerable<Movie>> GetLikedMoviesAsync(Guid userId, int pageSize, int pageCount)
+        public async Task<IEnumerable<Movie>> GetLikedMoviesAsync(ObjectId userId, int pageSize, int pageCount)
         {
             var pipeline = new BsonDocument[]
             {
                 new BsonDocument("$match", new BsonDocument {
-                    { "UserId", new BsonBinaryData(userId, GuidRepresentation.Standard) },
+                    { "UserId", userId },
                     { "IsLiked", true }
                 }),
 
@@ -101,12 +100,12 @@ namespace Cinecritic.Infrastructure.Repositories
             return await _collection.Aggregate<Movie>(pipeline).ToListAsync();
         }
         
-        public async Task<IEnumerable<Movie>> GetInWatchListMoviesAsync(Guid userId, int pageSize, int pageCount)
+        public async Task<IEnumerable<Movie>> GetInWatchListMoviesAsync(ObjectId userId, int pageSize, int pageCount)
         {
             var pipeline = new BsonDocument[]
             {
                 new BsonDocument("$match", new BsonDocument {
-                    { "UserId", new BsonBinaryData(userId, GuidRepresentation.Standard) },
+                    { "UserId", userId },
                     { "IsInWatchList", true }
                 }),
 
@@ -128,7 +127,7 @@ namespace Cinecritic.Infrastructure.Repositories
             return await _collection.Aggregate<Movie>(pipeline).ToListAsync();
         }
 
-        public async Task<int> CountLiked(Guid userId)
+        public async Task<int> CountLiked(ObjectId userId)
         {
             return (int)await _collection.CountDocumentsAsync(mu => mu.UserId == userId && mu.IsLiked);
         }

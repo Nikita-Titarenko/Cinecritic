@@ -1,5 +1,6 @@
 ﻿using Cinecritic.Application.DTOs.Account;
 using FluentResults;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.Services.Users
 {
@@ -8,6 +9,6 @@ namespace Cinecritic.Application.Services.Users
         Task<Result<AuthResultDto>> RegisterAsync(RegisterDto registrationDto);
         Task<Result<AuthResultDto>> LoginAsync(LoginDto dto);
         Task<Result> ChangeDisplayNameAsync(ChangeDisplayNameDto dto);
-        Task<Result<string>> GetNameAsync(Guid userId);
+        Task<Result<string>> GetNameAsync(ObjectId userId);
     }
 }

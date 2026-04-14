@@ -1,12 +1,11 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cinecritic.Domain.Models;
 
-public class FilmingLocation
+public class FilmingLocation : BaseEntity
 {
-    [BsonId]
-    public Guid Id { get; set; }
-    public Guid MovieId { get; set; }
+    public ObjectId MovieId { get; set; }
     public string PlaceName { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     

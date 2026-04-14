@@ -39,7 +39,7 @@
 					<option value="" hidden>Choose film type</option>
 					@foreach(var movieType in MovieTypes)
 					{
-						<option value="@movieType.Id">@movieType.Name</option>
+						<option value="@movieType.Id.ToString()">@movieType.Name</option>
 					}
 				</InputSelect>
 				<label for="movieTypes" class="form-label">Movie type</label>

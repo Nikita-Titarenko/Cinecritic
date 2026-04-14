@@ -7,6 +7,7 @@ using Cinecritic.Web.ViewModels.Movies;
 using FluentResults;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using MongoDB.Bson;
 
 namespace Cinecritic.Web.Components.Pages.Manager
 {
@@ -50,9 +51,9 @@ namespace Cinecritic.Web.Components.Pages.Manager
         private async Task HandleSubmit()
         {
             var dto = Mapper.Map<CreateMovieDto>(CreateMovieViewModel);
-            dto.MovieTypeId = CreateMovieViewModel.SelectedMovieTypeId.Value;
-            dto.MovieTypeName = MovieTypes.First(mt => mt.Id == CreateMovieViewModel.SelectedMovieTypeId).Name;
-            Result<Guid> createMovieResult;
+            dto.MovieTypeId = ObjectId.Parse(CreateMovieViewModel.SelectedMovieTypeId);
+            dto.MovieTypeName = MovieTypes.First(mt => mt.Id == dto.MovieTypeId).Name;
+            Result<ObjectId> createMovieResult;
             if (_browserFile == null)
             {
                 createMovieResult = await MovieService.CreateMovieAsync(dto, null, null);

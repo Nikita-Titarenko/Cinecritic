@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cinecritic.Domain.Models
 {
-    public class Movie
+    public class Movie : BaseEntity
     {
-        [BsonId]
-        public Guid Id { get; set; }
-        
         public string Title { get; set; } = string.Empty;
         
         public string? Description { get; set; }

@@ -8,6 +8,7 @@ using Cinecritic.Web.JSInterop;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using MongoDB.Bson;
 
 namespace Cinecritic.Web.Components.Pages.Movies
 {
@@ -65,9 +66,12 @@ namespace Cinecritic.Web.Components.Pages.Movies
         [Parameter]
         public string MovieId { get; set; } = string.Empty;
 
-        private Guid MovieGuid => Guid.TryParse(MovieId, out var guid) ? guid : Guid.Empty;
+        public ObjectId MovieObjectId
+        {
+            get => ObjectId.Parse(MovieId);
+        }
 
-        private Guid? _userGuid;
+        private ObjectId? _userId;
 
         [Parameter]
         public string MovieTitle { get; set; } = string.Empty;
@@ -87,9 +91,9 @@ namespace Cinecritic.Web.Components.Pages.Movies
 
         protected override async Task OnInitializedAsync()
         {
-            _userGuid = await GetUserIdAsync();
+            _userId = await GetUserIdAsync();
             
-            var movieDto = await MovieService.GetMovieAsync(MovieGuid, _userGuid, ReviewPageSize);
+            var movieDto = await MovieService.GetMovieAsync(MovieObjectId, _userId, ReviewPageSize);
             if (!movieDto.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -112,7 +116,7 @@ namespace Cinecritic.Web.Components.Pages.Movies
     
             if (confirmed)
             {
-                var result = await MovieService.DeleteMovieAsync(MovieGuid);
+                var result = await MovieService.DeleteMovieAsync(MovieObjectId);
                 if (result.IsSuccess)
                 {
                     NavigationManager.NavigateTo("/");
@@ -207,7 +211,7 @@ namespace Cinecritic.Web.Components.Pages.Movies
 
         private async Task ClickOnStarAsync(int rate, double offsetX)
         {
-            if (_userGuid == null)
+            if (_userId == null)
             {
                 return;
             }
@@ -217,7 +221,7 @@ namespace Cinecritic.Web.Components.Pages.Movies
                 rate--;
             }
             
-            var result = await MovieUserService.RateMovieAsync(MovieVm.Id, _userGuid.Value, rate);
+            var result = await MovieUserService.RateMovieAsync(MovieVm.Id, _userId.Value, rate);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -229,11 +233,11 @@ namespace Cinecritic.Web.Components.Pages.Movies
 
         private async Task ToggleWatchAsync()
         {
-            if (_userGuid == null)
+            if (_userId == null)
             {
                 return;
             }
-            var result = await MovieUserService.ToggleWatchMovieAsync(MovieVm.Id, _userGuid.Value);
+            var result = await MovieUserService.ToggleWatchMovieAsync(MovieVm.Id, _userId.Value);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -245,11 +249,11 @@ namespace Cinecritic.Web.Components.Pages.Movies
 
         private async Task ToggleLikeAsync()
         {
-            if (_userGuid == null)
+            if (_userId == null)
             {
                 return;
             }
-            var result = await MovieUserService.ToggleLikeMovieAsync(MovieVm.Id, _userGuid.Value);
+            var result = await MovieUserService.ToggleLikeMovieAsync(MovieVm.Id, _userId.Value);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -261,11 +265,11 @@ namespace Cinecritic.Web.Components.Pages.Movies
 
         private async Task ToggleInWatchListAsync()
         {
-            if (_userGuid == null)
+            if (_userId == null)
             {
                 return;
             }
-            var result = await MovieUserService.ToggleIsInWatchListAsync(MovieVm.Id, _userGuid.Value);
+            var result = await MovieUserService.ToggleIsInWatchListAsync(MovieVm.Id, _userId.Value);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -277,11 +281,11 @@ namespace Cinecritic.Web.Components.Pages.Movies
 
         private async Task HandleValidSubmit()
         {
-            if (_userGuid == null)
+            if (_userId == null)
             {
                 return;
             }
-            var result = await MovieUserService.CreateOrUpdateReviewAsync(MovieVm.Id, _userGuid.Value, MovieVm.CurrentUserInteraction.ReviewText!);
+            var result = await MovieUserService.CreateOrUpdateReviewAsync(MovieVm.Id, _userId.Value, MovieVm.CurrentUserInteraction.ReviewText!);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();

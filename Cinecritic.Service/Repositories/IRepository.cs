@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Cinecritic.Application.DTOs.MovieUsers;
+﻿using MongoDB.Bson;
 
 namespace Cinecritic.Application.Repositories
 {
@@ -12,7 +9,7 @@ namespace Cinecritic.Application.Repositories
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
         Task<int> CountAsync();
-        Task<T?> GetByIdAsync(Guid id);
+        Task<T?> GetByIdAsync(ObjectId id);
         Task AddRangeAsync(IEnumerable<T> entities);
         Task UpdateRangeAsync(IEnumerable<T> entities);
     }

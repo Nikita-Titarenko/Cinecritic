@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cinecritic.Domain.Models
 {
-    public class MovieUser
+    public class MovieUser : BaseEntity
     {
-        [BsonId]
-        public Guid Id { get; set; }
+        public ObjectId MovieId { get; set; }
 
-        public Guid MovieId { get; set; }
-
-        public Guid UserId { get; set; }
+        public ObjectId UserId { get; set; }
         
         public bool IsWatched { get; set; }
 

@@ -26,8 +26,6 @@ namespace Cinecritic.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IMovieUserRepository, MovieUserRepository>();
 
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-
             services.AddScoped(sp =>
             {
                 var client = sp.GetRequiredService<IMongoClient>();

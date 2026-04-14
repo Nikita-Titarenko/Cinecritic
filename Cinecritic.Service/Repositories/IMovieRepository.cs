@@ -2,14 +2,15 @@
 using Cinecritic.Domain.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.Repositories
 {
     public interface IMovieRepository : IRepository<Movie>
     {
         Task<IEnumerable<Movie>> GetMoviesAsync(int pageSize, int pageCount);
-        Task UpdateMovieStatsAsync(Guid movieId, MovieStatisticsDto stats);
-        Task<MovieWithReviewsDto?> GetMovieWithReviewsAsync(Guid movieId, Guid? userId);
+        Task UpdateMovieStatsAsync(ObjectId movieId, MovieStatisticsDto stats);
+        Task<MovieWithReviewsDto?> GetMovieWithReviewsAsync(ObjectId movieId, ObjectId? userId);
         Task<IEnumerable<FilmingLocation>> GetNearestFilmingLocationsAsync(GeoData myLocation, int nPoints);
     }
 }

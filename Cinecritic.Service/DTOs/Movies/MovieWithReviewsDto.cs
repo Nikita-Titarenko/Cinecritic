@@ -1,10 +1,11 @@
 ﻿using Cinecritic.Domain.Models;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.DTOs.Movies;
 
 public class MovieWithReviewsDto
 {
-    public Guid Id { get; set; }
+    public ObjectId Id { get; set; }
 
     public string Title { get; set; } = string.Empty;
 

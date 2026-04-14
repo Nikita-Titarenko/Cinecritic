@@ -22,7 +22,7 @@ namespace Cinecritic.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<MovieWithReviewsDto?> GetMovieWithReviewsAsync(Guid movieId, Guid? userId)
+        public async Task<MovieWithReviewsDto?> GetMovieWithReviewsAsync(ObjectId movieId, ObjectId? userId)
         {
             var aggregate = _collection.Aggregate()
                 .Match(m => m.Id == movieId)
@@ -53,7 +53,7 @@ namespace Cinecritic.Infrastructure.Repositories
                             }),
                             new BsonDocument("$lookup", new BsonDocument
                             {
-                                { "from", "ApplicationUsers" },
+                                { "from", "Users" },
                                 { "localField", "UserId" },
                                 { "foreignField", "_id" },
                                 { "as", "UserDetails" }
@@ -81,11 +81,7 @@ namespace Cinecritic.Infrastructure.Repositories
                                     "$expr", new BsonDocument("$and", new BsonArray
                                     {
                                         new BsonDocument("$eq", new BsonArray { "$MovieId", "$$movie_id" }),
-                                        new BsonDocument("$eq",
-                                            new BsonArray
-                                            {
-                                                "$UserId", new BsonBinaryData(userId.Value, GuidRepresentation.Standard)
-                                            })
+                                        new BsonDocument("$eq", new BsonArray { "$UserId", userId.Value })
                                     })
                                 }
                             })
@@ -130,7 +126,7 @@ namespace Cinecritic.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task UpdateMovieStatsAsync(Guid movieId, MovieStatisticsDto stats)
+        public async Task UpdateMovieStatsAsync(ObjectId movieId, MovieStatisticsDto stats)
         {
             var filter = Builders<Movie>.Filter.Eq(m => m.Id, movieId);
             var update = Builders<Movie>.Update

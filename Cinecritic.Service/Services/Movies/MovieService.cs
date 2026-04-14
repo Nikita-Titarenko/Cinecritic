@@ -4,6 +4,7 @@ using Cinecritic.Application.Repositories;
 using Cinecritic.Application.Services.Files;
 using Cinecritic.Domain.Models;
 using FluentResults;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.Services.Movies
 {
@@ -27,11 +28,9 @@ namespace Cinecritic.Application.Services.Movies
             _filmingLocationRepository = filmingLocationRepository;
         }
 
-        public async Task<Result<Guid>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
+        public async Task<Result<ObjectId>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
         {
             var movie = _mapper.Map<Movie>(dto);
-            
-            movie.Id = Guid.NewGuid();
 
             if (stream != null)
             {
@@ -42,12 +41,15 @@ namespace Cinecritic.Application.Services.Movies
             
             await _movieRepository.AddAsync(movie);
             dto.FilmingLocations.ForEach(loc => loc.MovieId = movie.Id);
-            await _filmingLocationRepository.AddRangeAsync(dto.FilmingLocations);
+            if (dto.FilmingLocations.Count > 0)
+            {
+                await _filmingLocationRepository.AddRangeAsync(dto.FilmingLocations);
+            }
 
             return Result.Ok(movie.Id);
         }
         
-        public async Task<Result> UpdateMovieAsync(Guid id, CreateMovieDto dto, Stream? stream, string? fileExtension)
+        public async Task<Result> UpdateMovieAsync(ObjectId id, CreateMovieDto dto, Stream? stream, string? fileExtension)
         {
             var existingMovie = await _movieRepository.GetByIdAsync(id);
             if (existingMovie == null)
@@ -71,7 +73,7 @@ namespace Cinecritic.Application.Services.Movies
             return Result.Ok();
         }
 
-        public async Task<Result> DeleteMovieAsync(Guid id)
+        public async Task<Result> DeleteMovieAsync(ObjectId id)
         {
             var movie = await _movieRepository.GetByIdAsync(id);
             if (movie == null)
@@ -94,7 +96,7 @@ namespace Cinecritic.Application.Services.Movies
             });
         }
 
-        public async Task<Result<MovieWithReviewsDto>> GetMovieAsync(Guid movieId, Guid? userId, int reviewCount = 10)
+        public async Task<Result<MovieWithReviewsDto>> GetMovieAsync(ObjectId movieId, ObjectId? userId, int reviewCount = 10)
         {
             var movie = await _movieRepository.GetMovieWithReviewsAsync(movieId, userId);
 
@@ -118,7 +120,7 @@ namespace Cinecritic.Application.Services.Movies
             return Result.Ok(locations);
         }
 
-        private string GetFilePath(Guid movieId)
+        private string GetFilePath(ObjectId movieId)
         {
             var result = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movieId}.jpg"));
             return result.IsSuccess ? result.Value : "/images/no-image.webp";

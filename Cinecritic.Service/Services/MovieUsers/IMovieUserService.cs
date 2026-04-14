@@ -1,19 +1,19 @@
 ﻿using Cinecritic.Application.DTOs.Movies;
-using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Domain.Models;
 using FluentResults;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.Services.MovieUsers
 {
     public interface IMovieUserService
     {
-        Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(Guid userId, int pageSize, int pageCount);
-        Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(Guid userId, int pageSize, int pageCount);
-        Task<Result<MovieUser>> RateMovieAsync(Guid movieId, Guid userId, int rating);
-        Task<Result<MovieUser>> ToggleLikeMovieAsync(Guid movieId, Guid userId);
-        Task<Result<MovieUser>> ToggleWatchMovieAsync(Guid movieId, Guid userId);
-        Task<Result<MovieUser>> ToggleIsInWatchListAsync(Guid movieId, Guid userId);
-        Task<Result<MovieUser>> CreateOrUpdateReviewAsync(Guid movieId, Guid userId, string reviewText);
-        Task<Result<GetMoviesResultDto>> GetInWatchListMoviesAsync(Guid userId, int pageSize, int pageCount);
+        Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(ObjectId userId, int pageSize, int pageCount);
+        Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(ObjectId userId, int pageSize, int pageCount);
+        Task<Result<MovieUser>> RateMovieAsync(ObjectId movieId, ObjectId userId, int rating);
+        Task<Result<MovieUser>> ToggleLikeMovieAsync(ObjectId movieId, ObjectId userId);
+        Task<Result<MovieUser>> ToggleWatchMovieAsync(ObjectId movieId, ObjectId userId);
+        Task<Result<MovieUser>> ToggleIsInWatchListAsync(ObjectId movieId, ObjectId userId);
+        Task<Result<MovieUser>> CreateOrUpdateReviewAsync(ObjectId movieId, ObjectId userId, string reviewText);
+        Task<Result<GetMoviesResultDto>> GetInWatchListMoviesAsync(ObjectId userId, int pageSize, int pageCount);
     }
 }

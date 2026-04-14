@@ -20,7 +20,7 @@ namespace Cinecritic.Infrastructure.Repositories
             _collection = database.GetCollection<T>($"{typeof(T).Name}s");
         }
         
-        public async Task<T?> GetByIdAsync(Guid id)
+        public async Task<T?> GetByIdAsync(ObjectId id)
         {
             var filter = Builders<T>.Filter.Eq("Id", id);
             return await _collection.Find(filter).FirstOrDefaultAsync();
@@ -38,7 +38,7 @@ namespace Cinecritic.Infrastructure.Repositories
 
         public async Task UpdateAsync(T entity)
         {
-            var id = (Guid)GetIdValue(entity);
+            var id = GetIdValue(entity);
             var filter = Builders<T>.Filter.Eq("_id", id);
             await _collection.ReplaceOneAsync(filter, entity);
         }
@@ -54,7 +54,7 @@ namespace Cinecritic.Infrastructure.Repositories
 
             foreach (var entity in entities)
             {
-                var id = (Guid)GetIdValue(entity);
+                var id = GetIdValue(entity);
                 var filter = Builders<T>.Filter.Eq("_id", id);
                 
                 updates.Add(new ReplaceOneModel<T>(filter, entity) 
@@ -71,7 +71,7 @@ namespace Cinecritic.Infrastructure.Repositories
 
         public async Task DeleteAsync(T entity)
         {
-            var id = (Guid)GetIdValue(entity);
+            var id = GetIdValue(entity);
             var filter = Builders<T>.Filter.Eq("_id", id);
             await _collection.DeleteOneAsync(filter);
         }
@@ -82,10 +82,10 @@ namespace Cinecritic.Infrastructure.Repositories
             return (int)count;
         }
 
-        private object GetIdValue(T entity)
+        private ObjectId GetIdValue(T entity)
         {
-            return entity.GetType().GetProperty("Id")?.GetValue(entity, null)
-                   ?? entity.GetType().GetProperty("_id")?.GetValue(entity, null)!;
+            return (ObjectId) (entity.GetType().GetProperty("Id")?.GetValue(entity, null)
+                   ?? entity.GetType().GetProperty("_id")?.GetValue(entity, null)!);
         }
     }
 }

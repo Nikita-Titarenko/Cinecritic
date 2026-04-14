@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using MongoDB.Bson;
 
 namespace Cinecritic.Web.Components.Pages;
 
@@ -8,8 +9,8 @@ public class BasePage : ComponentBase
 {
     [Inject]
     private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
-    
-    public async Task<Guid?> GetUserIdAsync()
+
+    protected async Task<ObjectId?> GetUserIdAsync()
     {
         var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -18,6 +19,6 @@ public class BasePage : ComponentBase
             return null;
         }
         
-        return new Guid(userId);
+        return ObjectId.Parse(userId);
     }
 }

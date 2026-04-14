@@ -6,6 +6,7 @@ using Cinecritic.Web.Components;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,11 +59,11 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapGet("/api/auth/login-callback", async (HttpContext context, [FromQuery] Guid userId) =>
+app.MapGet("/api/auth/login-callback", async (HttpContext context, [FromQuery] string userId) =>
 {
     var claims = new List<Claim>
     {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        new Claim(ClaimTypes.NameIdentifier, userId)
     };
 
     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -86,4 +87,4 @@ app.MapPost("/Account/Logout", async (HttpContext context) =>
 
 app.Run();
 
-public record LoginRequest(Guid UserId);
+public record LoginRequest(string UserId);

@@ -2,6 +2,7 @@
 using Cinecritic.Application.Repositories;
 using Cinecritic.Domain.Models;
 using FluentResults;
+using MongoDB.Bson;
 
 namespace Cinecritic.Application.Services.MovieUsers
 {
@@ -18,7 +19,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             _movieRepository = movieRepository;
         }
 
-        public async Task<Result<MovieUser>> RateMovieAsync(Guid movieId, Guid userId, int rating)
+        public async Task<Result<MovieUser>> RateMovieAsync(ObjectId movieId, ObjectId userId, int rating)
         {
             var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
@@ -45,7 +46,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return Result.Ok(movieUser);
         }
 
-        public async Task<Result<MovieUser>> ToggleWatchMovieAsync(Guid movieId, Guid userId)
+        public async Task<Result<MovieUser>> ToggleWatchMovieAsync(ObjectId movieId, ObjectId userId)
         {
             var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
@@ -72,7 +73,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return Result.Ok(movieUser);
         }
 
-        public async Task<Result<MovieUser>> ToggleLikeMovieAsync(Guid movieId, Guid userId)
+        public async Task<Result<MovieUser>> ToggleLikeMovieAsync(ObjectId movieId, ObjectId userId)
         {
             var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
@@ -107,7 +108,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return movieUser;
         }
         
-        public async Task<Result<MovieUser>> ToggleIsInWatchListAsync(Guid movieId, Guid userId)
+        public async Task<Result<MovieUser>> ToggleIsInWatchListAsync(ObjectId movieId, ObjectId userId)
         {
             var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
@@ -134,7 +135,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return movieUser;
         }
         
-        public async Task<Result<MovieUser>> CreateOrUpdateReviewAsync(Guid movieId, Guid userId, string reviewText)
+        public async Task<Result<MovieUser>> CreateOrUpdateReviewAsync(ObjectId movieId, ObjectId userId, string reviewText)
         {
             var movieUser = await _movieUserRepository.GetMovieUserAsync(movieId, userId);
 
@@ -176,7 +177,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return movieUser;
         }
 
-        public async Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(Guid userId, int pageSize, int pageCount)
+        public async Task<Result<GetMoviesResultDto>> GetWatchedMoviesAsync(ObjectId userId, int pageSize, int pageCount)
         {
             var movies = await _movieUserRepository.GetWatchedMoviesAsync(userId, pageSize, pageCount);
 
@@ -188,7 +189,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return Result.Ok(dto);
         }
 
-        public async Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(Guid userId, int pageSize, int pageCount)
+        public async Task<Result<GetMoviesResultDto>> GetLikedMoviesAsync(ObjectId userId, int pageSize, int pageCount)
         {
             var movies = await _movieUserRepository.GetLikedMoviesAsync(userId, pageSize, pageCount);
 
@@ -200,7 +201,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return Result.Ok(dto);
         }
         
-        public async Task<Result<GetMoviesResultDto>> GetInWatchListMoviesAsync(Guid userId, int pageSize, int pageCount)
+        public async Task<Result<GetMoviesResultDto>> GetInWatchListMoviesAsync(ObjectId userId, int pageSize, int pageCount)
         {
             var movies = await _movieUserRepository.GetInWatchListMoviesAsync(userId, pageSize, pageCount);
 
@@ -212,7 +213,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             return Result.Ok(dto);
         }
 
-        private async Task SyncMovieStatisticsAsync(Guid movieId)
+        private async Task SyncMovieStatisticsAsync(ObjectId movieId)
         {
             var stats = await _movieUserRepository.GetMovieStatisticsAsync(movieId);
 
