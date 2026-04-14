@@ -1,9 +1,8 @@
-﻿namespace Cinecritic.Application.DTOs.Account
+﻿namespace Cinecritic.Application.DTOs.Account;
+
+public class LoginDto
 {
-    public class LoginDto
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public bool RememberMe { get; set; }
-    }
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public bool RememberMe { get; set; }
 }

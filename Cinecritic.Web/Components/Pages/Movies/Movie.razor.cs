@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using AutoMapper;
 using Cinecritic.Application.DTOs.Movies;
 using Cinecritic.Application.Services.Movies;
@@ -10,300 +9,259 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using MongoDB.Bson;
 
-namespace Cinecritic.Web.Components.Pages.Movies
+namespace Cinecritic.Web.Components.Pages.Movies;
+
+public partial class Movie : BasePage
 {
-    public partial class Movie : BasePage
+    private const int StarSize = 40;
+
+    private const int ReviewPageSize = 6;
+
+    private bool _isHoover;
+
+    private int? _tempRate;
+
+    private string IsWatchedClass
     {
-        private const int StarSize = 40;
-
-        private const int ReviewPageSize = 6;
-
-        private bool _isHoover = false;
-
-        private int? _tempRate;
-
-        private DotNetObjectReference<Movie>? _objRef;
-
-        private string IsWatchedClass
+        get
         {
-            get
+            return MovieVm.CurrentUserInteraction.IsWatched ? "watched-color" : string.Empty;
+        }
+    }
+
+    private string IsLikedClass
+    {
+        get
+        {
+            return MovieVm.CurrentUserInteraction is { IsLiked: true } ? "liked-color" : string.Empty;
+        }
+    }
+
+    private string IsInWatchedListClass
+    {
+        get
+        {
+            return MovieVm.CurrentUserInteraction.IsInWatchList ? "in-watch-list-color" : string.Empty;
+        }
+    }
+
+    [Parameter]
+    public string MovieId { get; set; } = string.Empty;
+
+    public ObjectId MovieObjectId => ObjectId.Parse(MovieId);
+
+    private ObjectId? _userId;
+
+    [Parameter]
+    public string MovieTitle { get; set; } = string.Empty;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+    [Inject]
+    private IMovieService MovieService { get; set; } = null!;
+    [Inject]
+    private IMovieUserService MovieUserService { get; set; } = null!;
+    [Inject]
+    private IJSInteropService JSInteropService { get; set; } = null!;
+    [Inject]
+    private IMapper Mapper { get; set; } = null!;
+
+    private MovieWithReviewsDto MovieVm { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userId = await GetUserIdAsync();
+
+        var movieDto = await MovieService.GetMovieAsync(MovieObjectId, _userId, ReviewPageSize);
+        if (!movieDto.IsSuccess)
+        {
+            await JSInteropService.ShowAlertAsync();
+            return;
+        }
+        MovieVm = movieDto.Value;
+        if (MovieVm.CurrentUserInteraction == null)
+        {
+            MovieVm.CurrentUserInteraction = new MovieUser
             {
-                if (MovieVm.CurrentUserInteraction.IsWatched)
-                {
-                    return "watched-color";
-                }
-
-                return string.Empty;
-            }
+                MovieId = MovieVm.Id
+            };
         }
+        await base.OnInitializedAsync();
+    }
 
-        private string IsLikedClass
+    private async Task ConfirmDelete()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete '{MovieTitle}'?");
+
+        if (confirmed)
         {
-            get
+            var result = await MovieService.DeleteMovieAsync(MovieObjectId);
+            if (result.IsSuccess)
             {
-                if (MovieVm.CurrentUserInteraction is { IsLiked: true })
-                {
-                    return "liked-color";
-                }
-
-                return string.Empty;
+                NavigationManager.NavigateTo("/");
             }
-        }
-
-        private string IsInWatchedListClass
-        {
-            get
-            {
-                if (MovieVm.CurrentUserInteraction.IsInWatchList)
-                {
-                    return "in-watch-list-color";
-                }
-
-                return string.Empty;
-            }
-        }
-
-        [Parameter]
-        public string MovieId { get; set; } = string.Empty;
-
-        public ObjectId MovieObjectId
-        {
-            get => ObjectId.Parse(MovieId);
-        }
-
-        private ObjectId? _userId;
-
-        [Parameter]
-        public string MovieTitle { get; set; } = string.Empty;
-
-        [Inject]
-        private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-        [Inject]
-        private IMovieService MovieService { get; set; } = null!;
-        [Inject]
-        private IMovieUserService MovieUserService { get; set; } = null!;
-        [Inject]
-        private IJSInteropService JSInteropService { get; set; } = null!;
-        [Inject]
-        private IMapper Mapper { get; set; } = null!;
-
-        private MovieWithReviewsDto MovieVm { get; set; } = new();
-
-        protected override async Task OnInitializedAsync()
-        {
-            _userId = await GetUserIdAsync();
-            
-            var movieDto = await MovieService.GetMovieAsync(MovieObjectId, _userId, ReviewPageSize);
-            if (!movieDto.IsSuccess)
+            else
             {
                 await JSInteropService.ShowAlertAsync();
-                return;
             }
-            MovieVm = movieDto.Value;
-            if (MovieVm.CurrentUserInteraction == null)
-            {
-                MovieVm.CurrentUserInteraction = new MovieUser
-                {
-                    MovieId = MovieVm.Id
-                };
-            }
-            await base.OnInitializedAsync();
         }
-        
-        private async Task ConfirmDelete()
+    }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    private static string GetButtonClass(int starRate, int rate)
+    {
+        if ((starRate + 1) * 2 <= rate)
         {
-            bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete '{MovieTitle}'?");
-    
-            if (confirmed)
-            {
-                var result = await MovieService.DeleteMovieAsync(MovieObjectId);
-                if (result.IsSuccess)
-                {
-                    NavigationManager.NavigateTo("/");
-                }
-                else
-                {
-                    await JSInteropService.ShowAlertAsync();
-                }
-            }
+            return "fa-star color-gold";
         }
+        return (starRate + 1) * 2 == rate + 1 ? "fa-star-half-stroke color-gold" : "fa-star";
+    }
 
-        [Inject]
-        private NavigationManager NavigationManager { get; set; } = default!;
-        [Inject]
-        private IJSRuntime JS { get; set; } = default!;
+    private string GetAverageRateButtonClass(int rate)
+    {
+        return GetButtonClass(rate, (int)Math.Round(MovieVm.AverageRating));
+    }
 
-        private static string GetButtonClass(int starRate, int rate)
+    private string GetYourRateButtonClass(int starRate)
+    {
+        int currentRate = 0;
+        if (_tempRate != null)
         {
-            if ((starRate + 1) * 2 <= rate)
-            {
-                return "fa-star color-gold";
-            } 
-            if ((starRate + 1) * 2 == rate + 1)
-            {
-                return "fa-star-half-stroke color-gold";
-            }
-
-            return "fa-star";
+            currentRate = _tempRate.Value;
         }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        else if (MovieVm.CurrentUserInteraction is { Rate: not null })
         {
-            if (firstRender)
-            {
-                _objRef = DotNetObjectReference.Create(this);
-                await JSInteropService.AddScrollHandler(_objRef);
-            }
-            await base.OnAfterRenderAsync(firstRender);
+            currentRate = MovieVm.CurrentUserInteraction.Rate.Value;
         }
 
-        private string GetAverageRateButtonClass(int rate)
+        return GetButtonClass(starRate, currentRate);
+    }
+
+    private static string GetUserRateButtonClass(int starRate, int userRate)
+    {
+        return GetButtonClass(starRate, userRate);
+    }
+
+    private void EnterOnStars(int rate, double offsetX)
+    {
+        _isHoover = true;
+        rate *= 2;
+        if (offsetX < StarSize / 2)
         {
-            return GetButtonClass(rate, (int)Math.Round(MovieVm.AverageRating));
+            rate--;
         }
+        _tempRate = rate;
+    }
 
-        private string GetYourRateButtonClass(int starRate)
+    private void LeaveFromStars()
+    {
+        _isHoover = false;
+        _tempRate = null;
+    }
+
+    private void MoveInStars(int rate, double offsetX)
+    {
+        if (!_isHoover)
         {
-            int currentRate = 0;
-            if (_tempRate != null)
-            {
-                currentRate = _tempRate.Value;
-            }
-            else if (MovieVm.CurrentUserInteraction is { Rate: not null })
-            {
-                currentRate = MovieVm.CurrentUserInteraction.Rate.Value;
-            }
-
-            return GetButtonClass(starRate, currentRate);
+            return;
         }
 
-        private string GetUserRateButtonClass(int starRate, int userRate)
+        EnterOnStars(rate, offsetX);
+    }
+
+    private async Task ClickOnStarAsync(int rate, double offsetX)
+    {
+        if (_userId == null)
         {
-            return GetButtonClass(starRate, userRate);
+            return;
         }
-
-        private void EnterOnStars(int rate, double offsetX)
+        rate *= 2;
+        if (offsetX < StarSize / 2)
         {
-            _isHoover = true;
-            rate = rate * 2;
-            if (offsetX < StarSize / 2)
-            {
-                rate--;
-            }
-            _tempRate = rate;
+            rate--;
         }
 
-        private void LeaveFromStars()
+        var result = await MovieUserService.RateMovieAsync(MovieVm.Id, _userId.Value, rate);
+        if (!result.IsSuccess)
         {
-            _isHoover = false;
-            _tempRate = null;
+            await JSInteropService.ShowAlertAsync();
+            return;
         }
 
-        private void MoveInStars(int rate, double offsetX)
+        MovieVm.CurrentUserInteraction = result.Value;
+    }
+
+    private async Task ToggleWatchAsync()
+    {
+        if (_userId == null)
         {
-            if (!_isHoover)
-            {
-                return;
-            }
-
-            EnterOnStars(rate, offsetX);
+            return;
         }
-
-        private async Task ClickOnStarAsync(int rate, double offsetX)
+        var result = await MovieUserService.ToggleWatchMovieAsync(MovieVm.Id, _userId.Value);
+        if (!result.IsSuccess)
         {
-            if (_userId == null)
-            {
-                return;
-            }
-            rate = rate * 2;
-            if (offsetX < StarSize / 2)
-            {
-                rate--;
-            }
-            
-            var result = await MovieUserService.RateMovieAsync(MovieVm.Id, _userId.Value, rate);
-            if (!result.IsSuccess)
-            {
-                await JSInteropService.ShowAlertAsync();
-                return;
-            }
-
-            MovieVm.CurrentUserInteraction = result.Value;
+            await JSInteropService.ShowAlertAsync();
+            return;
         }
 
-        private async Task ToggleWatchAsync()
+        MovieVm.CurrentUserInteraction = result.Value;
+    }
+
+    private async Task ToggleLikeAsync()
+    {
+        if (_userId == null)
         {
-            if (_userId == null)
-            {
-                return;
-            }
-            var result = await MovieUserService.ToggleWatchMovieAsync(MovieVm.Id, _userId.Value);
-            if (!result.IsSuccess)
-            {
-                await JSInteropService.ShowAlertAsync();
-                return;
-            }
-
-            MovieVm.CurrentUserInteraction = result.Value;
+            return;
         }
-
-        private async Task ToggleLikeAsync()
+        var result = await MovieUserService.ToggleLikeMovieAsync(MovieVm.Id, _userId.Value);
+        if (!result.IsSuccess)
         {
-            if (_userId == null)
-            {
-                return;
-            }
-            var result = await MovieUserService.ToggleLikeMovieAsync(MovieVm.Id, _userId.Value);
-            if (!result.IsSuccess)
-            {
-                await JSInteropService.ShowAlertAsync();
-                return;
-            }
-
-            MovieVm.CurrentUserInteraction = result.Value;
+            await JSInteropService.ShowAlertAsync();
+            return;
         }
 
-        private async Task ToggleInWatchListAsync()
+        MovieVm.CurrentUserInteraction = result.Value;
+    }
+
+    private async Task ToggleInWatchListAsync()
+    {
+        if (_userId == null)
         {
-            if (_userId == null)
-            {
-                return;
-            }
-            var result = await MovieUserService.ToggleIsInWatchListAsync(MovieVm.Id, _userId.Value);
-            if (!result.IsSuccess)
-            {
-                await JSInteropService.ShowAlertAsync();
-                return;
-            }
-
-            MovieVm.CurrentUserInteraction = result.Value;
+            return;
         }
-
-        private async Task HandleValidSubmit()
+        var result = await MovieUserService.ToggleIsInWatchListAsync(MovieVm.Id, _userId.Value);
+        if (!result.IsSuccess)
         {
-            if (_userId == null)
-            {
-                return;
-            }
-            var result = await MovieUserService.CreateOrUpdateReviewAsync(MovieVm.Id, _userId.Value, MovieVm.CurrentUserInteraction.ReviewText!);
-            if (!result.IsSuccess)
-            {
-                await JSInteropService.ShowAlertAsync();
-                return;
-            }
-        
-            MovieVm.CurrentUserInteraction = result.Value;
+            await JSInteropService.ShowAlertAsync();
+            return;
         }
 
-        private string ReviewText
+        MovieVm.CurrentUserInteraction = result.Value;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_userId == null)
         {
-            get => MovieVm.CurrentUserInteraction.ReviewText ?? string.Empty;
-            set => MovieVm.CurrentUserInteraction.ReviewText = value;
+            return;
+        }
+        var result = await MovieUserService.CreateOrUpdateReviewAsync(MovieVm.Id, _userId.Value, MovieVm.CurrentUserInteraction.ReviewText!);
+        if (!result.IsSuccess)
+        {
+            await JSInteropService.ShowAlertAsync();
+            return;
         }
 
-        public void Dispose()
-        {
-            _objRef?.Dispose();
-        }
+        MovieVm.CurrentUserInteraction = result.Value;
+    }
+
+    private string ReviewText
+    {
+        get => MovieVm.CurrentUserInteraction.ReviewText ?? string.Empty;
+        set => MovieVm.CurrentUserInteraction.ReviewText = value;
     }
 }

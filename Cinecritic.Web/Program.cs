@@ -6,7 +6,6 @@ using Cinecritic.Web.Components;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,10 +23,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.Cookie.Name = "CinecriticAuth";
         options.AccessDeniedPath = "/Account/AccessDenied";
-        options.Cookie.HttpOnly = true; // Захист від XSS
+        options.Cookie.HttpOnly = true;
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
-// builder.Services.AddCascadingAuthenticationState();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -36,7 +35,6 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.CreateInitialMoviesAsync(applicationDbContext);
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -44,7 +42,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -63,28 +60,26 @@ app.MapGet("/api/auth/login-callback", async (HttpContext context, [FromQuery] s
 {
     var claims = new List<Claim>
     {
-        new Claim(ClaimTypes.NameIdentifier, userId)
+        new(ClaimTypes.NameIdentifier, userId)
     };
 
     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
     var principal = new ClaimsPrincipal(identity);
-    
+
     await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
     {
         IsPersistent = true,
         ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
     });
-    
+
     return Results.Redirect("/");
 });
 
 app.MapPost("/Account/Logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    
+
     return Results.Redirect("/");
 });
 
 app.Run();
-
-public record LoginRequest(string UserId);

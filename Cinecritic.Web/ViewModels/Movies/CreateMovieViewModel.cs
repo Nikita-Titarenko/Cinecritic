@@ -1,22 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Cinecritic.Domain.Models;
-using Microsoft.AspNetCore.Components.Forms;
-using MongoDB.Bson;
 
-namespace Cinecritic.Web.ViewModels.Movies
+namespace Cinecritic.Web.ViewModels.Movies;
+
+public class CreateMovieViewModel
 {
-    public class CreateMovieViewModel
-    {
-        [Required]
-        public string Title { get; set; } = string.Empty;
+    [Required]
+    public string Title { get; set; } = string.Empty;
 
-        public string? Description { get; set; }
+    public string? Description { get; set; }
 
-        public DateOnly? ReleaseDate { get; set; }
+    public DateOnly? ReleaseDate { get; set; }
 
-        [Required]
-        public string? SelectedMovieTypeId { get; set; } = null;
-        
-        public List<FilmingLocation> FilmingLocations { get; set; } = [];
-    }
+    [Required]
+    public string? SelectedMovieTypeId { get; set; } = null;
+
+    public List<FilmingLocation> FilmingLocations { get; set; } = [];
 }

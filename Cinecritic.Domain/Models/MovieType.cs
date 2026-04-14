@@ -1,10 +1,6 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿namespace Cinecritic.Domain.Models;
 
-namespace Cinecritic.Domain.Models
+public class MovieType : BaseEntity
 {
-    public class MovieType : BaseEntity
-    {
-        public string Name { get; set; } = string.Empty;
-    }
+    public string Name { get; set; } = string.Empty;
 }

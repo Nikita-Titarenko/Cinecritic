@@ -9,99 +9,86 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 
-namespace Cinecritic.Infrastructure.Services
+namespace Cinecritic.Infrastructure.Services;
+
+public class UserService(
+    IUserRepository userRepository,
+    IPasswordHasher<ApplicationUser> passwordHasher,
+    ILogger<UserService> logger) : IUserService
 {
-    public class UserService : IUserService
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IPasswordHasher<ApplicationUser> _passwordHasher = passwordHasher;
+    private readonly ILogger<UserService> _logger = logger;
+
+    public async Task<Result<AuthResultDto>> RegisterAsync(RegisterDto registrationDto)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-        private readonly ILogger<UserService> _logger;
+        var existingUser = await _userRepository.GetByEmailAsync(registrationDto.Email);
 
-        public UserService(
-            IUserRepository userRepository,
-            IPasswordHasher<ApplicationUser> passwordHasher,
-            ILogger<UserService> logger)
+        if (existingUser != null)
         {
-            _userRepository = userRepository;
-            _passwordHasher = passwordHasher;
-            _logger = logger;
+            var verificationResult = _passwordHasher.VerifyHashedPassword(existingUser, existingUser.PasswordHash, registrationDto.Password);
+            if (verificationResult == PasswordVerificationResult.Failed)
+            {
+                return Result.Fail(new Error("Incorrect password for unconfirmed account").WithMetadata("Code", "InvalidPassword"));
+            }
+        }
+        else
+        {
+            existingUser = new ApplicationUser
+            {
+                Email = registrationDto.Email,
+                Name = registrationDto.DisplayName
+            };
+            existingUser.PasswordHash = _passwordHasher.HashPassword(existingUser, registrationDto.Password);
+
+            await _userRepository.AddAsync(existingUser);
         }
 
-        public async Task<Result<AuthResultDto>> RegisterAsync(RegisterDto dto)
+        var token = GenerateSimpleToken(existingUser.Id.ToString());
+
+        return Result.Ok(new AuthResultDto { UserId = existingUser.Id, Code = token });
+    }
+
+    public async Task<Result<AuthResultDto>> LoginAsync(LoginDto dto)
+    {
+        var user = await _userRepository.GetByEmailAsync(dto.Email);
+
+        if (user == null)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
-
-            if (existingUser != null)
-            {
-                var verificationResult = _passwordHasher.VerifyHashedPassword(existingUser, existingUser.PasswordHash, dto.Password);
-                if (verificationResult == PasswordVerificationResult.Failed)
-                {
-                    return Result.Fail(new Error("Incorrect password for unconfirmed account").WithMetadata("Code", "InvalidPassword"));
-                }
-            }
-            else
-            {
-                existingUser = new ApplicationUser
-                {
-                    Email = dto.Email,
-                    Name = dto.DisplayName
-                };
-                existingUser.PasswordHash = _passwordHasher.HashPassword(existingUser, dto.Password);
-
-                await _userRepository.AddAsync(existingUser);
-            }
-
-            var token = GenerateSimpleToken(existingUser.Id.ToString());
-
-            return Result.Ok(new AuthResultDto { UserId = existingUser.Id, Code = token });
-        }
-
-        public async Task<Result<AuthResultDto>> LoginAsync(LoginDto dto)
-        {
-            var user = await _userRepository.GetByEmailAsync(dto.Email);
-
-            if (user == null)
-            {
-                return Result.Fail(new Error("Login failed").WithMetadata("Code", "LoginFailed"));
-            }
-
-            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-
-            if (result == PasswordVerificationResult.Success)
-            {
-                return Result.Ok(new AuthResultDto {  UserId = user.Id, Code = GenerateSimpleToken(user.Id.ToString()) });
-            }
-
-            _logger.LogWarning("Failed to login");
             return Result.Fail(new Error("Login failed").WithMetadata("Code", "LoginFailed"));
         }
 
-        public async Task<Result> ChangeDisplayNameAsync(ChangeDisplayNameDto dto)
-        {
-            var user = await _userRepository.GetByIdAsync(dto.UserId);
-            if (user == null)
-            {
-                return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
-            }
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
 
-            await _userRepository.UpdateDisplayNameAsync(dto.UserId, dto.DisplayName);
-            return Result.Ok();
+        if (result == PasswordVerificationResult.Success)
+        {
+            return Result.Ok(new AuthResultDto { UserId = user.Id, Code = GenerateSimpleToken(user.Id.ToString()) });
         }
 
-        public async Task<Result<string>> GetNameAsync(ObjectId userId)
+        _logger.LogWarning("Failed to login");
+        return Result.Fail(new Error("Login failed").WithMetadata("Code", "LoginFailed"));
+    }
+
+    public async Task<Result> ChangeDisplayNameAsync(ChangeDisplayNameDto dto)
+    {
+        var user = await _userRepository.GetByIdAsync(dto.UserId);
+        if (user == null)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-            {
-                return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
-            }
-            
-            return Result.Ok(user.Name);
+            return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
         }
 
-        private string GenerateSimpleToken(string userId)
-        {
-            return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId));
-        }
+        await _userRepository.UpdateDisplayNameAsync(dto.UserId, dto.DisplayName);
+        return Result.Ok();
+    }
+
+    public async Task<Result<string>> GetNameAsync(ObjectId userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        return user == null ? (Result<string>)Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound")) : Result.Ok(user.Name);
+    }
+
+    private static string GenerateSimpleToken(string userId)
+    {
+        return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId));
     }
 }

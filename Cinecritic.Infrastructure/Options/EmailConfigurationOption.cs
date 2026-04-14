@@ -1,13 +1,12 @@
-﻿namespace Cinecritic.Infrastructure.Options
+﻿namespace Cinecritic.Infrastructure.Options;
+
+public class EmailConfigurationOption
 {
-    public class EmailConfigurationOption
-    {
-        public string Email { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 
-        public string Password { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 
-        public string Server { get; set; } = string.Empty;
+    public string Server { get; set; } = string.Empty;
 
-        public int Port { get; set; }
-    }
+    public int Port { get; set; }
 }

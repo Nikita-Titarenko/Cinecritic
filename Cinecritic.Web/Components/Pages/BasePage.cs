@@ -14,11 +14,6 @@ public class BasePage : ComponentBase
     {
         var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-        {
-            return null;
-        }
-        
-        return ObjectId.Parse(userId);
+        return userId == null ? null : ObjectId.Parse(userId);
     }
 }

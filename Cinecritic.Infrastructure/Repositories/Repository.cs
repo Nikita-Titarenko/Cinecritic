@@ -1,91 +1,80 @@
-﻿using MongoDB.Driver;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Cinecritic.Application.Repositories;
-using Cinecritic.Domain.Models;
+﻿using Cinecritic.Application.Repositories;
 using MongoDB.Bson;
+using MongoDB.Driver;
 
-namespace Cinecritic.Infrastructure.Repositories
+namespace Cinecritic.Infrastructure.Repositories;
+
+public class Repository<T>(IMongoDatabase database) : IRepository<T> where T : class
 {
-    public class Repository<T> : IRepository<T> where T : class
+    protected IMongoDatabase Database { get; set; } = database;
+
+    protected IMongoCollection<T> Collection { get; set; } = database.GetCollection<T>($"{typeof(T).Name}s");
+
+    public async Task<T?> GetByIdAsync(ObjectId id)
     {
-        protected readonly IMongoDatabase _database;
+        var filter = Builders<T>.Filter.Eq("Id", id);
+        return await Collection.Find(filter).FirstOrDefaultAsync();
+    }
 
-        protected readonly IMongoCollection<T> _collection;
+    public async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await Collection.Find(_ => true).ToListAsync();
+    }
 
-        public Repository(IMongoDatabase database)
-        {
-            _database = database;
-            _collection = database.GetCollection<T>($"{typeof(T).Name}s");
-        }
-        
-        public async Task<T?> GetByIdAsync(ObjectId id)
-        {
-            var filter = Builders<T>.Filter.Eq("Id", id);
-            return await _collection.Find(filter).FirstOrDefaultAsync();
-        }
+    public async Task AddAsync(T entity)
+    {
+        await Collection.InsertOneAsync(entity);
+    }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
-        {
-            return await _collection.Find(_ => true).ToListAsync();
-        }
+    public async Task UpdateAsync(T entity)
+    {
+        var id = Repository<T>.GetIdValue(entity);
+        var filter = Builders<T>.Filter.Eq("_id", id);
+        await Collection.ReplaceOneAsync(filter, entity);
+    }
 
-        public async Task AddAsync(T entity)
-        {
-            await _collection.InsertOneAsync(entity);
-        }
+    public async Task AddRangeAsync(IEnumerable<T> entities)
+    {
+        await Collection.InsertManyAsync(entities);
+    }
 
-        public async Task UpdateAsync(T entity)
+    public async Task UpdateRangeAsync(IEnumerable<T> entities)
+    {
+        var updates = new List<WriteModel<T>>();
+
+        foreach (var entity in entities)
         {
-            var id = GetIdValue(entity);
+            var id = Repository<T>.GetIdValue(entity);
             var filter = Builders<T>.Filter.Eq("_id", id);
-            await _collection.ReplaceOneAsync(filter, entity);
-        }
-        
-        public async Task AddRangeAsync(IEnumerable<T> entities)
-        {
-            await _collection.InsertManyAsync(entities);
-        }
 
-        public async Task UpdateRangeAsync(IEnumerable<T> entities)
-        {
-            var updates = new List<WriteModel<T>>();
-
-            foreach (var entity in entities)
+            updates.Add(new ReplaceOneModel<T>(filter, entity)
             {
-                var id = GetIdValue(entity);
-                var filter = Builders<T>.Filter.Eq("_id", id);
-                
-                updates.Add(new ReplaceOneModel<T>(filter, entity) 
-                { 
-                    IsUpsert = true 
-                });
-            }
-
-            if (updates.Count != 0)
-            {
-                await _collection.BulkWriteAsync(updates);
-            }
+                IsUpsert = true
+            });
         }
 
-        public async Task DeleteAsync(T entity)
+        if (updates.Count != 0)
         {
-            var id = GetIdValue(entity);
-            var filter = Builders<T>.Filter.Eq("_id", id);
-            await _collection.DeleteOneAsync(filter);
+            await Collection.BulkWriteAsync(updates);
         }
+    }
 
-        public async Task<int> CountAsync()
-        {
-            var count = await _collection.CountDocumentsAsync(_ => true);
-            return (int)count;
-        }
+    public async Task DeleteAsync(T entity)
+    {
+        var id = Repository<T>.GetIdValue(entity);
+        var filter = Builders<T>.Filter.Eq("_id", id);
+        await Collection.DeleteOneAsync(filter);
+    }
 
-        private ObjectId GetIdValue(T entity)
-        {
-            return (ObjectId) (entity.GetType().GetProperty("Id")?.GetValue(entity, null)
-                   ?? entity.GetType().GetProperty("_id")?.GetValue(entity, null)!);
-        }
+    public async Task<int> CountAsync()
+    {
+        var count = await Collection.CountDocumentsAsync(_ => true);
+        return (int)count;
+    }
+
+    private static ObjectId GetIdValue(T entity)
+    {
+        return (ObjectId)(entity.GetType().GetProperty("Id")?.GetValue(entity, null)
+               ?? entity.GetType().GetProperty("_id")?.GetValue(entity, null)!);
     }
 }

@@ -1,12 +1,11 @@
 ﻿
 using Microsoft.JSInterop;
 
-namespace Cinecritic.Web.JSInterop
+namespace Cinecritic.Web.JSInterop;
+
+internal interface IJSInteropService
 {
-    interface IJSInteropService
-    {
-        Task AddScrollHandler<T>(DotNetObjectReference<T> dotNetObjectReference) where T : class;
-        Task BlurActiveElement();
-        Task ShowAlertAsync();
-    }
+    Task AddScrollHandler<T>(DotNetObjectReference<T> dotNetObjectReference) where T : class;
+    Task BlurActiveElement();
+    Task ShowAlertAsync();
 }

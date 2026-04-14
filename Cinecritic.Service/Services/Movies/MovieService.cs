@@ -6,124 +6,110 @@ using Cinecritic.Domain.Models;
 using FluentResults;
 using MongoDB.Bson;
 
-namespace Cinecritic.Application.Services.Movies
+namespace Cinecritic.Application.Services.Movies;
+
+public class MovieService(
+    IMovieRepository movieRepository,
+    IMapper mapper,
+    IFileService fileService,
+    IRepository<FilmingLocation> filmingLocationRepository) : IMovieService
 {
-    public class MovieService : IMovieService
+    private readonly IMovieRepository _movieRepository = movieRepository;
+    private readonly IMapper _mapper = mapper;
+    private readonly IFileService _fileService = fileService;
+    private readonly IRepository<FilmingLocation> _filmingLocationRepository = filmingLocationRepository;
+    private const string MoviePath = "movie-posters";
+
+    public async Task<Result<ObjectId>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
     {
-        private readonly IMovieRepository _movieRepository;
-        private readonly IMapper _mapper;
-        private readonly IFileService _fileService;
-        private readonly IRepository<FilmingLocation> _filmingLocationRepository;
-        private const string MoviePath = "movie-posters";
+        var movie = _mapper.Map<Movie>(dto);
 
-        public MovieService(
-            IMovieRepository movieRepository,
-            IMapper mapper,
-            IFileService fileService,
-            IRepository<FilmingLocation> filmingLocationRepository)
+        if (stream != null)
         {
-            _movieRepository = movieRepository;
-            _mapper = mapper;
-            _fileService = fileService;
-            _filmingLocationRepository = filmingLocationRepository;
+            var path = Path.Combine(MoviePath, $"{movie.Id}{fileExtension}");
+            await _fileService.SaveFile(path, stream);
+            movie.ImagePath = GetFilePath(movie.Id);
         }
 
-        public async Task<Result<ObjectId>> CreateMovieAsync(CreateMovieDto dto, Stream? stream, string? fileExtension)
+        await _movieRepository.AddAsync(movie);
+        dto.FilmingLocations.ForEach(loc => loc.MovieId = movie.Id);
+        if (dto.FilmingLocations.Count > 0)
         {
-            var movie = _mapper.Map<Movie>(dto);
-
-            if (stream != null)
-            {
-                var path = Path.Combine(MoviePath, $"{movie.Id}{fileExtension}");
-                await _fileService.SaveFile(path, stream);
-                movie.ImagePath = GetFilePath(movie.Id);
-            }
-            
-            await _movieRepository.AddAsync(movie);
-            dto.FilmingLocations.ForEach(loc => loc.MovieId = movie.Id);
-            if (dto.FilmingLocations.Count > 0)
-            {
-                await _filmingLocationRepository.AddRangeAsync(dto.FilmingLocations);
-            }
-
-            return Result.Ok(movie.Id);
-        }
-        
-        public async Task<Result> UpdateMovieAsync(ObjectId id, CreateMovieDto dto, Stream? stream, string? fileExtension)
-        {
-            var existingMovie = await _movieRepository.GetByIdAsync(id);
-            if (existingMovie == null)
-            {
-                return Result.Fail("Movie not found");
-            }
-            
-            _mapper.Map(dto, existingMovie);
-            existingMovie.Id = id;
-
-            if (stream != null)
-            {
-                var path = Path.Combine(MoviePath, $"{id}{fileExtension}");
-                await _fileService.SaveFile(path, stream);
-                existingMovie.ImagePath = GetFilePath(id);
-            }
-
-            await _movieRepository.UpdateAsync(existingMovie);
-            dto.FilmingLocations.ForEach(loc => loc.MovieId = existingMovie.Id);
-            await _filmingLocationRepository.UpdateRangeAsync(dto.FilmingLocations);
-            return Result.Ok();
+            await _filmingLocationRepository.AddRangeAsync(dto.FilmingLocations);
         }
 
-        public async Task<Result> DeleteMovieAsync(ObjectId id)
+        return Result.Ok(movie.Id);
+    }
+
+    public async Task<Result> UpdateMovieAsync(ObjectId id, CreateMovieDto dto, Stream? stream, string? fileExtension)
+    {
+        var existingMovie = await _movieRepository.GetByIdAsync(id);
+        if (existingMovie == null)
         {
-            var movie = await _movieRepository.GetByIdAsync(id);
-            if (movie == null)
-            {
-                return Result.Fail("Movie not found");
-            }
-    
-            await _movieRepository.DeleteAsync(movie);
-            return Result.Ok();
+            return Result.Fail("Movie not found");
         }
 
-        public async Task<Result<GetMoviesResultDto>> GetMoviesAsync(int pageSize, int pageCount)
-        {
-            var movies = await _movieRepository.GetMoviesAsync(pageSize, pageCount);
+        _mapper.Map(dto, existingMovie);
+        existingMovie.Id = id;
 
-            return Result.Ok(new GetMoviesResultDto
-            {
-                Movies = movies,
-                TotalMovieNumber = await _movieRepository.CountAsync()
-            });
+        if (stream != null)
+        {
+            var path = Path.Combine(MoviePath, $"{id}{fileExtension}");
+            await _fileService.SaveFile(path, stream);
+            existingMovie.ImagePath = GetFilePath(id);
         }
 
-        public async Task<Result<MovieWithReviewsDto>> GetMovieAsync(ObjectId movieId, ObjectId? userId, int reviewCount = 10)
+        await _movieRepository.UpdateAsync(existingMovie);
+        dto.FilmingLocations.ForEach(loc => loc.MovieId = existingMovie.Id);
+        await _filmingLocationRepository.UpdateRangeAsync(dto.FilmingLocations);
+        return Result.Ok();
+    }
+
+    public async Task<Result> DeleteMovieAsync(ObjectId id)
+    {
+        var movie = await _movieRepository.GetByIdAsync(id);
+        if (movie == null)
         {
-            var movie = await _movieRepository.GetMovieWithReviewsAsync(movieId, userId);
-
-            if (movie == null)
-            {
-                return Result.Fail(new Error("Movie not exist").WithMetadata("Code", "MovieNotExist"));
-            }
-
-            return Result.Ok(movie);
-        }
-        
-        public async Task<Result<IEnumerable<FilmingLocation>>> GetNearestLocationsAsync(double latitude, double longitude, int nPoints = 5)
-        {
-            var geoData = new GeoData 
-            { 
-                Type = "Point", 
-                Coordinates = [longitude, latitude]
-            };
-
-            var locations = await _movieRepository.GetNearestFilmingLocationsAsync(geoData, nPoints);
-            return Result.Ok(locations);
+            return Result.Fail("Movie not found");
         }
 
-        private string GetFilePath(ObjectId movieId)
+        await _movieRepository.DeleteAsync(movie);
+        return Result.Ok();
+    }
+
+    public async Task<Result<GetMoviesResultDto>> GetMoviesAsync(int pageSize, int pageCount)
+    {
+        var movies = await _movieRepository.GetMoviesAsync(pageSize, pageCount);
+
+        return Result.Ok(new GetMoviesResultDto
         {
-            var result = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movieId}.jpg"));
-            return result.IsSuccess ? result.Value : "/images/no-image.webp";
-        }
+            Movies = movies,
+            TotalMovieNumber = await _movieRepository.CountAsync()
+        });
+    }
+
+    public async Task<Result<MovieWithReviewsDto>> GetMovieAsync(ObjectId movieId, ObjectId? userId, int reviewCount = 10)
+    {
+        var movie = await _movieRepository.GetMovieWithReviewsAsync(movieId, userId);
+
+        return movie == null ? (Result<MovieWithReviewsDto>)Result.Fail(new Error("Movie not exist").WithMetadata("Code", "MovieNotExist")) : Result.Ok(movie);
+    }
+
+    public async Task<Result<IEnumerable<FilmingLocation>>> GetNearestLocationsAsync(double latitude, double longitude, int nPoints = 5)
+    {
+        var geoData = new GeoData
+        {
+            Type = "Point",
+            Coordinates = [longitude, latitude]
+        };
+
+        var locations = await _movieRepository.GetNearestFilmingLocationsAsync(geoData, nPoints);
+        return Result.Ok(locations);
+    }
+
+    private string GetFilePath(ObjectId movieId)
+    {
+        var result = _fileService.GetFilePath(Path.Combine(MoviePath, $"{movieId}.jpg"));
+        return result.IsSuccess ? result.Value : "/images/no-image.webp";
     }
 }

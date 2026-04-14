@@ -5,47 +5,46 @@ using Cinecritic.Web.JSInterop;
 using Cinecritic.Web.ViewModels.Movies;
 using Microsoft.AspNetCore.Components;
 
-namespace Cinecritic.Web.Components.Pages.Movies
+namespace Cinecritic.Web.Components.Pages.Movies;
+
+public partial class AllMovies
 {
-    public partial class AllMovies
+    private string? _statusMessage;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "page")]
+    public int CurrentPage { get; set; }
+    private MovieListViewModel _movies = new();
+    [Inject]
+    private IMovieService MovieService { get; set; } = default!;
+    [Inject]
+    private IMapper Mapper { get; set; } = default!;
+    [Inject]
+    private IJSInteropService JSInteropService { get; set; } = default!;
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private async Task LoadMovies()
     {
-        private string? _statusMessage;
-
-        [Parameter]
-        [SupplyParameterFromQuery(Name = "page")]
-        public int CurrentPage { get; set; }
-        private MovieListViewModel _movies = new MovieListViewModel();
-        [Inject]
-        private IMovieService MovieService { get; set; } = default!;
-        [Inject]
-        private IMapper Mapper { get; set; } = default!;
-        [Inject]
-        private IJSInteropService JSInteropService { get; set; } = default!;
-        [Inject]
-        private NavigationManager NavigationManager { get; set; } = default!;
-
-        private async Task LoadMovies()
+        CurrentPage = CurrentPage == 0 ? 1 : CurrentPage;
+        var getMoviesResult = await MovieService.GetMoviesAsync(Paginator.PageSize, CurrentPage);
+        if (!getMoviesResult.IsSuccess)
         {
-            CurrentPage = CurrentPage == 0 ? 1 : CurrentPage;
-            var getMoviesResult = await MovieService.GetMoviesAsync(Paginator.PageSize, CurrentPage);
-            if (!getMoviesResult.IsSuccess)
-            {
-                _statusMessage = "Error when loading data";
-                return;
-            }
-            _movies = Mapper.Map<MovieListViewModel>(getMoviesResult.Value);
-            _movies.TotalPageNumber = (int)Math.Ceiling((double)getMoviesResult.Value.TotalMovieNumber / Paginator.PageSize);
+            _statusMessage = "Error when loading data";
+            return;
         }
+        _movies = Mapper.Map<MovieListViewModel>(getMoviesResult.Value);
+        _movies.TotalPageNumber = (int)Math.Ceiling((double)getMoviesResult.Value.TotalMovieNumber / Paginator.PageSize);
+    }
 
-        public async Task OnClick(int page)
-        {
-            await JSInteropService.BlurActiveElement();
-            NavigationManager.NavigateTo($"/user/movies?page={page}");
-        }
+    public async Task OnClick(int page)
+    {
+        await JSInteropService.BlurActiveElement();
+        NavigationManager.NavigateTo($"/user/movies?page={page}");
+    }
 
-        protected override async Task OnParametersSetAsync()
-        {
-            await LoadMovies();
-        }
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadMovies();
     }
 }

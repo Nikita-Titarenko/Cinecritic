@@ -1,11 +1,10 @@
 ﻿using Cinecritic.Domain.Models;
 
-namespace Cinecritic.Web.ViewModels.Movies
-{
-    public class MovieListViewModel
-    {
-        public List<Movie> Movies { get; set; } = new List<Movie>();
+namespace Cinecritic.Web.ViewModels.Movies;
 
-        public int TotalPageNumber { get; set; }
-    }
+public class MovieListViewModel
+{
+    public List<Movie> Movies { get; set; } = [];
+
+    public int TotalPageNumber { get; set; }
 }

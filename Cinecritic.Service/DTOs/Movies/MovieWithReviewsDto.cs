@@ -27,6 +27,6 @@ public class MovieWithReviewsDto
     public List<MovieUser> Reviews { get; set; } = [];
 
     public List<MovieUser> CurrentUserInteractionItems { get; set; } = [];
-    
+
     public List<FilmingLocation> FilmingLocations { get; set; } = [];
 }

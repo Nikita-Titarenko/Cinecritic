@@ -6,20 +6,19 @@ using Cinecritic.Application.Services.Users;
 using Cinecritic.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cinecritic.Infrastructure
-{
-    public static class ApplicationServiceExtensions
-    {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-        {
-            services.AddScoped<IMovieService, MovieService>();
-            services.AddScoped<IMovieUserService, MovieUserService>();
-            services.AddScoped<IMovieTypeService, MovieTypeService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IFileService, FileService>();
+namespace Cinecritic.Infrastructure;
 
-            services.AddAutoMapper((a) => { }, AppDomain.CurrentDomain.GetAssemblies());
-            return services;
-        }
+public static class ApplicationServiceExtensions
+{
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddScoped<IMovieService, MovieService>();
+        services.AddScoped<IMovieUserService, MovieUserService>();
+        services.AddScoped<IMovieTypeService, MovieTypeService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IFileService, FileService>();
+
+        services.AddAutoMapper((a) => { }, AppDomain.CurrentDomain.GetAssemblies());
+        return services;
     }
 }

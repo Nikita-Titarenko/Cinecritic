@@ -8,65 +8,61 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MongoDB.Bson;
 
-namespace Cinecritic.Web.Components.Pages.Manager
+namespace Cinecritic.Web.Components.Pages.Manager;
+
+public partial class EditMovie
 {
-    public partial class EditMovie
+    [Parameter] public string MovieId { get; set; } = string.Empty;
+    private ObjectId MovieObjectId => ObjectId.Parse(MovieId);
+
+    private CreateMovieViewModel UpdateMovieViewModel { get; set; } = new();
+    private string? _previewUrl;
+    private IBrowserFile? _browserFile;
+    private string? _statusMessage;
+    private List<MovieType> MovieTypes { get; set; } = [];
+
+    [Inject] private IMovieService MovieService { get; set; } = default!;
+    [Inject] private IMovieTypeService MovieTypeService { get; set; } = default!;
+    [Inject] private IMapper Mapper { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
     {
-        [Parameter] public string MovieId { get; set; } = string.Empty;
-        private ObjectId MovieObjectId => ObjectId.Parse(MovieId);
+        var typesResult = await MovieTypeService.GetMovieTypes();
+        MovieTypes = [.. typesResult.Value];
 
-        private CreateMovieViewModel UpdateMovieViewModel { get; set; } = new();
-        private string? _previewUrl;
-        private IBrowserFile? _browserFile;
-        private string? _statusMessage;
-        private List<MovieType> MovieTypes { get; set; } = new();
-
-        [Inject] private IMovieService MovieService { get; set; } = default!;
-        [Inject] private IMovieTypeService MovieTypeService { get; set; } = default!;
-        [Inject] private IMapper Mapper { get; set; } = default!;
-
-        protected override async Task OnInitializedAsync()
+        var movieResult = await MovieService.GetMovieAsync(MovieObjectId, null, 0);
+        if (movieResult.IsSuccess)
         {
-            var typesResult = await MovieTypeService.GetMovieTypes();
-            MovieTypes = typesResult.Value.ToList();
+            UpdateMovieViewModel = Mapper.Map<CreateMovieViewModel>(movieResult.Value);
+            _previewUrl = movieResult.Value.ImagePath;
+        }
+    }
 
-            var movieResult = await MovieService.GetMovieAsync(MovieObjectId, null, 0);
-            if (movieResult.IsSuccess)
-            {
-                UpdateMovieViewModel = Mapper.Map<CreateMovieViewModel>(movieResult.Value);
-                _previewUrl = movieResult.Value.ImagePath;
-            }
+    private async Task HandleSubmit()
+    {
+        var dto = Mapper.Map<CreateMovieDto>(UpdateMovieViewModel);
+        dto.MovieTypeId = ObjectId.Parse(UpdateMovieViewModel.SelectedMovieTypeId);
+        dto.MovieTypeName = MovieTypes.First(mt => mt.Id == dto.MovieTypeId).Name;
+
+        Stream? stream = null;
+        string? extension = null;
+
+        if (_browserFile != null)
+        {
+            stream = _browserFile.OpenReadStream(2 * 1024 * 1024);
+            extension = Path.GetExtension(_browserFile.Name);
         }
 
-        private async Task HandleSubmit()
-        {
-            var dto = Mapper.Map<CreateMovieDto>(UpdateMovieViewModel);
-            dto.MovieTypeId = ObjectId.Parse(UpdateMovieViewModel.SelectedMovieTypeId);
-            dto.MovieTypeName = MovieTypes.First(mt => mt.Id == dto.MovieTypeId).Name;
-            
-            Stream? stream = null;
-            string? extension = null;
+        var result = await MovieService.UpdateMovieAsync(MovieObjectId, dto, stream, extension);
 
-            if (_browserFile != null)
-            {
-                stream = _browserFile.OpenReadStream(2 * 1024 * 1024);
-                extension = Path.GetExtension(_browserFile.Name);
-            }
-            
-            var result = await MovieService.UpdateMovieAsync(MovieObjectId, dto, stream, extension);
+        _statusMessage = result.IsSuccess ? "Updated successfully!" : "Update failed";
+    }
 
-            if (result.IsSuccess)
-                _statusMessage = "Updated successfully!";
-            else
-                _statusMessage = "Update failed";
-        }
-
-        private async Task HandleSelected(InputFileChangeEventArgs e)
-        {
-            _browserFile = e.File;
-            using var ms = new MemoryStream();
-            await e.File.OpenReadStream().CopyToAsync(ms);
-            _previewUrl = $"data:image/jpg;base64,{Convert.ToBase64String(ms.ToArray())}";
-        }
+    private async Task HandleSelected(InputFileChangeEventArgs e)
+    {
+        _browserFile = e.File;
+        using var ms = new MemoryStream();
+        await e.File.OpenReadStream().CopyToAsync(ms);
+        _previewUrl = $"data:image/jpg;base64,{Convert.ToBase64String(ms.ToArray())}";
     }
 }

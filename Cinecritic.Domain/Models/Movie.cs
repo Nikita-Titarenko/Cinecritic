@@ -1,27 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace Cinecritic.Domain.Models
+namespace Cinecritic.Domain.Models;
+
+public class Movie : BaseEntity
 {
-    public class Movie : BaseEntity
-    {
-        public string Title { get; set; } = string.Empty;
-        
-        public string? Description { get; set; }
+    public string Title { get; set; } = string.Empty;
 
-        public DateOnly? ReleaseDate { get; set; }
+    public string? Description { get; set; }
 
-        public string ImagePath { get; set; } = "/images/no-image.webp";
+    public DateOnly? ReleaseDate { get; set; }
 
-        public double AverageRating { get; set; }
-        public int TotalWatches { get; set; }
-        public int LikedCount { get; set; }
-        public int WatchListCount { get; set; }
-        
-        public MovieType MovieType { get; set; } = null!;
+    public string ImagePath { get; set; } = "/images/no-image.webp";
 
-        [BsonIgnoreIfDefault] 
-        public List<FilmingLocation> FilmingLocations { get; set; } = [];
-    }
+    public double AverageRating { get; set; }
+    public int TotalWatches { get; set; }
+    public int LikedCount { get; set; }
+    public int WatchListCount { get; set; }
+
+    public MovieType MovieType { get; set; } = null!;
+
+    [BsonIgnoreIfDefault]
+    public List<FilmingLocation> FilmingLocations { get; set; } = [];
 }
