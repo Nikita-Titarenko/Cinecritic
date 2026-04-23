@@ -38,7 +38,7 @@ public partial class EditMovie
             _previewUrl = movieResult.Value.ImagePath;
         }
     }
-    
+
     private async Task HandleSubmit()
     {
         var dto = Mapper.Map<CreateMovieDto>(UpdateMovieViewModel);

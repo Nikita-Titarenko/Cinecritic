@@ -210,10 +210,6 @@ dotnet_sort_system_directives_first = true
 dotnet_analyzer_diagnostic.severity = error
 dotnet_diagnostic.IDE0051.severity = none
 
-
-# Вимикаємо видалення приватної власності, яка не читається
-dotnet_diagnostic.IDE0052.severity = none
-
 # Ignore paths
 [/*.Tests/**]
 dotnet_diagnostic.CA1707.severity = none

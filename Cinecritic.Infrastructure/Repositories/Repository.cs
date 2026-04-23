@@ -28,7 +28,7 @@ public class Repository<T>(IMongoDatabase database) : IRepository<T> where T : c
 
     public async Task UpdateAsync(T entity)
     {
-        var id = Repository<T>.GetIdValue(entity);
+        var id = GetIdValue(entity);
         var filter = Builders<T>.Filter.Eq("_id", id);
         await Collection.ReplaceOneAsync(filter, entity);
     }
@@ -44,7 +44,7 @@ public class Repository<T>(IMongoDatabase database) : IRepository<T> where T : c
 
         foreach (var entity in entities)
         {
-            var id = Repository<T>.GetIdValue(entity);
+            var id = GetIdValue(entity);
             var filter = Builders<T>.Filter.Eq("_id", id);
 
             updates.Add(new ReplaceOneModel<T>(filter, entity)
@@ -61,7 +61,7 @@ public class Repository<T>(IMongoDatabase database) : IRepository<T> where T : c
 
     public async Task DeleteAsync(T entity)
     {
-        var id = Repository<T>.GetIdValue(entity);
+        var id = GetIdValue(entity);
         var filter = Builders<T>.Filter.Eq("_id", id);
         await Collection.DeleteOneAsync(filter);
     }

@@ -48,7 +48,7 @@ public class MovieRepository(IMongoDatabase database) : Repository<Movie>(databa
                         }),
                         new BsonDocument("$lookup", new BsonDocument
                         {
-                            { "from", "Users" },
+                            { "from", "ApplicationUsers" },
                             { "localField", "UserId" },
                             { "foreignField", "_id" },
                             { "as", "UserDetails" }

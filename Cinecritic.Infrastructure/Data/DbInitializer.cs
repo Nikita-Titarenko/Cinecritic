@@ -8,7 +8,7 @@ public static class DbInitializer
     public static async Task CreateInitialMoviesAsync(IMongoDatabase database)
     {
         var movieCollection = database.GetCollection<Movie>("Movies");
-        var userCollection = database.GetCollection<ApplicationUser>("Users");
+        var userCollection = database.GetCollection<ApplicationUser>("ApplicationUsers");
         var movieUserCollection = database.GetCollection<MovieUser>("MovieUsers");
         var movieTypeCollection = database.GetCollection<MovieType>("MovieTypes");
         var filmingLocationCollection = database.GetCollection<FilmingLocation>("FilmingLocations");
@@ -20,7 +20,7 @@ public static class DbInitializer
         }
 
         await database.DropCollectionAsync("Movies");
-        await database.DropCollectionAsync("Users");
+        await database.DropCollectionAsync("ApplicationUsers");
         await database.DropCollectionAsync("MovieUsers");
         await database.DropCollectionAsync("MovieTypes");
         await database.DropCollectionAsync("Roles");

@@ -21,29 +21,11 @@ public partial class Movie : BasePage
 
     private int? _tempRate;
 
-    private string IsWatchedClass
-    {
-        get
-        {
-            return MovieVm.CurrentUserInteraction.IsWatched ? "watched-color" : string.Empty;
-        }
-    }
+    private string IsWatchedClass => MovieVm.CurrentUserInteraction.IsWatched ? "watched-color" : string.Empty;
 
-    private string IsLikedClass
-    {
-        get
-        {
-            return MovieVm.CurrentUserInteraction is { IsLiked: true } ? "liked-color" : string.Empty;
-        }
-    }
+    private string IsLikedClass => MovieVm.CurrentUserInteraction is { IsLiked: true } ? "liked-color" : string.Empty;
 
-    private string IsInWatchedListClass
-    {
-        get
-        {
-            return MovieVm.CurrentUserInteraction.IsInWatchList ? "in-watch-list-color" : string.Empty;
-        }
-    }
+    private string IsInWatchedListClass => MovieVm.CurrentUserInteraction.IsInWatchList ? "in-watch-list-color" : string.Empty;
 
     [Parameter]
     public string MovieId { get; set; } = string.Empty;
@@ -114,11 +96,9 @@ public partial class Movie : BasePage
 
     private static string GetButtonClass(int starRate, int rate)
     {
-        if ((starRate + 1) * 2 <= rate)
-        {
-            return "fa-star color-gold";
-        }
-        return (starRate + 1) * 2 == rate + 1 ? "fa-star-half-stroke color-gold" : "fa-star";
+        return (starRate + 1) * 2 <= rate
+            ? "fa-star color-gold"
+            : (starRate + 1) * 2 == rate + 1 ? "fa-star-half-stroke color-gold" : "fa-star";
     }
 
     private string GetAverageRateButtonClass(int rate)
