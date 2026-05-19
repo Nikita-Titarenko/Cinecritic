@@ -1,4 +1,6 @@
-﻿namespace Cinecritic.Domain.Models
+﻿using Cinecritic.Infrastructure.Data;
+
+namespace Cinecritic.Domain.Models
 {
     public class WatchList
     {
@@ -6,7 +8,9 @@
 
         public Movie Movie { get; set; } = default!;
 
-        public string UserId { get; set; } = string.Empty;
+        public int ApplicationUserId { get; set; }
+        
+        public ApplicationUser ApplicationUser { get; set; } = default!;
 
         public DateTime InWatchListDateTime { get; set; } = DateTime.UtcNow;
     }

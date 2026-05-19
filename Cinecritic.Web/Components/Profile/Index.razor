@@ -1,6 +1,6 @@
 ﻿@page "/profile"
 @using System.ComponentModel.DataAnnotations
-@using Application.DTOs.Account
+@using Cinecritic.Application.DTOs.Account
 @using Cinecritic.Application.Services
 @using Cinecritic.Application.Services.Users
 @using Cinecritic.Infrastructure.Data
@@ -17,7 +17,13 @@
 
 <div class="row w-100 h-100">
     <div class="col-md-4 mx-auto my-auto">
-        <h3>Profile</h3>
+        <div class="d-flex align-items-center mb-3">
+            <h3 class="m-0 me-2">Profile</h3>
+            @if (isCenturion)
+            {
+                <span class="badge bg-danger text-white fw-bold">🛡️ Centurion</span>
+            }
+        </div>
         <EditForm method="post" Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync">
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />

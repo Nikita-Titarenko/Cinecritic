@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinecritic.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250929101854_AddCreationDateTimeForMovieUserAndWatchList")]
-    partial class AddCreationDateTimeForMovieUserAndWatchList
+    [Migration("20260519113630_ConfigureTableTriggers")]
+    partial class ConfigureTableTriggers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,9 @@ namespace Cinecritic.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("MovieTypeId")
                         .HasColumnType("int");
 
@@ -47,6 +50,12 @@ namespace Cinecritic.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("WatchCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WatchListCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -70,32 +79,18 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MovieTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            MovieTypeName = "Movie"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            MovieTypeName = "Series"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            MovieTypeName = "Cartoon"
-                        });
                 });
 
             modelBuilder.Entity("Cinecritic.Domain.Models.MovieUser", b =>
                 {
-                    b.Property<int>("MovieId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsLiked")
                         .HasColumnType("bit");
@@ -103,26 +98,39 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<DateTime?>("LikedDateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("Rate")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("WatchedDateTime")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("MovieId", "UserId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("MovieUsers");
+                    b.HasIndex("MovieId");
+
+                    b.ToTable("MovieUsers", null, t =>
+                        {
+                            t.HasTrigger("TR_MovieUsers_UpdateLikesCount");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Cinecritic.Domain.Models.Review", b =>
                 {
-                    b.Property<int>("MovieId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MovieUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ReviewDateTime")
                         .HasColumnType("datetime2");
@@ -132,7 +140,10 @@ namespace Cinecritic.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.HasKey("MovieId", "UserId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieUserId")
+                        .IsUnique();
 
                     b.ToTable("Reviews");
                 });
@@ -142,23 +153,31 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<int>("MovieId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("InWatchListDateTime")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("MovieId", "UserId");
+                    b.HasKey("MovieId", "ApplicationUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("WatchLists");
+                    b.ToTable("WatchLists", null, t =>
+                        {
+                            t.HasTrigger("TR_WatchLists_UpdateWatchListsCount");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Cinecritic.Infrastructure.Data.ApplicationUser", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
@@ -166,6 +185,9 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationDateTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
@@ -177,6 +199,9 @@ namespace Cinecritic.Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCenturion")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
@@ -222,21 +247,22 @@ namespace Cinecritic.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("ApplicationUsers", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Id = "363636b4-141c-4de1-a9be-84b40d93b0b0",
+                            Id = 1000,
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "3906ae6c-f560-495d-9a04-442d4e781053",
+                            CreationDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DisplayName = "Mykyta",
                             Email = "nikitatitarenko81@gmail.com",
                             EmailConfirmed = true,
+                            IsCenturion = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "NIKITATITARENKO81@GMAIL.COM",
                             NormalizedUserName = "NIKITATITARENKO81@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJ2IYugEn7F9NvRonTu7/RYQX5P0IGTXqN681ww3v2xbZArvE400HC9P6cK11yrrgA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "f5b48743-a597-42e7-8d83-62af1a26ab5f",
                             TwoFactorEnabled = false,
@@ -244,10 +270,13 @@ namespace Cinecritic.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -268,24 +297,24 @@ namespace Cinecritic.Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Id = "ec4742cf-d15e-422f-aaa2-2b9e9fac58f9",
+                            Id = 1,
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "a51c8989-2651-49ff-8c93-35edd02e546f",
+                            Id = 2,
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,18 +328,17 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("RoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -324,82 +352,76 @@ namespace Cinecritic.Infrastructure.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("ApplicationUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("ApplicationUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("ApplicationUserRoles", (string)null);
 
                     b.HasData(
                         new
                         {
-                            UserId = "363636b4-141c-4de1-a9be-84b40d93b0b0",
-                            RoleId = "a51c8989-2651-49ff-8c93-35edd02e546f"
+                            UserId = 1000,
+                            RoleId = 2
                         });
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("ApplicationUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("Cinecritic.Domain.Models.Movie", b =>
@@ -415,17 +437,19 @@ namespace Cinecritic.Infrastructure.Migrations
 
             modelBuilder.Entity("Cinecritic.Domain.Models.MovieUser", b =>
                 {
+                    b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany("MovieUsers")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Cinecritic.Domain.Models.Movie", "Movie")
                         .WithMany("MovieUsers")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", null)
-                        .WithMany("MovieUsers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Movie");
                 });
@@ -434,7 +458,7 @@ namespace Cinecritic.Infrastructure.Migrations
                 {
                     b.HasOne("Cinecritic.Domain.Models.MovieUser", "MovieUser")
                         .WithOne("Review")
-                        .HasForeignKey("Cinecritic.Domain.Models.Review", "MovieId", "UserId")
+                        .HasForeignKey("Cinecritic.Domain.Models.Review", "MovieUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -443,31 +467,33 @@ namespace Cinecritic.Infrastructure.Migrations
 
             modelBuilder.Entity("Cinecritic.Domain.Models.WatchList", b =>
                 {
+                    b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany("WatchLists")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Cinecritic.Domain.Models.Movie", "Movie")
                         .WithMany("WatchList")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", null)
-                        .WithMany("WatchLists")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", null)
                         .WithMany()
@@ -476,7 +502,7 @@ namespace Cinecritic.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", null)
                         .WithMany()
@@ -485,9 +511,9 @@ namespace Cinecritic.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -500,7 +526,7 @@ namespace Cinecritic.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("Cinecritic.Infrastructure.Data.ApplicationUser", null)
                         .WithMany()

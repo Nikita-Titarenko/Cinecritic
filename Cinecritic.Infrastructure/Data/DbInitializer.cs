@@ -124,7 +124,7 @@ namespace Cinecritic.Infrastructure.Data
             {
                 users.Add(new ApplicationUser
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    Id = i + 1,
                     UserName = $"test{i}@gmail.com",
                     Email = $"test{i}@gmail.com",
                     DisplayName = $"test{i}"
@@ -137,7 +137,7 @@ namespace Cinecritic.Infrastructure.Data
             {
                 movieUsers.Add(new MovieUser
                 {
-                    UserId = users[i].Id,
+                    ApplicationUserId = users[i].Id,
                     MovieId = 1,
                     Review = new Review
                     {

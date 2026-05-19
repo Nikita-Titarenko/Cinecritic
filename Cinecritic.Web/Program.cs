@@ -10,13 +10,15 @@ builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await DbInitializer.CreateInitialMoviesAsync(applicationDbContext);
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//     await DbInitializer.CreateInitialMoviesAsync(applicationDbContext);
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -11,10 +11,10 @@ namespace Cinecritic.Web.AutoMapper
         {
             CreateMap<MovieViewModel, RateMovieDto>()
                 .ForMember(dest => dest.MovieId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.MovieUserStatus.UserId));
+                .ForMember(dest => dest.ApplicationUserId, opt => opt.MapFrom(src => src.MovieUserStatus.ApplicationUserId));
             CreateMap<MovieViewModel, UpsertMovieReviewDto>()
                 .ForMember(dest => dest.MovieId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.MovieUserStatus.UserId))
+                .ForMember(dest => dest.ApplicationUserId, opt => opt.MapFrom(src => src.MovieUserStatus.ApplicationUserId))
                 .ForMember(dest => dest.ReviewText, opt => opt.MapFrom(src => src.MovieUserStatus.ReviewText));
         }
     }

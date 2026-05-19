@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cinecritic.Infrastructure.Data.Configurations
 {
-    public class IdentityRoleConfiguration : IEntityTypeConfiguration<IdentityRole>
+    public class IdentityRoleConfiguration : IEntityTypeConfiguration<IdentityRole<int>>
     {
-        public void Configure(EntityTypeBuilder<IdentityRole> builder)
+        public void Configure(EntityTypeBuilder<IdentityRole<int>> builder)
         {
             builder.HasData(DefaultRoles.UserRole);
             builder.HasData(DefaultRoles.ManagerRole);

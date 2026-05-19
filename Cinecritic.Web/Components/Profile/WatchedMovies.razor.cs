@@ -33,7 +33,7 @@ namespace Cinecritic.Web.Components.Profile
             CurrentPage = CurrentPage == 0 ? 1 : CurrentPage;
             var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var getMoviesResult = await MovieUserService.GetWatchedMoviesAsync(
-                authenticationState.User.FindFirstValue(ClaimTypes.NameIdentifier)!, 
+                int.Parse(authenticationState.User.FindFirstValue(ClaimTypes.NameIdentifier)!), 
                 Paginator.PageSize, 
                 CurrentPage);
             if (!getMoviesResult.IsSuccess)

@@ -2,7 +2,7 @@
 {
     public class UpsertMovieReviewDto
     {
-        public string UserId { get; set; } = string.Empty;
+        public int ApplicationUserId { get; set; }
 
         public int MovieId { get; set; }
 

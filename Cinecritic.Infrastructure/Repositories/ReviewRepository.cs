@@ -19,25 +19,16 @@ namespace Cinecritic.Infrastructure.Repositories
                 .OrderByDescending(mu => mu.Review!.ReviewDateTime)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(mu => new
-                {
-                    mu.MovieId,
-                    mu.UserId,
-                    mu.IsLiked,
-                    mu.Rate,
-                    mu.Review
-                })
                 .Select(mu => new MovieReviewDto
                 {
                     MovieId = movieId,
-                    UserId = mu.UserId,
+                    UserId = mu.ApplicationUser.Id,
                     IsLiked = mu.IsLiked,
                     Rate = mu.Rate,
                     ReviewText = mu.Review!.ReviewText,
                     ReviewDate = DateOnly.FromDateTime(mu.Review.ReviewDateTime.Date),
-                    DisplayName = _context.Users
-                        .Where(u => u.Id == mu.Review.UserId)
-                        .Select(u => u.DisplayName).First()
+                    DisplayName = mu.ApplicationUser.DisplayName,
+                    IsCenturion = mu.ApplicationUser.IsCenturion
                 })
                 .ToListAsync();
         }

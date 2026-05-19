@@ -27,22 +27,14 @@ namespace Cinecritic.Infrastructure.Services
             _signInManager = signInManager;
             _logger = logger;
         }
-
-        ///  <summary>
-        ///  Register new user
-        ///  </summary>
-        ///  <param name="dto">Data for register new user</param>
-        ///  <returns>
-        ///  <see cref="AuthResultDto"/> with userId and verifiaction code if
-        ///  registration success or error information if it fails
-        /// </returns>
+        
         public async Task<Result<AuthResultDto>> RegisterAsync(RegisterDto dto)
         {
             var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email, DisplayName = dto.DisplayName };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
 
-            string userId;
+            int userId;
 
             if (!result.Succeeded)
             {
@@ -70,26 +62,15 @@ namespace Cinecritic.Infrastructure.Services
             }
             else
             {
-                userId = await _userManager.GetUserIdAsync(user);
+                string userIdString = await _userManager.GetUserIdAsync(user);
+                userId = int.Parse(userIdString);
             }
 
             var confirmTokenDto = await GenerateCurrentEmailConfirmationToken(user);
 
             return Result.Ok(new AuthResultDto { UserId = userId, Code = confirmTokenDto.Value.Code });
         }
-
-        ///  <summary>
-        ///  Login for already existing user
-        ///  </summary>
-        ///  <param name="dto">Data for user login</param>
-        ///  <returns>
-        ///  <see cref="AuthResultDto"/> containing:
-        ///  <list type="bullet">
-        ///  <item>UserId and email confirmation token if the email is not confirmed</item>
-        ///  <item>UserId and reset confirmation token if the password is not exist</item>
-        ///  <item>Error information if it fails</item>
-        /// </list>
-        /// </returns>
+        
         public async Task<Result<AuthResultDto>> LoginAsync(LoginDto dto)
         {
             var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false);
@@ -102,21 +83,10 @@ namespace Cinecritic.Infrastructure.Services
             _logger.LogWarning("Failed to login");
             return Result.Fail(new Error("Login failed").WithMetadata("Code", "LoginFailed"));
         }
-
-        ///  <summary>
-        ///  Check email verification token
-        ///  </summary>
-        ///  <param name="dto">The data containing UserId and email confirmation token</param>
-        ///  <returns>
-        ///  <see cref="Result"/> containing:
-        ///  <list type="bullet">
-        ///  <item>Success if token is correct</item>
-        ///  <item>Error information if user not found or token is incorrect</item>
-        /// </list>
-        /// </returns>
+        
         public async Task<Result> ConfirmEmailAsync(ConfirmTokenDto dto)
         {
-            var user = await _userManager.FindByIdAsync(dto.UserId);
+            var user = await _userManager.FindByIdAsync(dto.UserId.ToString());
             if (user == null)
             {
                 _logger.LogWarning("Failed to confirm email: User with UserId={userId} not found", dto.UserId);
@@ -151,6 +121,22 @@ namespace Cinecritic.Infrastructure.Services
             await _userManager.UpdateAsync(user);
             await _signInManager.RefreshSignInAsync(user);
             return Result.Ok();
+        }
+        
+        public async Task<Result<UserDto>> GetUserProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to get profile: User with UserId={userId} not found", userId);
+                return Result.Fail(new Error("User not found").WithMetadata("Code", "UserNotFound"));
+            }
+
+            return Result.Ok(new UserDto
+            {
+                Name = user.DisplayName,
+                IsCenturion = user.IsCenturion
+            });
         }
     }
 }

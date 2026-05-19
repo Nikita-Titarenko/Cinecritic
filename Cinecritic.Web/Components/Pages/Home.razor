@@ -1,15 +1,168 @@
 ﻿@page "/"
+@using Cinecritic.Application.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using Cinecritic.Application.DTOs.Movies
+@inherits Microsoft.AspNetCore.Components.ComponentBase
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
-<div class="d-flex flex-column justify-content-center align-items-center h-100">
-	<h1>
-		Discover movies you love.
-	</h1>
-	<h1>
-		Rate them.
-	</h1>
-	<h1>
-		Share your favorites with friends.
-	</h1>
-	<NavLink class="btn btn-success fs-3 rounded-3 mt-3 fw-bold text-white" href="/Account/Login">Get started</NavLink>
+
+<div class="d-flex flex-column justify-content-center align-items-center mt-5">
+    <h1>Discover movies you love.</h1>
+    <h1>Rate them.</h1>
+    <h1>Share your favorites with friends.</h1>
+    
+    <AuthorizeView>
+        <NotAuthorized>
+            <NavLink class="btn btn-success fs-3 rounded-3 mt-3 fw-bold text-white" href="/Account/Login">Get started</NavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+<div class="container mt-5">
+    <div class="row g-3 mb-4 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Movie Type</label>
+            <select class="form-select" value="@SelectedMovieTypeId" @onchange="OnMovieTypeChanged">
+                @if (movieTypes != null)
+                {
+                    @foreach (var type in movieTypes)
+                    {
+                        <option value="@type.Id">@type.MovieTypeName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-white">Minimum Rating: @SelectedMinRating.ToString("F1")</label>
+            <input type="range" class="form-range" min="0" max="10" step="0.5" value="@SelectedMinRating" @oninput="OnMinRatingChanged" />
+        </div>
+    </div>
+
+    <h2 class="mb-4">Top Movies</h2>
+
+    @if (movies == null)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!movies.Any())
+    {
+        <div class="alert alert-info text-center">No movies found matching the criteria.</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var movie in movies)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">@movie.Title</h5>
+                            <p class="card-text text-muted mb-1">
+                                Release: @(movie.ReleaseDate.HasValue ? movie.ReleaseDate.Value.ToString("yyyy-MM-dd") : "N/A")
+                            </p>
+                            <p class="card-text mb-2">
+                                <span class="badge bg-warning text-dark fs-6">⭐ @movie.AverageRating.ToString("F2")</span>
+                            </p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="small text-muted">👁️ @movie.TotalWatches watches</span>
+                                @if (movie.IsLikedByCurrentUser)
+                                {
+                                    <span class="text-danger fs-5">❤️</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (TotalPageNumber > 1)
+        {
+            <nav class="py-3 mt-4">
+                <ul class="pagination justify-content-center">
+                   @if (CurrentPage > 1)
+                   {
+                      <li class="page-item">
+                         <button class="page-link" @onclick="() => ChangePage(CurrentPage - 1)">Previous</button>
+                      </li>
+                   }
+                   @if (TotalPageNumber <= PagePaginatorCount + PaginatorAdditionalCount)
+                   {
+                      @for (int i = 1; i <= TotalPageNumber; i++)
+                      {
+                         int index = i;
+                         <li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+                            <button class="page-link" @onclick="() => ChangePage(index)">@index</button>
+                         </li>
+                      }
+                   }
+                   else if (CurrentPage <= PagePaginatorCount)
+                   {
+                      @for (int i = 1; i <= PagePaginatorCount + PaginatorAdditionalCount - PaginatorAdditionalCount / 2; i++)
+                      {
+                         int index = i;
+                         <li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+                            <button class="page-link" @onclick="() => ChangePage(index)">@index</button>
+                         </li>
+                      }
+                      <li class="page-item">
+                         <span class="page-link">...</span>
+                      </li>
+                      <li class="page-item @(TotalPageNumber == CurrentPage ? "active" : string.Empty)">
+                         <button class="page-link" @onclick="() => ChangePage(TotalPageNumber)">@(TotalPageNumber)</button>
+                      </li>
+                   }
+                   else if (CurrentPage + 3 > TotalPageNumber)
+                   {
+                      <li class="page-item @(1 == CurrentPage ? "active" : string.Empty)">
+                         <button class="page-link" @onclick="() => ChangePage(1)">1</button>
+                      </li>
+                      <li class="page-item">
+                         <span class="page-link">...</span>
+                      </li>
+                      @for (int i = TotalPageNumber - PagePaginatorCount - 1; i <= TotalPageNumber; i++)
+                      {
+                         int index = i;
+                         <li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+                            <button class="page-link" @onclick="() => ChangePage(index)">@index</button>
+                         </li>
+                      }
+                   }
+                   else
+                   {
+                      <li class="page-item @(1 == CurrentPage ? "active" : string.Empty)">
+                         <button class="page-link" @onclick="() => ChangePage(1)">1</button>
+                      </li>
+                      <li class="page-item">
+                         <span class="page-link">...</span>
+                      </li>
+                      @for (int i = CurrentPage - PagePaginatorCount + PaginatorAdditionalCount - PaginatorAdditionalCount / 2; i <= CurrentPage + PagePaginatorCount / 2; i++)
+                      {
+                         int index = i;
+                         <li class="page-item @(index == CurrentPage ? "active" : string.Empty)">
+                            <button class="page-link" @onclick="() => ChangePage(index)">@index</button>
+                         </li>
+                      }
+                      <li class="page-item">
+                         <span class="page-link">...</span>
+                      </li>
+                      <li class="page-item @(TotalPageNumber == CurrentPage ? "active" : string.Empty)">
+                         <button class="page-link" @onclick="() => ChangePage(TotalPageNumber)">@(TotalPageNumber)</button>
+                      </li>
+                   }
+                   @if (TotalPageNumber != CurrentPage && TotalPageNumber != 0)
+                   {
+                      <li class="page-item">
+                         <button class="page-link" @onclick="() => ChangePage(CurrentPage + 1)">Next</button>
+                      </li>
+                   }
+                </ul>
+            </nav>
+        }
+    }
 </div>

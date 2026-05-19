@@ -1,0 +1,70 @@
+@page "/manager/editmovie/{MovieId:int}"
+@attribute [Authorize(Roles = DefaultRoles.ManagerRole)]
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using Cinecritic.Web.Common
+@using Cinecritic.Web.Components.Inputs
+@using Cinecritic.Web.ViewModels
+@using Cinecritic.Web.Components.Account.Shared
+
+<HeadContent>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <link rel="stylesheet" href="/custom-input-file.css" />
+</HeadContent>
+<PageTitle>Edit movie</PageTitle>
+
+<div class="row w-100 h-100">
+    <div class="col-md-4 mx-auto my-auto">
+       <h3 class="me-auto">Edit Movie</h3>
+       <EditForm Model="@CreateMovieViewModel" OnValidSubmit="HandleSubmit" FormName="EditMovie">
+          <DataAnnotationsValidator />
+
+          <div class="form-floating mb-3">
+             <InputText id="title" class="form-control" @bind-Value="CreateMovieViewModel.Title" placeholder="Title" />
+             <label for="title" class="form-label">Title</label>
+             <ValidationMessage For="() => CreateMovieViewModel.Title"/>
+          </div>
+
+          <div class="form-floating mb-3">
+             <InputTextArea id="description" class="form-control" @bind-Value="CreateMovieViewModel.Description" placeholder="Description" />
+             <label for="description" class="form-label">Description</label>
+             <ValidationMessage For="() => CreateMovieViewModel.Description" />
+          </div>
+
+          <div class="form-floating mb-3">
+             <InputDateNullable id="releaseDate" class="form-control" @bind-Value="CreateMovieViewModel.ReleaseDate" placeholder="Release date" />
+             <label for="releaseDate" class="form-label">Release date</label>
+             <ValidationMessage For="() => CreateMovieViewModel.ReleaseDate" />
+          </div>
+
+          <div class="form-floating mb-3">
+             <InputSelect id="movieTypes" class="form-control" @bind-Value="CreateMovieViewModel.SelectedMovieTypeId" placeholder="Movie type">
+                <option value="" hidden>Choose film type</option>
+                @foreach(var movieType in MovieTypes)
+                {
+                   <option value="@movieType.Id">@movieType.MovieTypeName</option>
+                }
+             </InputSelect>
+             <label for="movieTypes" class="form-label">Movie type</label>
+             <ValidationMessage For="() => CreateMovieViewModel.SelectedMovieTypeId" />
+          </div>
+
+          <label class="upload-container d-flex flex-column align-items-center p-4 mb-3">
+             @if (!string.IsNullOrEmpty(_previewUrl))
+             {
+                <img src="@_previewUrl" width="200" height="400"/>
+             } else
+             {
+                <i class="fa fa-upload custom-input-file"></i>
+                <span>Load image</span>
+             }
+             <InputFile OnChange="HandleSelected" accept="@AcceptedImageType" class="d-none" />
+          </label>
+          @if (!string.IsNullOrEmpty(statusMessage))
+          {
+             <StatusMessage Message="@statusMessage"></StatusMessage>
+          }
+          <button type="submit" class="btn btn-primary d-flex ms-auto">Save Changes</button>
+       </EditForm>
+    </div>
+</div>

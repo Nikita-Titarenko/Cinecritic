@@ -2,7 +2,7 @@
 {
     public class MovieReviewDto
     {
-        public string UserId { get; set; } = string.Empty;
+        public int UserId { get; set; }
 
         public int MovieId { get; set; }
 
@@ -15,5 +15,7 @@
         public int? Rate { get; set; }
 
         public string DisplayName { get; set; } = string.Empty;
+        
+        public bool IsCenturion { get; set; }
     }
 }

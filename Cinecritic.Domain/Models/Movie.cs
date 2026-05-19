@@ -12,6 +12,9 @@ namespace Cinecritic.Domain.Models
         public DateOnly? ReleaseDate { get; set; }
         public MovieType MovieType { get; set; } = default!;
         public int MovieTypeId {  get; set; }
+        public int WatchCount { get; set; }
+        public int LikesCount { get; set; }
+        public int WatchListCount { get; set; }
         public IEnumerable<MovieUser> MovieUsers { get; set; } = new List<MovieUser>();
         public IEnumerable<WatchList> WatchList { get; set; } = new List<WatchList>();
     }

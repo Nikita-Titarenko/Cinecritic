@@ -95,6 +95,12 @@ namespace Cinecritic.Web.Components.Pages.User
         private IJSInteropService JSInteropService { get; set; } = default!;
         [Inject]
         private IMapper Mapper { get; set; } = default!;
+        
+        [Inject]
+        private IJSRuntime JSRuntime { get; set; } = default!;
+
+        [Inject]
+        private NavigationManager NavigationManager { get; set; } = default!;
 
         private MovieViewModel MovieViewModel { get; set; } = new MovieViewModel();
 
@@ -113,7 +119,13 @@ namespace Cinecritic.Web.Components.Pages.User
         protected override async Task OnInitializedAsync()
         {
             var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var movieDto = await MovieService.GetMovieAsync(int.Parse(MovieId), auth.User.FindFirstValue(ClaimTypes.NameIdentifier)!, reviewPageSize);
+            var stringUserId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = 0;
+            if (stringUserId != null)
+            {
+                userId = int.Parse(stringUserId);
+            }
+            var movieDto = await MovieService.GetMovieAsync(int.Parse(MovieId), userId, reviewPageSize);
             if (!movieDto.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -171,6 +183,24 @@ namespace Cinecritic.Web.Components.Pages.User
             }
 
             return GetButtonClass(starRate, currentRate);
+        }
+        
+        private async Task ConfirmDeleteAsync()
+        {
+            var message = $"Are you sure you want to delete \"{MovieViewModel.Title}\"?";
+            bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", message);
+    
+            if (confirmed)
+            {
+                var result = await MovieService.DeleteMovieAsync(MovieViewModel.Id);
+                if (!result.IsSuccess)
+                {
+                    await JSInteropService.ShowAlertAsync();
+                    return;
+                }
+        
+                NavigationManager.NavigateTo("/");
+            }
         }
 
         private string GetUserRateButtonClass(int starRate, int userRate)
@@ -244,7 +274,7 @@ namespace Cinecritic.Web.Components.Pages.User
 
         private async Task ToggleWatchAsync()
         {
-            var result = await MovieUserService.ToggleWatchMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.UserId);
+            var result = await MovieUserService.ToggleWatchMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.ApplicationUserId);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -256,7 +286,7 @@ namespace Cinecritic.Web.Components.Pages.User
 
         private async Task ToggleLikeAsync()
         {
-            var result = await MovieUserService.ToggleLikeMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.UserId);
+            var result = await MovieUserService.ToggleLikeMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.ApplicationUserId);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();
@@ -268,7 +298,7 @@ namespace Cinecritic.Web.Components.Pages.User
 
         private async Task ToggleInWatchListAsync()
         {
-            var result = await WatchListService.ToggleWatchListMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.UserId);
+            var result = await WatchListService.ToggleWatchListMovieAsync(MovieViewModel.Id,  MovieUserStatusViewModel.ApplicationUserId);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();

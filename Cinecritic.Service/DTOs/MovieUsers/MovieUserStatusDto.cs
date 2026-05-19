@@ -2,7 +2,7 @@
 {
     public class MovieUserStatusDto
     {
-        public string UserId { get; set; } = string.Empty;
+        public int ApplicationUserId { get; set; }
 
         public bool IsWatched { get; set; }
 

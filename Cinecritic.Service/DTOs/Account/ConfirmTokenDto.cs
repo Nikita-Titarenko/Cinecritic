@@ -2,7 +2,7 @@
 {
     public class ConfirmTokenDto
     {
-        public string UserId { get; set; } = string.Empty;
+        public int UserId { get; set; }
         public string Code { get; set; } = string.Empty;
     }
 }

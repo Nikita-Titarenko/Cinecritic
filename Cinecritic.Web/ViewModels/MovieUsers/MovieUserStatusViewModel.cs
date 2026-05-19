@@ -4,7 +4,7 @@ namespace Cinecritic.Web.ViewModels.MovieUsers
 {
     public class MovieUserStatusViewModel
     {
-        public string UserId { get; set; } = string.Empty;
+        public int ApplicationUserId { get; set; }
 
         public bool IsWatched { get; set; }
 

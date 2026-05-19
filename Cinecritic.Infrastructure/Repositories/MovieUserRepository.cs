@@ -1,8 +1,10 @@
 ﻿using Cinecritic.Application.DTOs.Movies;
+using Cinecritic.Application.DTOs.MovieTypes;
 using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Application.Repositories;
 using Cinecritic.Domain.Models;
 using Cinecritic.Infrastructure.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinecritic.Infrastructure.Repositories
@@ -13,14 +15,19 @@ namespace Cinecritic.Infrastructure.Repositories
         {
         }
 
-        public async Task<MovieUser?> GetMovieUserWithReview(int movieId, string userId)
+        public Task<MovieUser?> GetMovieUserAsync(int movieId, int userId)
         {
-            return await _dbSet.Include(mu => mu.Review).FirstOrDefaultAsync(mu => mu.MovieId == movieId && mu.UserId == userId);
+            return _dbSet.FirstOrDefaultAsync(mu => mu.MovieId == movieId && mu.ApplicationUserId == userId);
         }
 
-        public async Task<MovieDto?> GetMovieAsync(int movieId, string userId)
+        public async Task<MovieUser?> GetMovieUserWithReviewAsync(int movieId, int userId)
         {
-            var dto = await _context.Movies
+            return await _dbSet.Include(mu => mu.Review).FirstOrDefaultAsync(mu => mu.MovieId == movieId && mu.ApplicationUserId == userId);
+        }
+
+        public async Task<MovieDto?> GetMovieAsync(int movieId, int userId)
+        {
+            return await _context.Movies
                 .AsNoTracking()
                 .Where(m => m.Id == movieId)
                 .Select(m => new
@@ -29,31 +36,25 @@ namespace Cinecritic.Infrastructure.Repositories
                     m.Title,
                     m.Description,
                     m.ReleaseDate,
+                    m.MovieType,
                     MovieUser = m.MovieUsers
-                    .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
-                    .Select(mu => new
-                    {
-                        mu.IsLiked,
-                        mu.Rate,
-                        ReviewText = mu.Review != null ? mu.Review.ReviewText : null,
-                        ReviewDate = mu.Review != null ? DateOnly.FromDateTime(mu.Review.ReviewDateTime.Date) : (DateOnly?)null
-                    })
-                    .FirstOrDefault(),
+                        .Where(mu => mu.MovieId == movieId && mu.ApplicationUserId == userId)
+                        .Select(mu => new
+                        {
+                            mu.IsLiked,
+                            mu.Rate,
+                            ReviewText = mu.Review != null ? mu.Review.ReviewText : null,
+                            ReviewDate = mu.Review != null
+                                ? DateOnly.FromDateTime(mu.Review.ReviewDateTime.Date)
+                                : (DateOnly?)null
+                        })
+                        .FirstOrDefault(),
                     WatchList = m.WatchList
-                    .Where(mu => mu.MovieId == movieId && mu.UserId == userId)
-                    .FirstOrDefault(),
-                    WatchedCount = m.MovieUsers
-                        .Where(mu => mu.MovieId == movieId)
-                        .Count(),
-                    LikedCount = m.MovieUsers
-                        .Where(mu => mu.MovieId == movieId && mu.IsLiked)
-                        .Count(),
-                    WatchListCount = m.WatchList
-                        .Where(mu => mu.MovieId == movieId)
-                        .Count(),
-                    Rate = m.MovieUsers
-                        .Where(mu => mu.MovieId == movieId)
-                        .Average(mu => mu.Rate),
+                        .FirstOrDefault(mu => mu.MovieId == movieId && mu.ApplicationUserId == userId),
+                    WatchedCount = m.WatchCount,
+                    LikedCount = m.LikesCount,
+                    WatchListCount = m.WatchListCount,
+                    Rate = _context.GetMovieAverageRating(movieId),
                 })
                 .Select(m => new MovieDto
                 {
@@ -61,9 +62,14 @@ namespace Cinecritic.Infrastructure.Repositories
                     Title = m.Title,
                     Description = m.Description,
                     ReleaseDate = m.ReleaseDate,
+                    MovieType = new MovieTypeDto
+                    {
+                        Id = m.MovieType.Id,
+                        MovieTypeName = m.MovieType.MovieTypeName
+                    },
                     MovieUserStatus = new MovieUserStatusDto
                     {
-                        UserId = userId,
+                        ApplicationUserId = userId,
                         IsWatched = m.MovieUser != null,
                         IsLiked = m.MovieUser != null && m.MovieUser.IsLiked,
                         Rate = m.MovieUser != null ? m.MovieUser.Rate : null,
@@ -74,23 +80,16 @@ namespace Cinecritic.Infrastructure.Repositories
                     WatchedCount = m.WatchedCount,
                     LikedCount = m.LikedCount,
                     WatchListCount = m.WatchListCount,
-                    Rate = m.Rate ?? 0
+                    Rate = m.Rate
                 })
                 .FirstOrDefaultAsync();
-
-            if (dto == null)
-            {
-                return null;
-            }
-
-            return dto;
         }
 
-        public async Task<IEnumerable<MovieListItemDto>> GetWatchedMoviesAsync(string userId, int pageSize, int pageCount)
+        public async Task<IEnumerable<MovieListItemDto>> GetWatchedMoviesAsync(int userId, int pageSize, int pageCount)
         {
             IEnumerable<MovieListItemDto> dto = await _dbSet
                 .AsNoTracking()
-                .Where(mu => mu.UserId == userId)
+                .Where(mu => mu.ApplicationUserId == userId)
                 .OrderByDescending(mu => mu.WatchedDateTime)
                 .Skip((pageCount - 1) * pageSize)
                 .Take(pageSize)
@@ -105,18 +104,18 @@ namespace Cinecritic.Infrastructure.Repositories
             return dto;
         }
 
-        public async Task<int> CountWatched(string userId)
+        public async Task<int> CountWatched(int userId)
         {
             return await _dbSet
-                .Where(mu => mu.UserId == userId)
+                .Where(mu => mu.ApplicationUserId == userId)
                 .CountAsync();
         }
 
-        public async Task<IEnumerable<MovieListItemDto>> GetLikedMoviesAsync(string userId, int pageSize, int pageCount)
+        public async Task<IEnumerable<MovieListItemDto>> GetLikedMoviesAsync(int userId, int pageSize, int pageCount)
         {
             IEnumerable<MovieListItemDto> dto = await _dbSet
                 .AsNoTracking()
-                .Where(mu => mu.UserId == userId && mu.IsLiked)
+                .Where(mu => mu.ApplicationUserId == userId && mu.IsLiked)
                 .OrderByDescending(mu => mu.LikedDateTime)
                 .Skip((pageCount - 1) * pageSize)
                 .Take(pageSize)
@@ -131,11 +130,23 @@ namespace Cinecritic.Infrastructure.Repositories
             return dto;
         }
 
-        public async Task<int> CountLiked(string userId)
+        public async Task<int> CountLiked(int userId)
         {
             return await _dbSet
-                .Where(mu => mu.UserId == userId && mu.IsLiked)
+                .Where(mu => mu.ApplicationUserId == userId && mu.IsLiked)
                 .CountAsync();
+        }
+        
+        public async Task UpsertMovieUserLikeAndRatingAsync(int movieId, string userId, bool isLiked, int? rate)
+        {
+            var movieIdParam = new SqlParameter("@MovieId", movieId);
+            var userIdParam = new SqlParameter("@ApplicationUserId", userId);
+            var isLikedParam = new SqlParameter("@IsLiked", isLiked);
+            var rateParam = new SqlParameter("@Rate", (object)rate ?? DBNull.Value);
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC dbo.UpsertMovieUserLikeAndRating @MovieId, @ApplicationUserId, @IsLiked, @Rate",
+                movieIdParam, userIdParam, isLikedParam, rateParam);
         }
     }
 }

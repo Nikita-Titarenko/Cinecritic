@@ -36,7 +36,7 @@
 		var confirmEmailResult = await UserService.ConfirmEmailAsync(new ConfirmTokenDto
 		{
 			Code = Code,
-			UserId = UserId
+			UserId = int.Parse(UserId)
 		});
 		if (!confirmEmailResult.IsSuccess)
 		{

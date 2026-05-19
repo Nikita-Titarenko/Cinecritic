@@ -1,10 +1,11 @@
 ﻿using Cinecritic.Application.DTOs.Movies;
+using Cinecritic.Domain.Models;
 
 namespace Cinecritic.Application.Repositories
 {
-    public interface IWatchListRepository
+    public interface IWatchListRepository : IRepository<WatchList>
     {
-        Task<int> Count(string userId);
-        Task<IEnumerable<MovieListItemDto>> GetMoviesInWatchListAsync(string userId, int pageSize, int pageCount);
+        Task<int> Count(int userId);
+        Task<IEnumerable<MovieListItemDto>> GetMoviesInWatchListAsync(int userId, int pageSize, int pageCount);
     }
 }

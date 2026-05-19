@@ -9,16 +9,16 @@ namespace Cinecritic.Infrastructure.Common
 {
     public static class DefaultRoles
     {
-        public static readonly IdentityRole UserRole = new IdentityRole
+        public static readonly IdentityRole<int> UserRole = new IdentityRole<int>
         {
-            Id = "ec4742cf-d15e-422f-aaa2-2b9e9fac58f9",
+            Id = 1,
             Name = "User",
             NormalizedName = "USER"
         };
 
-        public static readonly IdentityRole ManagerRole = new IdentityRole
+        public static readonly IdentityRole<int> ManagerRole = new IdentityRole<int>
         {
-            Id = "a51c8989-2651-49ff-8c93-35edd02e546f",
+            Id = 2,
             Name = "Manager",
             NormalizedName = "MANAGER"
         };

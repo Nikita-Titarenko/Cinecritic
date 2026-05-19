@@ -1,5 +1,7 @@
-﻿using Cinecritic.Infrastructure.Data;
+﻿using Cinecritic.Application.Repositories;
+using Cinecritic.Infrastructure.Data;
 using Cinecritic.Infrastructure.Options;
+using Cinecritic.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,18 +17,26 @@ namespace Cinecritic.Infrastructure
                 options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<ApplicationUser>(options =>
-            options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = true;
+                })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>();
+                .AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>()
+                .AddDefaultTokenProviders();
 
             services.ConfigureApplicationCookie(opt =>
             {
                 opt.LoginPath = "/Account/Login";
             });
 
-            services.Configure<EmailConfigurationOption>(configuration.GetSection("EMAILSETTINGS"));
+            services.Configure<EmailConfigurationOption>(configuration.GetSection("EMAIL"));
+            
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IMovieRepository, MovieRepository>();
+            services.AddScoped<IMovieUserRepository, MovieUserRepository>();
+            services.AddScoped<IWatchListRepository, WatchListRepository>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
 
             return services;
         }

@@ -8,5 +8,12 @@ namespace Cinecritic.Application.Repositories
     public interface IMovieRepository : IRepository<Movie>
     {
         Task<IEnumerable<MovieListItemDto>> GetMoviesAsync(int pageSize, int pageCount);
+
+        Task<IEnumerable<TopMovieQueryResult>> GetTopMoviesByTypeAsync(
+            int movieTypeId, 
+            decimal minRating, 
+            int pageNumber, 
+            int pageSize, 
+            string? userId);
     }
 }

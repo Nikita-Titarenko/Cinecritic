@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cinecritic.Application.DTOs.MovieTypes;
 using Cinecritic.Application.DTOs.MovieUsers;
 using Cinecritic.Application.DTOs.Reviews;
 
@@ -28,7 +29,9 @@ namespace Cinecritic.Application.DTOs.Movies
 
         public int WatchListCount { get; set; }
 
-        public double Rate { get; set; }
+        public decimal Rate { get; set; }
+        
+        public MovieTypeDto MovieType { get; set; } = new MovieTypeDto();
 
         public IEnumerable<MovieReviewDto> Reviews { get; set; } = new List<MovieReviewDto>();
     }

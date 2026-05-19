@@ -12,11 +12,11 @@ namespace Cinecritic.Infrastructure.Repositories
         {
         }
 
-        public async Task<IEnumerable<MovieListItemDto>> GetMoviesInWatchListAsync(string userId, int pageSize, int pageCount)
+        public async Task<IEnumerable<MovieListItemDto>> GetMoviesInWatchListAsync(int userId, int pageSize, int pageCount)
         {
             IEnumerable<MovieListItemDto> dto = await _dbSet
                 .AsNoTracking()
-                .Where(mu => mu.UserId == userId)
+                .Where(mu => mu.ApplicationUserId == userId)
                 .OrderByDescending(mu => mu.InWatchListDateTime)
                 .Skip((pageCount - 1) * pageSize)
                 .Take(pageSize)
@@ -31,10 +31,10 @@ namespace Cinecritic.Infrastructure.Repositories
             return dto;
         }
 
-        public async Task<int> Count(string userId)
+        public async Task<int> Count(int userId)
         {
             return await _dbSet
-                .Where(mu => mu.UserId == userId)
+                .Where(mu => mu.ApplicationUserId == userId)
                 .CountAsync();
         }
     }
