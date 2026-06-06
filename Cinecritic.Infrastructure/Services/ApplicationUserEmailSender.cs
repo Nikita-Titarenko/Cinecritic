@@ -19,7 +19,8 @@ namespace Cinecritic.Infrastructure.Services
         private readonly string tempaltePath = "templates";
         private readonly string emailTempalte = "email-layout.html";
 
-        public ApplicationUserEmailSender(IEmailSender emailSender, IWebHostEnvironment webHostEnvironment) {
+        public ApplicationUserEmailSender(IEmailSender emailSender, IWebHostEnvironment webHostEnvironment)
+        {
             _emailSender = emailSender;
             _webHostEnvironment = webHostEnvironment;
         }
@@ -37,7 +38,7 @@ namespace Cinecritic.Infrastructure.Services
                 .Replace("{Text}", text)
                 .Replace("{Link}", link)
                 .Replace("{LinkText}", linkText);
-            
+
             return html;
         }
 

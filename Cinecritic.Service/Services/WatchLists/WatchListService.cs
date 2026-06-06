@@ -24,11 +24,11 @@ namespace Cinecritic.Application.Services.WatchLists
         private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
         public WatchListService(
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             IWatchListRepository watchListRepository,
             IMovieUserRepository movieUserRepository,
-            IMapper mapper, 
-            IFileService fileService, 
+            IMapper mapper,
+            IFileService fileService,
             IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
@@ -49,7 +49,7 @@ namespace Cinecritic.Application.Services.WatchLists
                 await DeleteFromMovieUserAsync(movieId, userId);
                 _watchListRepository.Add(new WatchList { MovieId = movieId, ApplicationUserId = userId });
                 isInWatchList = true;
-            } 
+            }
             else
             {
                 _watchListRepository.Delete(watchList);

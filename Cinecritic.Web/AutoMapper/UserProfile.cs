@@ -5,7 +5,8 @@ namespace Cinecritic.Web.AutoMapper
 {
     public class UserProfile : Profile
     {
-        public UserProfile() {
+        public UserProfile()
+        {
             CreateMap<Register.InputModel, RegisterDto>();
             CreateMap<Login.InputModel, LoginDto>();
         }

@@ -52,7 +52,7 @@ namespace Cinecritic.Application.Services.Movies
             // ClearMovieCache();
             return Result.Ok(movieId);
         }
-        
+
         public async Task<Result<int>> UpdateMovieAsync(int movieId, CreateMovieDto dto, Stream? stream, string? fileExtension)
         {
             var movie = await _movieRep.GetAsync(movieId);
@@ -60,7 +60,7 @@ namespace Cinecritic.Application.Services.Movies
             {
                 return Result.Fail(new Error("Movie not exist").WithMetadata("Code", "MovieNotExist"));
             }
-            
+
             if (stream != null)
             {
                 var filePath = GetFilePath(movieId);
@@ -68,14 +68,14 @@ namespace Cinecritic.Application.Services.Movies
                 var path = GetFilePath(movieId);
                 await _fileService.SaveFile(path, stream);
             }
-            
+
             _movieRep.Update(_mapper.Map(dto, movie));
             await _unitOfWork.CommitAsync();
 
             ClearMovieCache();
             return Result.Ok(movieId);
         }
-        
+
         public async Task<Result<int>> DeleteMovieAsync(int movieId)
         {
             var movie = await _movieRep.GetAsync(movieId);
@@ -95,18 +95,18 @@ namespace Cinecritic.Application.Services.Movies
         public async Task<Result<GetMoviesResultDto>> GetMoviesAsync(int pageSize, int pageCount)
         {
             var cacheKey = $"movies_page_{pageCount}_{pageSize}";
-            
+
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = CacheDuration;
                 entry.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token));
-                
+
                 var movies = await _movieRep.GetMoviesAsync(pageSize, pageCount);
                 foreach (var movie in movies)
                 {
                     movie.ImagePath = GetFilePath(movie.Id);
                 }
-                
+
                 return Result.Ok(new GetMoviesResultDto
                 {
                     Movies = movies,
@@ -118,12 +118,12 @@ namespace Cinecritic.Application.Services.Movies
         public async Task<Result<MovieDto>> GetMovieAsync(int movieId, int userId, int reviewCount = 10)
         {
             var cacheKey = $"movie_details_{movieId}_user_{userId}_rev_{reviewCount}";
-            
+
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = CacheDuration;
                 entry.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token));
-                
+
                 var movie = await _movieUserRep.GetMovieAsync(movieId, userId);
                 if (movie == null)
                 {
@@ -139,26 +139,26 @@ namespace Cinecritic.Application.Services.Movies
                 return Result.Ok(movie);
             }) ?? Result.Fail<MovieDto>("Error loading movie details from cache");
         }
-        
+
         public async Task<IEnumerable<TopMovieQueryResult>> GetTopMoviesByTypeAsync(
-            int movieTypeId, 
-            decimal minRating, 
-            int pageNumber, 
-            int pageSize, 
+            int movieTypeId,
+            decimal minRating,
+            int pageNumber,
+            int pageSize,
             string? userId)
         {
             var cacheKey = $"top_movies_type_{movieTypeId}_rate_{minRating}_page_{pageNumber}_size_{pageSize}_user_{userId ?? "anonymous"}";
-            
+
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = CacheDuration;
                 entry.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token));
-                
+
                 return await _movieRep.GetTopMoviesByTypeAsync(
-                    movieTypeId, 
-                    minRating, 
-                    pageNumber, 
-                    pageSize, 
+                    movieTypeId,
+                    minRating,
+                    pageNumber,
+                    pageSize,
                     userId);
             }) ?? Enumerable.Empty<TopMovieQueryResult>();
         }

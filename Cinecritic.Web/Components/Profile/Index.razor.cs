@@ -15,7 +15,7 @@ namespace Cinecritic.Web.Components.Profile
 
         [CascadingParameter]
         private HttpContext HttpContext { get; set; } = default!;
-        
+
         [SupplyParameterFromForm]
         private InputModel Input { get; set; } = new();
 

@@ -7,7 +7,8 @@ namespace Cinecritic.Web.AutoMapper
 {
     public class ReviewProfile : Profile
     {
-        public ReviewProfile() {
+        public ReviewProfile()
+        {
             CreateMap<MovieReviewDto, MovieReviewViewModel>();
         }
     }

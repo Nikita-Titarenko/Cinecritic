@@ -30,12 +30,12 @@ namespace Cinecritic.Infrastructure.Repositories
 
             return dto;
         }
-        
+
         public async Task<IEnumerable<TopMovieQueryResult>> GetTopMoviesByTypeAsync(
-            int movieTypeId, 
-            decimal minRating, 
-            int pageNumber, 
-            int pageSize, 
+            int movieTypeId,
+            decimal minRating,
+            int pageNumber,
+            int pageSize,
             string? userId)
         {
             return await _context.GetTopMoviesByType(movieTypeId, minRating, pageNumber, pageSize, userId)

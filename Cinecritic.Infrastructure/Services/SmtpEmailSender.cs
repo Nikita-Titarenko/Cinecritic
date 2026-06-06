@@ -16,10 +16,11 @@ namespace Cinecritic.Infrastructure.Services
     {
         private readonly IOptions<EmailConfigurationOption> _emailConfigurationOption;
 
-        public SmtpEmailSender(IOptions<EmailConfigurationOption> emailConfigurationOption) {
+        public SmtpEmailSender(IOptions<EmailConfigurationOption> emailConfigurationOption)
+        {
             _emailConfigurationOption = emailConfigurationOption;
         }
-            
+
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             string host = _emailConfigurationOption.Value.Server;

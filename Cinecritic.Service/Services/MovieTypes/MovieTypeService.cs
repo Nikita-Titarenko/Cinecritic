@@ -13,8 +13,8 @@ namespace Cinecritic.Application.Services.MovieTypes
         private readonly IMapper _mapper;
 
         public MovieTypeService(
-            IUnitOfWork unitOfWork, 
-            IRepository<MovieType> movieTypeRepository, 
+            IUnitOfWork unitOfWork,
+            IRepository<MovieType> movieTypeRepository,
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;

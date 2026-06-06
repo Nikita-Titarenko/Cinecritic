@@ -6,7 +6,8 @@ namespace Cinecritic.Web.AutoMapper
 {
     public class MovieTypeProfile : Profile
     {
-        public MovieTypeProfile() {
+        public MovieTypeProfile()
+        {
             CreateMap<MovieTypeDto, MovieTypeViewModel>();
         }
     }

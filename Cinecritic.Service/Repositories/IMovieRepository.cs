@@ -10,10 +10,10 @@ namespace Cinecritic.Application.Repositories
         Task<IEnumerable<MovieListItemDto>> GetMoviesAsync(int pageSize, int pageCount);
 
         Task<IEnumerable<TopMovieQueryResult>> GetTopMoviesByTypeAsync(
-            int movieTypeId, 
-            decimal minRating, 
-            int pageNumber, 
-            int pageSize, 
+            int movieTypeId,
+            decimal minRating,
+            int pageNumber,
+            int pageSize,
             string? userId);
     }
 }

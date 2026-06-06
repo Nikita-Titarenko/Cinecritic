@@ -12,10 +12,10 @@ namespace Cinecritic.Application.Services.Movies
         Task<Result<int>> DeleteMovieAsync(int movieId);
 
         Task<IEnumerable<TopMovieQueryResult>> GetTopMoviesByTypeAsync(
-            int movieTypeId, 
-            decimal minRating, 
-            int pageNumber, 
-            int pageSize, 
+            int movieTypeId,
+            decimal minRating,
+            int pageNumber,
+            int pageSize,
             string? userId);
     }
 }

@@ -24,11 +24,11 @@ namespace Cinecritic.Application.Services.Reviews
         private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
         public ReviewService(
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             IMovieUserRepository movieUserRepository,
             IReviewRepository reviewRepository,
-            IMapper mapper, 
-            IMovieUserService movieUserService, 
+            IMapper mapper,
+            IMovieUserService movieUserService,
             IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
@@ -116,7 +116,7 @@ namespace Cinecritic.Application.Services.Reviews
             _resetReviewCacheToken = new CancellationTokenSource();
             currentToken.Cancel();
             currentToken.Dispose();
-            
+
             MovieService.ClearMovieCache();
         }
     }

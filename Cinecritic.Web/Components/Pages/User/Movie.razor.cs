@@ -95,7 +95,7 @@ namespace Cinecritic.Web.Components.Pages.User
         private IJSInteropService JSInteropService { get; set; } = default!;
         [Inject]
         private IMapper Mapper { get; set; } = default!;
-        
+
         [Inject]
         private IJSRuntime JSRuntime { get; set; } = default!;
 
@@ -184,12 +184,12 @@ namespace Cinecritic.Web.Components.Pages.User
 
             return GetButtonClass(starRate, currentRate);
         }
-        
+
         private async Task ConfirmDeleteAsync()
         {
             var message = $"Are you sure you want to delete \"{MovieViewModel.Title}\"?";
             bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", message);
-    
+
             if (confirmed)
             {
                 var result = await MovieService.DeleteMovieAsync(MovieViewModel.Id);
@@ -198,7 +198,7 @@ namespace Cinecritic.Web.Components.Pages.User
                     await JSInteropService.ShowAlertAsync();
                     return;
                 }
-        
+
                 NavigationManager.NavigateTo("/");
             }
         }
@@ -298,7 +298,7 @@ namespace Cinecritic.Web.Components.Pages.User
 
         private async Task ToggleInWatchListAsync()
         {
-            var result = await WatchListService.ToggleWatchListMovieAsync(MovieViewModel.Id,  MovieUserStatusViewModel.ApplicationUserId);
+            var result = await WatchListService.ToggleWatchListMovieAsync(MovieViewModel.Id, MovieUserStatusViewModel.ApplicationUserId);
             if (!result.IsSuccess)
             {
                 await JSInteropService.ShowAlertAsync();

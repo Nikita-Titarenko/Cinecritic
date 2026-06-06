@@ -27,7 +27,7 @@ namespace Cinecritic.Infrastructure.Services
             _signInManager = signInManager;
             _logger = logger;
         }
-        
+
         public async Task<Result<AuthResultDto>> RegisterAsync(RegisterDto dto)
         {
             var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email, DisplayName = dto.DisplayName };
@@ -70,7 +70,7 @@ namespace Cinecritic.Infrastructure.Services
 
             return Result.Ok(new AuthResultDto { UserId = userId, Code = confirmTokenDto.Value.Code });
         }
-        
+
         public async Task<Result<AuthResultDto>> LoginAsync(LoginDto dto)
         {
             var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false);
@@ -83,7 +83,7 @@ namespace Cinecritic.Infrastructure.Services
             _logger.LogWarning("Failed to login");
             return Result.Fail(new Error("Login failed").WithMetadata("Code", "LoginFailed"));
         }
-        
+
         public async Task<Result> ConfirmEmailAsync(ConfirmTokenDto dto)
         {
             var user = await _userManager.FindByIdAsync(dto.UserId.ToString());
@@ -122,7 +122,7 @@ namespace Cinecritic.Infrastructure.Services
             await _signInManager.RefreshSignInAsync(user);
             return Result.Ok();
         }
-        
+
         public async Task<Result<UserDto>> GetUserProfileAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

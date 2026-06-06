@@ -11,7 +11,7 @@ namespace Cinecritic.Domain.Models
         public string? Description { get; set; }
         public DateOnly? ReleaseDate { get; set; }
         public MovieType MovieType { get; set; } = default!;
-        public int MovieTypeId {  get; set; }
+        public int MovieTypeId { get; set; }
         public int WatchCount { get; set; }
         public int LikesCount { get; set; }
         public int WatchListCount { get; set; }

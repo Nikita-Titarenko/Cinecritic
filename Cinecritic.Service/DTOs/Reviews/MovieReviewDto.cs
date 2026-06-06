@@ -15,7 +15,7 @@
         public int? Rate { get; set; }
 
         public string DisplayName { get; set; } = string.Empty;
-        
+
         public bool IsCenturion { get; set; }
     }
 }

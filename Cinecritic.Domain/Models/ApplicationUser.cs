@@ -9,7 +9,7 @@ namespace Cinecritic.Infrastructure.Data
         [StringLength(30)]
         public string DisplayName { get; set; } = string.Empty;
         public DateTime CreationDateTime { get; set; }
-        public bool IsCenturion { get; set; } 
+        public bool IsCenturion { get; set; }
         public IEnumerable<MovieUser> MovieUsers { get; set; } = new List<MovieUser>();
         public IEnumerable<WatchList> WatchLists { get; set; } = new List<WatchList>();
     }

@@ -30,7 +30,7 @@ namespace Cinecritic.Application.DTOs.Movies
         public int WatchListCount { get; set; }
 
         public decimal Rate { get; set; }
-        
+
         public MovieTypeDto MovieType { get; set; } = new MovieTypeDto();
 
         public IEnumerable<MovieReviewDto> Reviews { get; set; } = new List<MovieReviewDto>();

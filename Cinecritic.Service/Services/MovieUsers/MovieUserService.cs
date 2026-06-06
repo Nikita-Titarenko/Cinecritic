@@ -24,11 +24,11 @@ namespace Cinecritic.Application.Services.MovieUsers
         private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
         public MovieUserService(
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             IMovieUserRepository movieUserRepository,
             IWatchListRepository watchListRepository,
-            IMapper mapper, 
-            IFileService fileService, 
+            IMapper mapper,
+            IFileService fileService,
             IMemoryCache cache)
         {
             _unitOfWork = unitOfWork;
@@ -55,7 +55,7 @@ namespace Cinecritic.Application.Services.MovieUsers
             }
 
             await _unitOfWork.CommitAsync();
-            
+
             ClearCache();
 
             var resultDto = _mapper.Map<MovieUserStatusDto>(movieUser);
@@ -93,7 +93,7 @@ namespace Cinecritic.Application.Services.MovieUsers
         public async Task<Result<MovieUserStatusDto>> ToggleLikeMovieAsync(int movieId, int userId)
         {
             var movieUser = await _movieUserRepository.GetMovieUserWithReviewAsync(movieId, userId);
-    
+
             bool nextLikedState = movieUser == null || !movieUser.IsLiked;
 
             await _movieUserRepository.UpsertMovieUserLikeAndRatingAsync(movieId, userId.ToString(), nextLikedState, movieUser?.Rate);
@@ -108,8 +108,8 @@ namespace Cinecritic.Application.Services.MovieUsers
                 IsLiked = nextLikedState,
                 Rate = movieUser?.Rate,
                 ReviewText = movieUser?.Review?.ReviewText,
-                ReviewDate = movieUser?.Review?.ReviewDateTime.Date != null 
-                    ? DateOnly.FromDateTime(movieUser.Review.ReviewDateTime.Date) 
+                ReviewDate = movieUser?.Review?.ReviewDateTime.Date != null
+                    ? DateOnly.FromDateTime(movieUser.Review.ReviewDateTime.Date)
                     : null
             });
         }
@@ -181,8 +181,8 @@ namespace Cinecritic.Application.Services.MovieUsers
             _resetUserCacheToken = new CancellationTokenSource();
             currentToken.Cancel();
             currentToken.Dispose();
-            
-            MovieService.ClearMovieCache(); 
+
+            MovieService.ClearMovieCache();
         }
     }
 }

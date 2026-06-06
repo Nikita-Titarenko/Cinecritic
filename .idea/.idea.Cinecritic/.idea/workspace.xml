@@ -52,6 +52,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/cc1ad596b4fde937674ff6c832655e53b7c6cc97b1b7a38893ad352a788057/PrincipalExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/da85a58ea2935b63313b13d2ac7b64511669adc893e79e7cc36d4f4b27618e6/Result.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/fb367341658aaedd7de424d4c9189db33c4387e268dcc4011918569442ab12/AsyncTaskMethodBuilderT.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/.husky/task-runner.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Cinecritic.Service/DTOs/Account/UserDto.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Cinecritic.Service/DTOs/Movies/TopMovieQueryResult.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Cinecritic.Web/Components/Pages/Home.razor.cs" root0="FORCE_HIGHLIGHTING" />
@@ -67,6 +68,7 @@
     <setting file="file://$PROJECT_DIR$/Cinecritic.Web/wwwroot/lib/bootstrap/js/bootstrap.esm.min.js.map" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Cinecritic.Web/wwwroot/lib/bootstrap/js/bootstrap.js.map" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Cinecritic.Web/wwwroot/lib/bootstrap/js/bootstrap.min.js.map" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/dotnet-tools.json" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
@@ -85,34 +87,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.Cinecritic.Web: IIS Express.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "git-widget-placeholder": "master",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.Cinecritic.Web: IIS Express.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mongo"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mongo&quot;
     ],
-    "GitStage.ChangesTree.GroupingKeys": [
-      "directory",
-      "module",
-      "repository"
+    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.Cinecritic.Web: IIS Express">
     <configuration name="Cinecritic.Web: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/Cinecritic.Web/Cinecritic.Web.csproj" />
@@ -193,7 +195,12 @@
       <workItem from="1778939832660" duration="420000" />
       <workItem from="1779171847641" duration="1037000" />
       <workItem from="1779172993827" duration="15379000" />
-      <workItem from="1779195041018" duration="9612000" />
+      <workItem from="1779195041018" duration="10634000" />
+      <workItem from="1779209061582" duration="244000" />
+      <workItem from="1779966528426" duration="2924000" />
+      <workItem from="1780027840914" duration="2392000" />
+      <workItem from="1780241377336" duration="36000" />
+      <workItem from="1780759343830" duration="1252000" />
     </task>
     <task id="LOCAL-00001" summary="fix: replace EFCore with MongoDB Driver, implement near filming locations logic, editing and deleting movie">
       <option name="closed" value="true" />
@@ -251,7 +258,31 @@
       <option name="project" value="LOCAL" />
       <updated>1779172417267</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="faet: add .sql scripts, implement edit, delete for Movie, add IsCenturion field">
+      <option name="closed" value="true" />
+      <created>1779205126006</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1779205126006</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat: add dotnet format into pre-commit via husky">
+      <option name="closed" value="true" />
+      <created>1780760369004</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1780760369005</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat: add dotnet format into pre-commit via husky">
+      <option name="closed" value="true" />
+      <created>1780760514390</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1780760514390</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -279,6 +310,8 @@
     <MESSAGE value="fix: add SupplyParameterFromForm" />
     <MESSAGE value="fix: bug related to user table name" />
     <MESSAGE value="feat: add deleting relative entities" />
+    <MESSAGE value="faet: add .sql scripts, implement edit, delete for Movie, add IsCenturion field" />
+    <MESSAGE value="feat: add dotnet format into pre-commit via husky" />
     <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="XDebuggerManager">
@@ -296,19 +329,6 @@
           <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
           <option name="timeStamp" value="3" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Cinecritic.Web/Components/Pages/User/Movie.razor.cs</url>
-          <line>264</line>
-          <properties documentPath="D:\Solutions\Cinecritic\Cinecritic.Web\Components\Pages\User\Movie.razor.cs" containingFunctionPresentation="Method 'ClickOnStarAsync'">
-            <startOffsets>
-              <option value="7768" />
-            </startOffsets>
-            <endOffsets>
-              <option value="7824" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Cinecritic.Web/Components/Account/Pages/Register.razor.cs</url>
           <line>43</line>

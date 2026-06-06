@@ -11,7 +11,8 @@ namespace Cinecritic.Application.AutoMapper
 {
     public class MovieTypeProfile : Profile
     {
-        public MovieTypeProfile() {
+        public MovieTypeProfile()
+        {
             CreateMap<MovieType, MovieTypeDto>();
         }
     }

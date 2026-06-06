@@ -8,7 +8,8 @@ namespace Cinecritic.Web.AutoMapper
 {
     public class MovieProfile : Profile
     {
-        public MovieProfile() {
+        public MovieProfile()
+        {
             CreateMap<CreateMovieViewModel, CreateMovieDto>()
                 .ForMember(dest => dest.MovieTypeId, opt => opt.MapFrom(src => src.SelectedMovieTypeId));
             CreateMap<MovieListItemDto, MovieListItemViewModel>();

@@ -31,7 +31,7 @@ namespace Cinecritic.Infrastructure
             });
 
             services.Configure<EmailConfigurationOption>(configuration.GetSection("EMAIL"));
-            
+
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IMovieRepository, MovieRepository>();
             services.AddScoped<IMovieUserRepository, MovieUserRepository>();

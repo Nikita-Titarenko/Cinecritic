@@ -13,7 +13,7 @@ namespace Cinecritic.Infrastructure.Repositories
         }
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
-        
+
         public void ClearTracker()
         {
             _context.ChangeTracker.Clear();

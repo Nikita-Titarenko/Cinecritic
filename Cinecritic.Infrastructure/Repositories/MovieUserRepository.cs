@@ -136,7 +136,7 @@ namespace Cinecritic.Infrastructure.Repositories
                 .Where(mu => mu.ApplicationUserId == userId && mu.IsLiked)
                 .CountAsync();
         }
-        
+
         public async Task UpsertMovieUserLikeAndRatingAsync(int movieId, string userId, bool isLiked, int? rate)
         {
             var movieIdParam = new SqlParameter("@MovieId", movieId);
